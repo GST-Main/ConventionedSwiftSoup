@@ -188,7 +188,7 @@ class NodeTest: XCTestCase {
 			let p: Element? = try doc.select(cssQuery: "p").first()
 			try p?.childNode(0).remove()
 
-			XCTAssertEqual("two three", try p?.text())
+			XCTAssertEqual("two three", try p?.getText())
 			XCTAssertEqual("<span>two</span> three", TextUtil.stripNewlines(try p!.html()))
 		} catch {
 			XCTAssertEqual(1, 2)
@@ -330,7 +330,7 @@ class NodeTest: XCTestCase {
 			let doc: Document = try SwiftSoup.parse("<div><p>One<p>Two<p>Three</div>")
 			let p2: Element = try doc.select(cssQuery: "p").get(1)
 
-			XCTAssertEqual("Two", try p2.text())
+			XCTAssertEqual("Two", try p2.getText())
 			let nodes = p2.siblingNodes()
 			XCTAssertEqual(2, nodes.count)
 			XCTAssertEqual("<p>One</p>", try nodes[0].outerHtml())
@@ -366,14 +366,14 @@ class NodeTest: XCTestCase {
 
 			let elClone: Element = try (doc.copy() as! Document).select(cssQuery: "div").first()!
 			XCTAssertTrue(elClone.hasClass("foo"))
-			XCTAssertTrue(try elClone.text() == "Text")
+			XCTAssertTrue(try elClone.getText() == "Text")
 
 			try el.removeClass("foo")
 			try el.text("None")
 			XCTAssertFalse(el.hasClass("foo"))
 			XCTAssertTrue(elClone.hasClass("foo"))
-			XCTAssertTrue(try el.text() == "None")
-			XCTAssertTrue(try elClone.text()=="Text")
+			XCTAssertTrue(try el.getText() == "None")
+			XCTAssertTrue(try elClone.getText()=="Text")
 		} catch {
 			XCTAssertEqual(1, 2)
 		}

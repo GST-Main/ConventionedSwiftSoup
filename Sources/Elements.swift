@@ -192,7 +192,7 @@ open class Elements: NSCopying {
 			if !sb.isEmpty {
 				sb.append(" ")
 			}
-            sb.append(try element.text(trimAndNormaliseWhitespace: trimAndNormaliseWhitespace))
+            sb.append(try element.getText(trimAndNormaliseWhitespace: trimAndNormaliseWhitespace))
 		}
 		return sb.toString()
 	}
@@ -219,7 +219,7 @@ open class Elements: NSCopying {
         var texts: Array<String> = Array()
         for el: Element in this {
             if (el.hasText()){
-                texts.append(try el.text())
+                texts.append(try el.getText())
             }
         }
         return texts;

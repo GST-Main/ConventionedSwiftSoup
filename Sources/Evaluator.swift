@@ -651,7 +651,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return (try element.text().lowercased().contains(searchText))
+            return (try element.getText().lowercased().contains(searchText))
         }
 
         public override func toString() -> String {
@@ -670,7 +670,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return (element.ownText().lowercased().contains(searchText))
+            return (element.ownText.lowercased().contains(searchText))
         }
 
         public override func toString() -> String {
@@ -689,7 +689,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let m = try pattern.matcher(in: element.text())
+            let m = try pattern.matcher(in: element.getText())
             return m.find()
         }
 
@@ -709,7 +709,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let m = pattern.matcher(in: element.ownText())
+            let m = pattern.matcher(in: element.ownText)
             return m.find()
         }
 

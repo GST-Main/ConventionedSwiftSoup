@@ -75,7 +75,7 @@ open class Document: Element {
     public func title()throws->String {
         // title is a preserve whitespace tag (for document output), but normalised here
         let titleEl: Element? = getElementsByTag("title")?.first
-        return titleEl != nil ? try StringUtil.normaliseWhitespace(titleEl!.text()).trim() : ""
+        return titleEl != nil ? try StringUtil.normaliseWhitespace(titleEl!.getText()).trim() : ""
     }
 
     /**

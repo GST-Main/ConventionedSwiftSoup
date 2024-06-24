@@ -39,7 +39,7 @@ class TextNodeTest: XCTestCase {
 		let p: Element = try doc.select("p").first()!
 
 		let span: Element = try doc.select("span").first()!
-		XCTAssertEqual("two &", try span.text())
+		XCTAssertEqual("two &", try span.getText())
 		let spanText: TextNode =  span.childNode(0) as! TextNode
 		XCTAssertEqual("two &", spanText.text())
 
@@ -62,7 +62,7 @@ class TextNodeTest: XCTestCase {
 		XCTAssertEqual("Hello ", tn.getWholeText())
 		XCTAssertEqual("there", tail.getWholeText())
 		tail.text("there!")
-		XCTAssertEqual("Hello there!", try div.text())
+		XCTAssertEqual("Hello there!", try div.getText())
 		XCTAssertTrue(tn.parent() == tail.parent())
 	}
 

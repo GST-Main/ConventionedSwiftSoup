@@ -26,8 +26,8 @@ class ElementsTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse(h)
 		let els: Elements = try doc.select(cssQuery: ".headline").select("p")
 		XCTAssertEqual(2, els.size())
-		try XCTAssertEqual("Hello", els.get(0).text())
-		try XCTAssertEqual("There", els.get(1).text())
+		try XCTAssertEqual("Hello", els.get(0).getText())
+		try XCTAssertEqual("There", els.get(1).getText())
 	}
 
 	func testRandomAccessCollection()throws {
@@ -224,7 +224,7 @@ class ElementsTest: XCTestCase {
 		let h = "<p>Hello<p>there<p>world"
 		let doc: Document = try SwiftSoup.parse(h)
 		XCTAssertEqual("there", try doc.select(cssQuery: "p").eq(1).text())
-		XCTAssertEqual("there", try doc.select(cssQuery: "p").get(1).text())
+		XCTAssertEqual("there", try doc.select(cssQuery: "p").get(1).getText())
 	}
 
 	func testIs()throws {

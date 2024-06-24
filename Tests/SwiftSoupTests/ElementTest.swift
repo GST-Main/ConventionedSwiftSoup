@@ -65,66 +65,66 @@ class ElementTest: XCTestCase {
 
 	func testGetText() {
 		let doc: Document = try! SwiftSoup.parse(reference)
-		XCTAssertEqual("Hello Another element", try! doc.text())
-		XCTAssertEqual("Another element", try! doc.getElementsByTag("p").get(1).text())
+		XCTAssertEqual("Hello Another element", try! doc.getText())
+		XCTAssertEqual("Another element", try! doc.getElementsByTag("p").get(1).getText())
 	}
 
 	func testGetChildText() {
 		let doc: Document = try! SwiftSoup.parse("<p>Hello <b>there</b> now")
 		let p: Element = try! doc.select(cssQuery: "p").first()!
-		XCTAssertEqual("Hello there now", try! p.text())
+		XCTAssertEqual("Hello there now", try! p.getText())
 		XCTAssertEqual("Hello now", p.ownText())
 	}
 
 	func testNormalisesText() {
 		let h: String = "<p>Hello<p>There.</p> \n <p>Here <b>is</b> \n s<b>om</b>e text."
 		let doc: Document = try! SwiftSoup.parse(h)
-		let text: String = try! doc.text()
+		let text: String = try! doc.getText()
 		XCTAssertEqual("Hello There. Here is some text.", text)
 	}
 
 	func testKeepsPreText() {
 		let h = "<p>Hello \n \n there.</p> <div><pre>  What's \n\n  that?</pre>"
 		let doc: Document = try! SwiftSoup.parse(h)
-		XCTAssertEqual("Hello there.   What's \n\n  that?", try! doc.text())
+		XCTAssertEqual("Hello there.   What's \n\n  that?", try! doc.getText())
 	}
 
 	func testKeepsPreTextInCode() {
 		let h = "<pre><code>code\n\ncode</code></pre>"
 		let doc: Document = try! SwiftSoup.parse(h)
-		XCTAssertEqual("code\n\ncode", try! doc.text())
+		XCTAssertEqual("code\n\ncode", try! doc.getText())
 		XCTAssertEqual("<pre><code>code\n\ncode</code></pre>", try! doc.body()?.html())
 	}
 
 	func testBrHasSpace() {
 		var doc: Document = try! SwiftSoup.parse("<p>Hello<br>there</p>")
-		XCTAssertEqual("Hello there", try! doc.text())
+		XCTAssertEqual("Hello there", try! doc.getText())
 		XCTAssertEqual("Hello there", try! doc.select(cssQuery: "p").first()?.ownText())
 
 		doc = try! SwiftSoup.parse("<p>Hello <br> there</p>")
-		XCTAssertEqual("Hello there", try! doc.text())
+		XCTAssertEqual("Hello there", try! doc.getText())
 	}
 
 	func testGetSiblings() {
 		let doc: Document = try! SwiftSoup.parse("<div><p>Hello<p id=1>there<p>this<p>is<p>an<p id=last>element</div>")
 		let p: Element = try! doc.getElementById("1")!
-		XCTAssertEqual("there", try! p.text())
-		XCTAssertEqual("Hello", try! p.previousElementSibling()?.text())
-		XCTAssertEqual("this", try! p.nextElementSibling()?.text())
-		XCTAssertEqual("Hello", try! p.firstElementSibling()?.text())
-		XCTAssertEqual("element", try! p.lastElementSibling()?.text())
+		XCTAssertEqual("there", try! p.getText())
+		XCTAssertEqual("Hello", try! p.previousElementSibling()?.getText())
+		XCTAssertEqual("this", try! p.nextElementSibling()?.getText())
+		XCTAssertEqual("Hello", try! p.firstElementSibling()?.getText())
+		XCTAssertEqual("element", try! p.lastElementSibling()?.getText())
 	}
 
 	func testGetSiblingsWithDuplicateContent() {
 		let doc: Document = try! SwiftSoup.parse("<div><p>Hello<p id=1>there<p>this<p>this<p>is<p>an<p id=last>element</div>")
 		let p: Element = try! doc.getElementById("1")!
-		XCTAssertEqual("there", try! p.text())
-		XCTAssertEqual("Hello", try! p.previousElementSibling()?.text())
-		XCTAssertEqual("this", try! p.nextElementSibling()?.text())
-		XCTAssertEqual("this", try! p.nextElementSibling()?.nextElementSibling()?.text())
-		XCTAssertEqual("is", try! p.nextElementSibling()?.nextElementSibling()?.nextElementSibling()?.text())
-		XCTAssertEqual("Hello", try! p.firstElementSibling()?.text())
-		XCTAssertEqual("element", try! p.lastElementSibling()?.text())
+		XCTAssertEqual("there", try! p.getText())
+		XCTAssertEqual("Hello", try! p.previousElementSibling()?.getText())
+		XCTAssertEqual("this", try! p.nextElementSibling()?.getText())
+		XCTAssertEqual("this", try! p.nextElementSibling()?.nextElementSibling()?.getText())
+		XCTAssertEqual("is", try! p.nextElementSibling()?.nextElementSibling()?.nextElementSibling()?.getText())
+		XCTAssertEqual("Hello", try! p.firstElementSibling()?.getText())
+		XCTAssertEqual("element", try! p.lastElementSibling()?.getText())
 	}
 
 	func testGetParents() {
@@ -344,11 +344,11 @@ class ElementTest: XCTestCase {
 	func testSetText()throws {
 		let h: String = "<div id=1>Hello <p>there <b>now</b></p></div>"
 		let doc: Document = try SwiftSoup.parse(h)
-		XCTAssertEqual("Hello there now", try doc.text()) // need to sort out node whitespace
-		XCTAssertEqual("there now", try doc.select(cssQuery: "p").get(0).text())
+		XCTAssertEqual("Hello there now", try doc.getText()) // need to sort out node whitespace
+		XCTAssertEqual("there now", try doc.select(cssQuery: "p").get(0).getText())
 
 		let div: Element? = try doc.getElementById("1")?.text("Gone")
-		XCTAssertEqual("Gone", try div?.text())
+		XCTAssertEqual("Gone", try div?.getText())
 		XCTAssertEqual(0, try doc.select(cssQuery: "p").size())
 	}
 
@@ -429,7 +429,7 @@ class ElementTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
 		let div: Element = try doc.getElementById("1")!
 		try div.prependText("there & now > ")
-		XCTAssertEqual("there & now > Hello", try div.text())
+		XCTAssertEqual("there & now > Hello", try div.getText())
 		XCTAssertEqual("there &amp; now &gt; <p>Hello</p>", try TextUtil.stripNewlines(div.html()))
 	}
 
@@ -668,7 +668,7 @@ class ElementTest: XCTestCase {
 		textNodes[1].text(" three-more ")
 		try textNodes[2].splitText(3).text("-ur")
 
-		XCTAssertEqual("One Two three-more Fo-ur", try p.text())
+		XCTAssertEqual("One Two three-more Fo-ur", try p.getText())
 		XCTAssertEqual("One three-more Fo-ur", p.ownText())
 		XCTAssertEqual(4, p.textNodes().count) // grew because of split
 	}
@@ -695,7 +695,7 @@ class ElementTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div><p>One<p>Two<p>Three</div>")
 		let p2: Element = try doc.select(cssQuery: "p").get(1)
 
-		XCTAssertEqual("Two", try p2.text())
+		XCTAssertEqual("Two", try p2.getText())
 		let els: Elements = p2.siblingElements()
 		XCTAssertEqual(2, els.size())
 		XCTAssertEqual("<p>One</p>", try els.get(0).outerHtml())

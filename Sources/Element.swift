@@ -984,14 +984,21 @@ open class Element: Node {
         public func tail(_ node: Node, _ depth: Int) {
         }
     }
-    public func text(trimAndNormaliseWhitespace: Bool = true)throws->String {
+    
+    // TODO: Document
+    public func getText(trimAndNormaliseWhitespace: Bool = true) -> String {
         let accum: StringBuilder = StringBuilder()
-        try NodeTraversor(textNodeVisitor(accum, trimAndNormaliseWhitespace: trimAndNormaliseWhitespace)).traverse(self)
+        try? NodeTraversor(textNodeVisitor(accum, trimAndNormaliseWhitespace: trimAndNormaliseWhitespace)).traverse(self)
         let text = accum.toString()
         if trimAndNormaliseWhitespace {
             return text.trim()
         }
         return text
+    }
+    
+    // TODO: Document
+    public var text: String {
+        getText()
     }
 
     /**
@@ -1005,7 +1012,7 @@ open class Element: Node {
      * @see #text()
      * @see #textNodes()
      */
-    public func ownText() -> String {
+    public var ownText: String {
         let sb: StringBuilder = StringBuilder()
         ownText(sb)
         return sb.toString().trim()
@@ -1233,7 +1240,7 @@ open class Element: Node {
      */
     public func val()throws->String {
         if (tagName=="textarea") {
-            return try text()
+            return try getText()
         } else {
             return try attr("value")
         }

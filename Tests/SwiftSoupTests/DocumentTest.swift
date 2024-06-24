@@ -64,8 +64,8 @@ class DocumentTest: XCTestCase {
 		do {
 			let doc: Document = try SwiftSoup.parse("<p>Hello</p>")
 			try doc.text("Replaced")
-			XCTAssertEqual("Replaced", try doc.text())
-			XCTAssertEqual("Replaced", try doc.body()!.text())
+			XCTAssertEqual("Replaced", try doc.getText())
+			XCTAssertEqual("Replaced", try doc.body()!.getText())
 			XCTAssertEqual(1, try doc.select(cssQuery: "head").size())
 		} catch {
 			XCTAssertEqual(1, 2)
@@ -80,12 +80,12 @@ class DocumentTest: XCTestCase {
 			XCTAssertEqual("", try noTitle.title())
 			try noTitle.title("Hello")
 			XCTAssertEqual("Hello", try noTitle.title())
-			XCTAssertEqual("Hello", try noTitle.select(cssQuery: "title").first()?.text())
+			XCTAssertEqual("Hello", try noTitle.select(cssQuery: "title").first()?.getText())
 
 			XCTAssertEqual("First", try withTitle.title())
 			try withTitle.title("Hello")
 			XCTAssertEqual("Hello", try withTitle.title())
-			XCTAssertEqual("Hello", try withTitle.select(cssQuery: "title").first()?.text())
+			XCTAssertEqual("Hello", try withTitle.select(cssQuery: "title").first()?.getText())
 
 			let normaliseTitle: Document = try SwiftSoup.parse("<title>   Hello\nthere   \n   now   \n")
 			XCTAssertEqual("Hello there now", try normaliseTitle.title())
@@ -480,7 +480,7 @@ class DocumentTest: XCTestCase {
         let h = "<html><body><div>\r\n<div dir=\"ltr\">\r\n<div id=\"divtagdefaultwrapper\"><font face=\"Calibri,Helvetica,sans-serif\" size=\"3\" color=\"black\"><span style=\"font-size:12pt;\" id=\"divtagdefaultwrapper\">\r\n<div style=\"margin-top:0;margin-bottom:0;\">&nbsp;TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n</span></font></div>\r\n</div>\r\n</div>\r\n</body></html>"
 
         let doc: Document = try! SwiftSoup.parse(h)
-        let text = try! doc.text()
+        let text = try! doc.getText()
         XCTAssertEqual(text, "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST")
     }
 

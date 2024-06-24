@@ -124,7 +124,7 @@ class EntitiesTest: XCTestCase {
 		doc.outputSettings().charset(.ascii)
 		let p: Element = try doc.select(cssQuery: "p").first()!
 		XCTAssertEqual("&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;", try p.html())
-		XCTAssertEqual("¹²³¼½¾", try p.text())
+		XCTAssertEqual("¹²³¼½¾", try p.getText())
 		doc.outputSettings().charset(.utf8)
 		XCTAssertEqual("¹²³¼½¾", try p.html())
 	}

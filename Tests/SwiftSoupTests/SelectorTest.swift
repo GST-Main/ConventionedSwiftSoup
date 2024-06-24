@@ -35,8 +35,8 @@ class SelectorTest: XCTestCase {
 	func testById()throws {
 		let els: Elements = try SwiftSoup.parse("<div><p id=foo>Hello</p><p id=foo>Foo two!</p></div>").select("#foo")
 		XCTAssertEqual(2, els.size())
-		XCTAssertEqual("Hello", try els.get(0).text())
-		XCTAssertEqual("Foo two!", try els.get(1).text())
+		XCTAssertEqual("Hello", try els.get(0).getText())
+		XCTAssertEqual("Foo two!", try els.get(1).getText())
 
 		let none: Elements = try SwiftSoup.parse("<div id=1></div>").select("#foo")
 		XCTAssertEqual(0, none.size())
@@ -233,12 +233,12 @@ class SelectorTest: XCTestCase {
 
 		let els: Elements = try root.select(cssQuery: ".head p")
 		XCTAssertEqual(2, els.size())
-		try XCTAssertEqual("Hello", els.get(0).text())
-		try XCTAssertEqual("There", els.get(1).text())
+		try XCTAssertEqual("Hello", els.get(0).getText())
+		try XCTAssertEqual("There", els.get(1).getText())
 
 		let p: Elements = try root.select(cssQuery: "p.first")
 		XCTAssertEqual(1, p.size())
-		try XCTAssertEqual("Hello", p.get(0).text())
+		try XCTAssertEqual("Hello", p.get(0).getText())
 
 		let empty: Elements = try root.select(cssQuery: "p .first") // self, not descend, should not match
 		XCTAssertEqual(0, empty.size())
@@ -275,7 +275,7 @@ class SelectorTest: XCTestCase {
 
 		let els: Elements = try root.select(cssQuery: "div p .first")
 		XCTAssertEqual(1, els.size())
-		try XCTAssertEqual("Hello", els.first()?.text())
+		try XCTAssertEqual("Hello", els.first()?.getText())
 		XCTAssertEqual("span", els.first()?.tagName())
 
 		let aboveRoot: Elements = try root.select(cssQuery: "body p .first")
@@ -345,8 +345,8 @@ class SelectorTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse(h)
 		let sibs: Elements = try doc.select(cssQuery: "li + li")
 		XCTAssertEqual(2, sibs.size())
-		try XCTAssertEqual("Two", sibs.get(0).text())
-		try XCTAssertEqual("Three", sibs.get(1).text())
+		try XCTAssertEqual("Two", sibs.get(0).getText())
+		try XCTAssertEqual("Three", sibs.get(1).getText())
 	}
 
 	func testAdjacentSiblingsWithId()throws {
@@ -354,7 +354,7 @@ class SelectorTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse(h)
 		let sibs: Elements = try doc.select(cssQuery: "li#1 + li#2")
 		XCTAssertEqual(1, sibs.size())
-		try XCTAssertEqual("Two", sibs.get(0).text())
+		try XCTAssertEqual("Two", sibs.get(0).getText())
 	}
 
 	func testNotAdjacent()throws {
@@ -370,8 +370,8 @@ class SelectorTest: XCTestCase {
 		let sibs: Elements = try doc.select(cssQuery: "body > div.foo li + li")
 
 		XCTAssertEqual(2, sibs.size())
-		try XCTAssertEqual("Two", sibs.get(0).text())
-		try XCTAssertEqual("Three", sibs.get(1).text())
+		try XCTAssertEqual("Two", sibs.get(0).getText())
+		try XCTAssertEqual("Three", sibs.get(1).getText())
 	}
 
 	func testMixCombinatorGroup()throws {
@@ -381,8 +381,8 @@ class SelectorTest: XCTestCase {
 
 		XCTAssertEqual(3, els.size())
 		XCTAssertEqual("ol", els.get(0).tagName())
-		try XCTAssertEqual("Two", els.get(1).text())
-		try XCTAssertEqual("Three", els.get(2).text())
+		try XCTAssertEqual("Two", els.get(1).getText())
+		try XCTAssertEqual("Three", els.get(2).getText())
 	}
 
 	func testGeneralSiblings()throws {
@@ -390,7 +390,7 @@ class SelectorTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse(h)
 		let els: Elements = try doc.select(cssQuery: "#1 ~ #3")
 		XCTAssertEqual(1, els.size())
-		try XCTAssertEqual("Three", els.first()?.text())
+		try XCTAssertEqual("Three", els.first()?.getText())
 	}
 
 	// for http://github.com/jhy/jsoup/issues#issue/10
@@ -400,14 +400,14 @@ class SelectorTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse(h)
 
 		let el1: Element = try doc.getElementById("a1-foo_bar")!
-		try XCTAssertEqual("One", el1.text())
+		try XCTAssertEqual("One", el1.getText())
 		let el2: Element = try doc.getElementsByClass("b2-qux_bif").first()!
-		XCTAssertEqual("Two", try el2.text())
+		XCTAssertEqual("Two", try el2.getText())
 
 		let el3: Element = try doc.select(cssQuery: "#a1-foo_bar").first()!
-		XCTAssertEqual("One", try el3.text())
+		XCTAssertEqual("One", try el3.getText())
 		let el4: Element = try doc.select(cssQuery: ".b2-qux_bif").first()!
-		XCTAssertEqual("Two", try el4.text())
+		XCTAssertEqual("Two", try el4.getText())
 	}
 
 	// for http://github.com/jhy/jsoup/issues#issue/13
@@ -418,7 +418,7 @@ class SelectorTest: XCTestCase {
 		let p: Element = try doc.select(cssQuery: "div > p").first()!
 		let spans: Elements = try p.select(cssQuery: "> span")
 		XCTAssertEqual(2, spans.size())
-		try XCTAssertEqual("One", spans.first()?.text())
+		try XCTAssertEqual("One", spans.first()?.getText())
 
 		// make sure doesn't get nested
 		h = "<div id=1><div id=2><div id=3></div></div></div>"
@@ -431,29 +431,29 @@ class SelectorTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div><p>One</p><p>Two</p><p>Three</>p></div><div><p>Four</p>")
 		let ps: Elements = try doc.select(cssQuery: "div p:lt(2)")
 		XCTAssertEqual(3, ps.size())
-		try XCTAssertEqual("One", ps.get(0).text())
-		try XCTAssertEqual("Two", ps.get(1).text())
-		try XCTAssertEqual("Four", ps.get(2).text())
+		try XCTAssertEqual("One", ps.get(0).getText())
+		try XCTAssertEqual("Two", ps.get(1).getText())
+		try XCTAssertEqual("Four", ps.get(2).getText())
 	}
 
 	func testPseudoGreaterThan()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>One</p><p>Two</p><p>Three</p></div><div><p>Four</p>")
 		let ps: Elements = try doc.select(cssQuery: "div p:gt(0)")
 		XCTAssertEqual(2, ps.size())
-		try XCTAssertEqual("Two", ps.get(0).text())
-		try XCTAssertEqual("Three", ps.get(1).text())
+		try XCTAssertEqual("Two", ps.get(0).getText())
+		try XCTAssertEqual("Three", ps.get(1).getText())
 	}
 
 	func testPseudoEquals()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>One</p><p>Two</p><p>Three</>p></div><div><p>Four</p>")
 		let ps: Elements = try doc.select(cssQuery: "div p:eq(0)")
 		XCTAssertEqual(2, ps.size())
-		try XCTAssertEqual("One", ps.get(0).text())
-		try XCTAssertEqual("Four", ps.get(1).text())
+		try XCTAssertEqual("One", ps.get(0).getText())
+		try XCTAssertEqual("Four", ps.get(1).getText())
 
 		let ps2: Elements = try doc.select(cssQuery: "div:eq(0) p:eq(0)")
 		XCTAssertEqual(1, ps2.size())
-		try XCTAssertEqual("One", ps2.get(0).text())
+		try XCTAssertEqual("One", ps2.get(0).getText())
 		XCTAssertEqual("p", ps2.get(0).tagName())
 	}
 
@@ -461,14 +461,14 @@ class SelectorTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div><p>One</p><p>Two</p><p>Three</>p></div><div><p>Four</p>")
 		let ps: Elements = try doc.select(cssQuery: "div p:gt(0):lt(2)")
 		XCTAssertEqual(1, ps.size())
-		try XCTAssertEqual("Two", ps.get(0).text())
+		try XCTAssertEqual("Two", ps.get(0).getText())
 	}
 
 	func testPseudoCombined()throws {
 		let doc: Document = try SwiftSoup.parse("<div class='foo'><p>One</p><p>Two</p></div><div><p>Three</p><p>Four</p></div>")
 		let ps: Elements = try doc.select(cssQuery: "div.foo p:gt(0)")
 		XCTAssertEqual(1, ps.size())
-		try XCTAssertEqual("Two", ps.get(0).text())
+		try XCTAssertEqual("Two", ps.get(0).getText())
 	}
 
 	func testPseudoHas()throws {
@@ -500,19 +500,19 @@ class SelectorTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div><p><span>One</span></p></div> <div><p>Two</p></div>")
 		var divs: Elements = try doc.select(cssQuery: "div:has(p:has(span))")
 		XCTAssertEqual(1, divs.size())
-		try XCTAssertEqual("One", divs.first()?.text())
+		try XCTAssertEqual("One", divs.first()?.getText())
 
 		// test matches in has
 		divs = try doc.select(cssQuery: "div:has(p:matches((?i)two))")
 		XCTAssertEqual(1, divs.size())
 		XCTAssertEqual("div", divs.first()?.tagName())
-		try XCTAssertEqual("Two", divs.first()?.text())
+		try XCTAssertEqual("Two", divs.first()?.getText())
 
 		// test contains in has
 		divs = try doc.select(cssQuery: "div:has(p:contains(two))")
 		XCTAssertEqual(1, divs.size())
 		XCTAssertEqual("div", divs.first()?.tagName())
-		try XCTAssertEqual("Two", divs.first()?.text())
+		try XCTAssertEqual("Two", divs.first()?.getText())
 	}
 
 	func testPseudoContains()throws {
@@ -613,13 +613,13 @@ class SelectorTest: XCTestCase {
 
 		let el1: Elements = try doc.select(cssQuery: "p:not([id=1])")
 		XCTAssertEqual(2, el1.size())
-		try XCTAssertEqual("Two", el1.first()?.text())
-		try XCTAssertEqual("Three", el1.last()?.text())
+		try XCTAssertEqual("Two", el1.first()?.getText())
+		try XCTAssertEqual("Three", el1.last()?.getText())
 
 		let el2: Elements = try doc.select(cssQuery: "p:not(:has(span))")
 		XCTAssertEqual(2, el2.size())
-		try XCTAssertEqual("One", el2.first()?.text())
-		try XCTAssertEqual("Two", el2.last()?.text())
+		try XCTAssertEqual("One", el2.first()?.getText())
+		try XCTAssertEqual("Two", el2.last()?.getText())
 	}
 
 	func testNotAll()throws {
@@ -649,7 +649,7 @@ class SelectorTest: XCTestCase {
 		XCTAssertEqual(2, containers.size())
 		XCTAssertEqual("div", containers.get(0).tagName())
 		XCTAssertEqual("li", containers.get(1).tagName())
-		try XCTAssertEqual("123", containers.get(1).text())
+		try XCTAssertEqual("123", containers.get(1).getText())
 	}
 
 	func testSelectSupplementaryCharacter()throws {
@@ -669,13 +669,13 @@ class SelectorTest: XCTestCase {
 
 		var found: Elements = try doc.select(cssQuery: "div[class=value ]")
 		XCTAssertEqual(2, found.size())
-		try XCTAssertEqual("class without space", found.get(0).text())
-		try XCTAssertEqual("class with space", found.get(1).text())
+		try XCTAssertEqual("class without space", found.get(0).getText())
+		try XCTAssertEqual("class with space", found.get(1).getText())
 
 		found = try doc.select(cssQuery: "div[class=\"value \"]")
 		XCTAssertEqual(2, found.size())
-		try XCTAssertEqual("class without space", found.get(0).text())
-		try XCTAssertEqual("class with space", found.get(1).text())
+		try XCTAssertEqual("class without space", found.get(0).getText())
+		try XCTAssertEqual("class with space", found.get(1).getText())
 
 		found = try doc.select(cssQuery: "div[class=\"value\\ \"]")
 		XCTAssertEqual(0, found.size())
@@ -696,10 +696,10 @@ class SelectorTest: XCTestCase {
 		let html: String = "<div data='End]'>One</div> <div data='[Another)]]'>Two</div>"
 		let doc: Document = try SwiftSoup.parse(html)
 		try _ = doc.select(cssQuery: "div[data='End]'")
-		XCTAssertEqual("One", try doc.select(cssQuery: "div[data='End]'").first()?.text())
-		XCTAssertEqual("Two", try doc.select(cssQuery: "div[data='[Another)]]'").first()?.text())
-		XCTAssertEqual("One", try doc.select(cssQuery: "div[data=\"End]\"").first()?.text())
-		XCTAssertEqual("Two", try doc.select(cssQuery: "div[data=\"[Another)]]\"").first()?.text())
+		XCTAssertEqual("One", try doc.select(cssQuery: "div[data='End]'").first()?.getText())
+		XCTAssertEqual("Two", try doc.select(cssQuery: "div[data='[Another)]]'").first()?.getText())
+		XCTAssertEqual("One", try doc.select(cssQuery: "div[data=\"End]\"").first()?.getText())
+		XCTAssertEqual("Two", try doc.select(cssQuery: "div[data=\"[Another)]]\"").first()?.getText())
 	}
 
 	static var allTests = {
