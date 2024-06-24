@@ -310,12 +310,12 @@ open class Document: Element {
                 let metaCharset: Element? = try select("meta[charset]").first()
 
                 if (metaCharset != nil) {
-                    try metaCharset?.attr("charset", charset().displayName())
+                    try metaCharset?.setAttribute(key: "charset", value: charset().displayName())
                 } else {
                     let head: Element? = self.head()
 
                     if (head != nil) {
-                        try head?.appendElement("meta").attr("charset", charset().displayName())
+                        try head?.appendElement("meta").setAttribute(key: "charset", value: charset().displayName())
                     }
                 }
 
@@ -329,23 +329,23 @@ open class Document: Element {
                 if let decl = (node as? XmlDeclaration) {
 
                     if (decl.name()=="xml") {
-                        try decl.attr("encoding", charset().displayName())
+                        try decl.setAttribute(key: "encoding", value: charset().displayName())
 
                         _ = try  decl.attr("version")
-                        try decl.attr("version", "1.0")
+                        try decl.setAttribute(key: "version", value: "1.0")
                     } else {
                         try Validate.notNull(obj: baseUri)
                         let decl = XmlDeclaration("xml", baseUri!, false)
-                        try decl.attr("version", "1.0")
-                        try decl.attr("encoding", charset().displayName())
+                        try decl.setAttribute(key: "version", value: "1.0")
+                        try decl.setAttribute(key: "encoding", value: charset().displayName())
 
                         try prependChild(decl)
                     }
                 } else {
                     try Validate.notNull(obj: baseUri)
                     let decl = XmlDeclaration("xml", baseUri!, false)
-                    try decl.attr("version", "1.0")
-                    try decl.attr("encoding", charset().displayName())
+                    try decl.setAttribute(key: "version", value: "1.0")
+                    try decl.setAttribute(key: "encoding", value: charset().displayName())
 
                     try prependChild(decl)
                 }

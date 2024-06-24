@@ -105,8 +105,8 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    open override func attr(_ attributeKey: String, _ attributeValue: String)throws->Element {
-        try super.attr(attributeKey, attributeValue)
+    open override func setAttribute(key: String, value: String) throws -> Element {
+        try super.setAttribute(key: key, value: value)
         return self
     }
 
@@ -121,8 +121,8 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    open func attr(_ attributeKey: String, _ attributeValue: Bool)throws->Element {
-        try attributes?.put(attributeKey, attributeValue)
+    open func setAttribute(key: String, value: Bool) throws -> Element {
+        try attributes?.put(key, value)
         return self
     }
 
@@ -1199,7 +1199,7 @@ open class Element: Node {
         if (tagName == "textarea") {
             try text(value)
         } else {
-            try attr("value", value)
+            try setAttribute(key: "value", value: value)
         }
         return self
     }

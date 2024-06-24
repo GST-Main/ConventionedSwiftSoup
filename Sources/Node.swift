@@ -98,7 +98,7 @@ open class Node: Equatable, Hashable {
      * @return this (for chaining)
      */
     @discardableResult
-    open func attr(_ attributeKey: String, _ attributeValue: String)throws->Node {
+    open func setAttribute(key attributeKey: String, value attributeValue: String)throws->Node {
         try attributes?.put(attributeKey, attributeValue)
         return self
     }

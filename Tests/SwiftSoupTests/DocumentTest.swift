@@ -130,7 +130,7 @@ class DocumentTest: XCTestCase {
 
 		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(clone.html()))
 		try! clone.title("Hello there")
-		try! clone.select("p").first()!.text("One more").attr("id", "1")
+		try! clone.select("p").first()!.text("One more").setAttribute(key: "id", value: "1")
 		XCTAssertEqual("<html><head><title>Hello there</title> </head><body><p id=\"1\">One more</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(clone.html()))
 		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(doc.html()))
 	}
@@ -422,8 +422,8 @@ class DocumentTest: XCTestCase {
 
 	private func createHtmlDocument(_ charset: String) -> Document {
 		let doc: Document = Document.createShell("")
-		try! doc.head()?.appendElement("meta").attr("charset", charset)
-		try! doc.head()?.appendElement("meta").attr("name", "charset").attr("content", charset)
+		try! doc.head()?.appendElement("meta").setAttribute(key: "charset", value: charset)
+		try! doc.head()?.appendElement("meta").setAttribute(key: "name", value: "charset").setAttribute(key: "content", value: charset)
 		return doc
 	}
 
@@ -434,8 +434,8 @@ class DocumentTest: XCTestCase {
 
 		if( addDecl == true ) {
 			let decl: XmlDeclaration = XmlDeclaration("xml", "", false)
-			try decl.attr("version", version)
-			try decl.attr("encoding", charset)
+			try decl.setAttribute(key: "version", value: version)
+			try decl.setAttribute(key: "encoding", value: charset)
 			try doc.prependChild(decl)
 		}
 

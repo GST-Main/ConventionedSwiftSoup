@@ -356,7 +356,7 @@ class ElementTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
 		let div: Element = try doc.getElementById("1")!
 		try div.appendElement("p").text("there")
-		try div.appendElement("P").attr("CLASS", "second").text("now")
+		try div.appendElement("P").setAttribute(key: "CLASS", value: "second").text("now")
 		// manually specifying tag and attributes should now preserve case, regardless of parse mode
 		XCTAssertEqual("<html><head></head><body><div id=\"1\"><p>Hello</p><p>there</p><P CLASS=\"second\">now</P></div></body></html>",
 		             TextUtil.stripNewlines(try doc.html()))
@@ -371,10 +371,10 @@ class ElementTest: XCTestCase {
 	func testAddBooleanAttribute()throws {
 		let div: Element = try Element(Tag.valueOf("div"), "")
 
-		try div.attr("true", true)
+		try div.setAttribute(key: "true", value: true)
 
-		try div.attr("false", "value")
-		try div.attr("false", false)
+		try div.setAttribute(key: "false", value: "value")
+		try div.setAttribute(key: "false", value: false)
 
 		XCTAssertTrue(div.hasAttr("true"))
 		XCTAssertEqual("", try div.attr("true"))

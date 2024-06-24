@@ -49,7 +49,7 @@ class TextNodeTest: XCTestCase {
 		tn.text(" POW!")
 		XCTAssertEqual("One <span>two &amp;</span> POW!", TextUtil.stripNewlines(try p.html()))
 
-		try _ = tn.attr("text", "kablam &")
+		try _ = tn.setAttribute(key: "text", value: "kablam &")
 		XCTAssertEqual("kablam &", tn.text())
 		XCTAssertEqual("One <span>two &amp;</span>kablam &amp;", try TextUtil.stripNewlines(p.html()))
 	}

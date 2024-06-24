@@ -81,7 +81,7 @@ open class Elements: NSCopying {
     @discardableResult
 	open func attr(_ attributeKey: String, _ attributeValue: String)throws->Elements {
 		for element in this {
-			try element.attr(attributeKey, attributeValue)
+			try element.setAttribute(key: attributeKey, value: attributeValue)
 		}
 		return self
 	}
