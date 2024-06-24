@@ -26,7 +26,7 @@ class XmlTreeBuilderTest: XCTestCase {
 		let doc: Document = try treeBuilder.parse(xml, "http://foo.com/")
 		XCTAssertEqual("<doc id=\"2\" href=\"/bar\">Foo <br /><link>One</link><link>Two</link></doc>",
                        try TextUtil.stripNewlines(doc.html()))
-		XCTAssertEqual(try doc.getElementById("2")?.absUrl("href"), "http://foo.com/bar")
+		XCTAssertEqual(try doc.getElementById("2")?.absoluteURLPath(ofAttribute: "href"), "http://foo.com/bar")
 	}
 
 	func testPopToClose()throws {
@@ -103,7 +103,7 @@ class XmlTreeBuilderTest: XCTestCase {
 		let nodes: [Node] = try Parser.parseXmlFragment(xml, "http://example.com/")
 		XCTAssertEqual(3, nodes.count)
 
-		try XCTAssertEqual("http://example.com/foo/", nodes[0].absUrl("src"))
+		try XCTAssertEqual("http://example.com/foo/", nodes[0].absoluteURLPath(ofAttribute: "src"))
 		XCTAssertEqual("one", nodes[0].nodeName())
 		XCTAssertEqual("Two", (nodes[1] as? TextNode)?.text())
 	}

@@ -28,16 +28,16 @@ class NodeTest: XCTestCase {
 			try attribs.put("absHref", "http://bar/qux")
 
 			let noBase: Element = Element(tag, "", attribs)
-			XCTAssertEqual("", try noBase.absUrl("relHref")) // with no base, should NOT fallback to href attrib, whatever it is
-			XCTAssertEqual("http://bar/qux", try noBase.absUrl("absHref")) // no base but valid attrib, return attrib
+			XCTAssertEqual("", try noBase.absoluteURLPath(ofAttribute: "relHref")) // with no base, should NOT fallback to href attrib, whatever it is
+			XCTAssertEqual("http://bar/qux", try noBase.absoluteURLPath(ofAttribute: "absHref")) // no base but valid attrib, return attrib
 
 			let withBase: Element = Element(tag, "http://foo/", attribs)
-			XCTAssertEqual("http://foo/foo", try withBase.absUrl("relHref")) // construct abs from base + rel
-			XCTAssertEqual("http://bar/qux", try withBase.absUrl("absHref")) // href is abs, so returns that
-			XCTAssertEqual("", try withBase.absUrl("noval"))
+			XCTAssertEqual("http://foo/foo", try withBase.absoluteURLPath(ofAttribute: "relHref")) // construct abs from base + rel
+			XCTAssertEqual("http://bar/qux", try withBase.absoluteURLPath(ofAttribute: "absHref")) // href is abs, so returns that
+			XCTAssertEqual("", try withBase.absoluteURLPath(ofAttribute: "noval"))
 
 			let dodgyBase: Element = Element(tag, "wtf://no-such-protocol/", attribs)
-			XCTAssertEqual("http://bar/qux", try dodgyBase.absUrl("absHref")) // base fails, but href good, so get that
+			XCTAssertEqual("http://bar/qux", try dodgyBase.absoluteURLPath(ofAttribute: "absHref")) // base fails, but href good, so get that
 			//TODO:Nabil in swift an url with scheme wtf is valid , find a method to validate schemes
 			//XCTAssertEqual("", try dodgyBase.absUrl("relHref")); // base fails, only rel href, so return nothing
 		} catch {
@@ -77,7 +77,7 @@ class NodeTest: XCTestCase {
 			let doc: Document = try SwiftSoup.parse("<p><img src=\"/rez/osi_logo.png\" /></p>", "https://jsoup.org/")
 			let img: Element? = try doc.select(cssQuery: "img").first()
 			XCTAssertEqual("https://jsoup.org/rez/osi_logo.png", try img?.getAttribute(key: "abs:src"))
-			XCTAssertEqual(try img?.absUrl("src"), try img?.getAttribute(key: "abs:src"))
+			XCTAssertEqual(try img?.absoluteURLPath(ofAttribute: "src"), try img?.getAttribute(key: "abs:src"))
 		} catch {
 			XCTAssertEqual(1, 2)
 		}
@@ -93,11 +93,11 @@ class NodeTest: XCTestCase {
 
 			XCTAssertFalse(one.hasAttribute(withKey: "abs:href"))
 			XCTAssertTrue(one.hasAttribute(withKey: "href"))
-			XCTAssertEqual("", try one.absUrl("href"))
+			XCTAssertEqual("", try one.absoluteURLPath(ofAttribute: "href"))
 
 			XCTAssertTrue(two.hasAttribute(withKey: "abs:href"))
 			XCTAssertTrue(two.hasAttribute(withKey: "href"))
-			XCTAssertEqual("https://jsoup.org/", try two.absUrl("href"))
+			XCTAssertEqual("https://jsoup.org/", try two.absoluteURLPath(ofAttribute: "href"))
 		} catch {
 			XCTAssertEqual(1, 2)
 		}
@@ -134,7 +134,7 @@ class NodeTest: XCTestCase {
 		do {
 			let doc: Document  = try SwiftSoup.parse("<a href='password'>One/a><a href='/var/log/messages'>Two</a>", "file://localhost/etc/")
 			let one: Element? = try doc.select(cssQuery: "a").first()
-			XCTAssertEqual("file://localhost/etc/password", try one?.absUrl("href"))
+			XCTAssertEqual("file://localhost/etc/password", try one?.absoluteURLPath(ofAttribute: "href"))
 		} catch {
 			XCTAssertEqual(1, 2)
 		}
@@ -148,8 +148,8 @@ class NodeTest: XCTestCase {
 			let one: Element? = try doc1.select(cssQuery: "a").first()
 			let two: Element? = try doc2.select(cssQuery: "a").first()
 
-			XCTAssertEqual("http://example.net/foo", try one?.absUrl("href"))
-			XCTAssertEqual("https://example.net/foo", try two?.absUrl("href"))
+			XCTAssertEqual("http://example.net/foo", try one?.absoluteURLPath(ofAttribute: "href"))
+			XCTAssertEqual("https://example.net/foo", try two?.absoluteURLPath(ofAttribute: "href"))
 
 			let doc3: Document = try SwiftSoup.parse("<img src=//www.google.com/images/errors/logo_sm.gif alt=Google>", "https://google.com")
 			XCTAssertEqual("https://www.google.com/images/errors/logo_sm.gif", try doc3.select(cssQuery: "img").attr("abs:src"))
@@ -163,10 +163,10 @@ class NodeTest: XCTestCase {
 			let doc: Document = try SwiftSoup.parse("<a href='?foo'>One</a> <a href='bar.html?foo'>Two</a>", "https://jsoup.org/path/file?bar")
 
 			let a1: Element? = try doc.select(cssQuery: "a").first()
-			XCTAssertEqual("https://jsoup.org/path/file?foo", try a1?.absUrl("href"))
+			XCTAssertEqual("https://jsoup.org/path/file?foo", try a1?.absoluteURLPath(ofAttribute: "href"))
 
 			let a2: Element? = try doc.select(cssQuery: "a").get(1)
-			XCTAssertEqual("https://jsoup.org/path/bar.html?foo", try a2?.absUrl("href"))
+			XCTAssertEqual("https://jsoup.org/path/bar.html?foo", try a2?.absoluteURLPath(ofAttribute: "href"))
 		} catch {
 			XCTAssertEqual(1, 2)
 		}
@@ -176,7 +176,7 @@ class NodeTest: XCTestCase {
 		do {
 			let doc: Document = try SwiftSoup.parse("<a href='./one/two.html'>One</a>", "http://example.com")
 			let a1: Element? = try doc.select(cssQuery: "a").first()
-			XCTAssertEqual("http://example.com/one/two.html", try a1?.absUrl("href"))
+			XCTAssertEqual("http://example.com/one/two.html", try a1?.absoluteURLPath(ofAttribute: "href"))
 		} catch {
 			XCTAssertEqual(1, 2)
 		}

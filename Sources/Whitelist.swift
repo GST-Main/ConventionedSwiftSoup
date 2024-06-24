@@ -537,7 +537,9 @@ public class Whitelist {
     private func testValidProtocol(_ el: Element, _ attr: Attribute, _ protocols: Set<Protocol>)throws->Bool {
         // try to resolve relative urls to abs, and optionally update the attribute so output html has abs.
         // rels without a baseuri get removed
-        var value: String = try el.absUrl(attr.getKey())
+        guard var value = el.absoluteURLPath(ofAttribute: attr.getKey()) else {
+            fatalError() // FIXME: throw error
+        }
         if (value.count == 0) {
             value = attr.getValue()
         }// if it could not be made abs, run as-is to allow custom unknown protocols

@@ -162,12 +162,14 @@ class HtmlTreeBuilder: TreeBuilder {
         return baseUri
     }
 
-    func maybeSetBaseUri(_ base: Element)throws {
+    func maybeSetBaseUri(_ base: Element) throws {
         if (baseUriSetFromDoc) { // only listen to the first <base href> in parse
             return
         }
 
-        let href: String = try base.absUrl("href")
+        guard let href = base.absoluteURLPath(ofAttribute: "href") else {
+            fatalError("FIXME") // FIXME: Throw error
+        }
         if (href.count != 0) { // ignore <base target> etc
             baseUri = href
             baseUriSetFromDoc = true

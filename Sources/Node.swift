@@ -119,7 +119,7 @@ open class Node: Equatable, Hashable {
         if (key.startsWith(Node.abs)) {
             let key: String = key.substring(Node.abs.count)
             do {
-                let abs = try absUrl(key)
+                let abs = absoluteURLPath(ofAttribute: key)
                 if (attributes.hasKeyIgnoreCase(key: key) &&  !Node.empty.equals(abs)) {
                     return true
                 }
@@ -186,15 +186,12 @@ open class Node: Equatable, Hashable {
      * @see #attr
      * @see java.net.URL#URL(java.net.URL, String)
      */
-    open func absUrl(_ attributeKey: String)throws->String {
-        try Validate.notEmpty(string: attributeKey)
-
-        if (!hasAttribute(withKey: attributeKey)) {
-            return Node.empty // nothing to make absolute with
-        } else {
-            fatalError("FIXME") // FIXME: fixme
-//            return StringUtil.resolve(baseUri!, relUrl: getAttribute(key: attributeKey))
+    open func absoluteURLPath(ofAttribute attributeKey: String) -> String? {
+        guard let baseURI, let uriComponent = getAttribute(key: attributeKey) else {
+            return nil
         }
+        
+        return StringUtil.resolve(baseURI, relUrl: uriComponent)
     }
 
     /**

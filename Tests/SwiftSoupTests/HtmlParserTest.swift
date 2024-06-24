@@ -286,7 +286,7 @@ class HtmlParserTest: XCTestCase {
 		let html = "<img src='//example.net/img.jpg'>"
 		let doc = try SwiftSoup.parse(html, base)
 		let el: Element = try doc.select("img").first()!
-		XCTAssertEqual("https://example.net/img.jpg", try el.absUrl("src"))
+		XCTAssertEqual("https://example.net/img.jpg", try el.absoluteURLPath(ofAttribute: "src"))
 	}
 
 	func testHandlesCdata()throws {

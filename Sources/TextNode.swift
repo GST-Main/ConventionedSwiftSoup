@@ -178,9 +178,9 @@ open class TextNode: Node {
         return try super.removeAttribute(withKey: attributeKey)
     }
 
-    open override func absUrl(_ attributeKey: String)throws->String {
+    open override func absoluteURLPath(ofAttribute attributeKey: String) -> String? {
         ensureAttributes()
-        return try super.absUrl(attributeKey)
+        return super.absoluteURLPath(ofAttribute: attributeKey)
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
