@@ -176,7 +176,8 @@ open class Element: Node {
      * @return the child element, if it exists, otherwise throws an {@code IndexOutOfBoundsException}
      * @see #childNode(int)
      */
-    open func getChild(at index: Int) -> Element {
+    open func getChild(at index: Int) -> Element? {
+        guard children.count > index else { return nil }
         return children.get(index)
     }
 

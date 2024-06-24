@@ -576,7 +576,7 @@ open class Evaluator {
      */
     public final class IsRoot: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let r: Element = ((root as? Document) != nil) ? root.getChild(at: 0) : root
+            let r: Element = ((root as? Document) != nil) ? root.getChild(at: 0)! : root
             return element === r
         }
         public override func toString() -> String {
