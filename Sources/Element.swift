@@ -851,8 +851,12 @@ open class Element: Node {
      * @return elements that contain the string, case insensitive.
      * @see Element#text()
      */
-    public func getElementsContainingText(_ searchText: String)throws->Elements {
-        return try Collector.collect(Evaluator.ContainsText(searchText), self)
+    public func getElementsContainingText(_ searchText: String) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.ContainsText(searchText), self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
@@ -862,8 +866,12 @@ open class Element: Node {
      * @return elements that contain the string, case insensitive.
      * @see Element#ownText()
      */
-    public func getElementsContainingOwnText(_ searchText: String)throws->Elements {
-        return try Collector.collect(Evaluator.ContainsOwnText(searchText), self)
+    public func getElementsContainingOwnText(_ searchText: String) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.ContainsOwnText(searchText), self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
@@ -872,8 +880,12 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#text()
      */
-    public func getElementsMatchingText(_ pattern: Pattern)throws->Elements {
-        return try Collector.collect(Evaluator.Matches(pattern), self)
+    public func getElementsMatchingText(_ pattern: Pattern) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.Matches(pattern), self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
@@ -882,15 +894,15 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#text()
      */
-    public func getElementsMatchingText(_ regex: String)throws->Elements {
+    public func getElementsMatchingText(_ regex: String) -> Elements {
         let pattern: Pattern
         do {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw IllegalArgumentError(message: "Pattern syntax error: \(regex)")
+            return Elements([])
         }
-        return try getElementsMatchingText(pattern)
+        return getElementsMatchingText(pattern)
     }
 
     /**
@@ -899,8 +911,12 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#ownText()
      */
-    public func getElementsMatchingOwnText(_ pattern: Pattern)throws->Elements {
-        return try Collector.collect(Evaluator.MatchesOwn(pattern), self)
+    public func getElementsMatchingOwnText(_ pattern: Pattern) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.MatchesOwn(pattern), self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
@@ -909,15 +925,15 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#ownText()
      */
-    public func getElementsMatchingOwnText(_ regex: String)throws->Elements {
+    public func getElementsMatchingOwnText(_ regex: String) -> Elements {
         let pattern: Pattern
         do {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw IllegalArgumentError(message: "Pattern syntax error: \(regex)")
+            return Elements([])
         }
-        return try getElementsMatchingOwnText(pattern)
+        return getElementsMatchingOwnText(pattern)
     }
 
     /**
