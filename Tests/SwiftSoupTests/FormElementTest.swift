@@ -102,7 +102,7 @@ class FormElementTest: XCTestCase {
 
 	func testFormsAddedAfterParseAreFormElements()throws {
 		let doc: Document = try SwiftSoup.parse("<body />")
-		try doc.body()?.html("<form action='http://example.com/search'><input name='q' value='search'>")
+		try doc.body()?.setHTML("<form action='http://example.com/search'><input name='q' value='search'>")
 		let formEl: Element = try doc.select(cssQuery: "form").first()!
 		XCTAssertNotNil(formEl as? FormElement)
 
@@ -112,7 +112,7 @@ class FormElementTest: XCTestCase {
 
 	func testControlsAddedAfterParseAreLinkedWithForms()throws {
 		let doc: Document = try SwiftSoup.parse("<body />")
-		try doc.body()?.html("<form />")
+		try doc.body()?.setHTML("<form />")
 
 		let formEl: Element = try doc.select(cssQuery: "form").first()!
 		try formEl.append("<input name=foo value=bar>")

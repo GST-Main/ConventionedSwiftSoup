@@ -476,7 +476,7 @@ class ElementTest: XCTestCase {
 	func testSetHtml()throws {
 		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
 		let div: Element = try doc.getElementById("1")!
-		try div.html("<p>there</p><p>now</p>")
+		try div.setHTML("<p>there</p><p>now</p>")
 		XCTAssertEqual("<p>there</p><p>now</p>", try TextUtil.stripNewlines(div.html()))
 	}
 
@@ -484,13 +484,13 @@ class ElementTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<html><head id=2><title id=1></title></head></html>")
 
 		let title: Element = try doc.getElementById("1")!
-		try title.html("good")
+		try title.setHTML("good")
 		XCTAssertEqual("good", try title.html())
-		try title.html("<i>bad</i>")
+		try title.setHTML("<i>bad</i>")
 		XCTAssertEqual("&lt;i&gt;bad&lt;/i&gt;", try title.html())
 
 		let head: Element = try doc.getElementById("2")!
-		try head.html("<title><i>bad</i></title>")
+		try head.setHTML("<title><i>bad</i></title>")
 		XCTAssertEqual("<title>&lt;i&gt;bad&lt;/i&gt;</title>", try head.html())
 	}
 

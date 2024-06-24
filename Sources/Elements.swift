@@ -219,13 +219,16 @@ open class Elements: NSCopying {
 	* @see #text()
 	* @see #outerHtml()
 	*/
-	open func html()throws->String {
+    open var html: String? {
 		let sb: StringBuilder = StringBuilder()
 		for element: Element in this {
 			if !sb.isEmpty {
 				sb.append("\n")
 			}
-			sb.append(try element.html())
+            guard let subHTML = element.html else {
+                return nil
+            }
+			sb.append(subHTML)
 		}
 		return sb.toString()
 	}
@@ -282,7 +285,7 @@ open class Elements: NSCopying {
     @discardableResult
 	open func html(_ html: String)throws->Elements {
 		for element: Element in this {
-			try element.html(html)
+			try element.setHTML(html)
 		}
 		return self
 	}

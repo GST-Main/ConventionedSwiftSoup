@@ -1306,9 +1306,13 @@ open class Element: Node {
      * @return String of HTML.
      * @see #outerHtml()
      */
-    public func html()throws->String {
+    public var html: String? {
         let accum: StringBuilder = StringBuilder()
-        try html2(accum)
+        do {
+            try html2(accum)
+        } catch {
+            return nil
+        }
         return getOutputSettings().prettyPrint() ? accum.toString().trim() : accum.toString()
     }
 
@@ -1321,7 +1325,7 @@ open class Element: Node {
     /**
      * {@inheritDoc}
      */
-    open override func html(_ appendable: StringBuilder)throws->StringBuilder {
+    open override func html(_ appendable: StringBuilder) throws -> StringBuilder {
         for node in childNodes {
             try node.outerHtml(appendable)
         }
@@ -1335,7 +1339,7 @@ open class Element: Node {
 	* @see #append(String)
 	*/
     @discardableResult
-	public func html(_ html: String)throws->Element {
+	public func setHTML(_ html: String) throws -> Element {
 		empty()
 		try append(html)
 		return self

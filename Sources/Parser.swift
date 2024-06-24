@@ -141,7 +141,10 @@ public class Parser {
         guard let body = clean.body() else {
             throw IllegalArgumentError(message: "No body fragment after cleaning")
         }
-        return try body.html()
+        guard let html = body.html else {
+            throw IllegalArgumentError(message: "Illegal HTML after cleaning")
+        }
+        return html
     }
 
     /**
