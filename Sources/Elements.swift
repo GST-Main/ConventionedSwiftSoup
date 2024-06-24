@@ -280,7 +280,7 @@ open class Elements: NSCopying {
     @discardableResult
 	open func tagName(_ tagName: String)throws->Elements {
 		for element: Element in this {
-			try element.tagName(tagName)
+			try element.setTagName(tagName)
 		}
 		return self
 	}

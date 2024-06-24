@@ -635,7 +635,7 @@ class ElementTest: XCTestCase {
 
 	func testTagNameSet()throws {
 		let doc: Document = try SwiftSoup.parse("<div><i>Hello</i>")
-		try doc.select("i").first()!.tagName("em")
+		try doc.select("i").first()!.setTagName("em")
 		XCTAssertEqual(0, try doc.select("i").size())
 		XCTAssertEqual(1, try doc.select("em").size())
 		XCTAssertEqual("<em>Hello</em>", try doc.select("div").first()!.html())

@@ -69,7 +69,7 @@ open class Element: Node {
      * @return this element, for chaining
      */
     @discardableResult
-    public func tagName(_ tagName: String)throws->Element {
+    public func setTagName(_ tagName: String) throws -> Element {
         try Validate.notEmpty(string: tagName, msg: "Tag name must not be empty.")
         tag = try Tag.valueOf(tagName, ParseSettings.preserveCase) // preserve the requested tag case
         return self
