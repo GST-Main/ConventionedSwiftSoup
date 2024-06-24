@@ -648,11 +648,11 @@ open class Element: Node {
      * @param tagName The tag name to search for (case insensitively).
      * @return a matching unmodifiable list of elements. Will be empty if this element and none of its children match.
      */
-    public func getElementsByTag(_ tagName: String)throws->Elements {
-        try Validate.notEmpty(string: tagName)
+    public func getElementsByTag(_ tagName: String) -> Elements? {
+        guard !tagName.isEmpty else { return nil }
         let tagName = tagName.lowercased().trim()
 
-        return try Collector.collect(Evaluator.Tag(tagName), self)
+        return try? Collector.collect(Evaluator.Tag(tagName), self)
     }
 
     /**
@@ -664,10 +664,12 @@ open class Element: Node {
      * @param id The ID to search for.
      * @return The first matching element by ID, starting with this element, or null if none found.
      */
-    public func getElementById(_ id: String)throws->Element? {
-        try Validate.notEmpty(string: id)
+    public func getElementById(_ id: String) -> Element? {
+        guard !id.isEmpty else { return nil }
 
-        let elements: Elements = try Collector.collect(Evaluator.Id(id), self)
+        guard let elements: Elements = try? Collector.collect(Evaluator.Id(id), self) else {
+            return nil
+        }
         if (elements.array().count > 0) {
             return elements.get(0)
         } else {
@@ -686,10 +688,10 @@ open class Element: Node {
      * @see #hasClass(String)
      * @see #classNames()
      */
-    public func getElementsByClass(_ className: String)throws->Elements {
-        try Validate.notEmpty(string: className)
+    public func getElementsByClass(_ className: String) -> Elements? {
+        guard !className.isEmpty else { return nil }
 
-        return try Collector.collect(Evaluator.Class(className), self)
+        return try? Collector.collect(Evaluator.Class(className), self)
     }
 
     /**

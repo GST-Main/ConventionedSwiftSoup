@@ -74,7 +74,7 @@ open class Document: Element {
      */
     public func title()throws->String {
         // title is a preserve whitespace tag (for document output), but normalised here
-        let titleEl: Element? = try getElementsByTag("title").first()
+        let titleEl: Element? = getElementsByTag("title")?.first
         return titleEl != nil ? try StringUtil.normaliseWhitespace(titleEl!.text()).trim() : ""
     }
 
@@ -84,7 +84,7 @@ open class Document: Element {
      @param title string to set as title
      */
     public func title(_ title: String)throws {
-        let titleEl: Element? = try getElementsByTag("title").first()
+        let titleEl: Element? = getElementsByTag("title")?.first
         if (titleEl == nil) { // add to head
             try head()?.appendElement("title").text(title)
         } else {
@@ -155,9 +155,11 @@ open class Document: Element {
     }
 
     // merge multiple <head> or <body> contents into one, delete the remainder, and ensure they are owned by <html>
-    private func normaliseStructure(_ tag: String, _ htmlEl: Element)throws {
-        let elements: Elements = try self.getElementsByTag(tag)
-        let master: Element? = elements.first() // will always be available as created above if not existent
+    private func normaliseStructure(_ tag: String, _ htmlEl: Element) throws {
+        guard let elements: Elements = self.getElementsByTag(tag) else {
+            throw IllegalArgumentError(message: "Cannot get elements") // FIXME: fixme
+        }
+        let master: Element? = elements.first // will always be available as created above if not existent
         if (elements.size() > 1) { // dupes, move contents to master
             var toMove: Array<Node> = Array<Node>()
             for i in 1..<elements.size() {
