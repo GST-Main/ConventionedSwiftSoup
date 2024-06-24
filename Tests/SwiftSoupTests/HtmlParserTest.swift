@@ -27,9 +27,9 @@ class HtmlParserTest: XCTestCase {
 		let html: String = "<html><head><title>First!</title></head><body><p>First post! <img src=\"foo.png\" /></p></body></html>"
 		let doc: Document = try SwiftSoup.parse(html)
 		// need a better way to verify these:
-		let p: Element = doc.body()!.child(0)
+		let p: Element = doc.body()!.getChild(at: 0)
 		XCTAssertEqual("p", p.tagName())
-		let img: Element = p.child(0)
+		let img: Element = p.getChild(at: 0)
 		XCTAssertEqual("foo.png", try img.attr("src"))
 		XCTAssertEqual("img", img.tagName())
 	}
@@ -39,7 +39,7 @@ class HtmlParserTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse(html)
 
 		// need a better way to verify these:
-		let p: Element = doc.body()!.child(0)
+		let p: Element = doc.body()!.getChild(at: 0)
 		XCTAssertEqual("p", p.tagName())
 		XCTAssertEqual("foo > bar", try p.attr("class"))
 	}
@@ -62,7 +62,7 @@ class HtmlParserTest: XCTestCase {
 		let body: Element = doc.body()!
 		let comment: Comment =  body.childNode(1)as! Comment // comment should not be sub of img, as it's an empty tag
 		XCTAssertEqual(" <table><tr><td></table> ", comment.getData())
-		let p: Element = body.child(1)
+		let p: Element = body.getChild(at: 1)
 		let text: TextNode = p.childNode(0)as! TextNode
 		XCTAssertEqual("Hello", text.getWholeText())
 	}
@@ -126,7 +126,7 @@ class HtmlParserTest: XCTestCase {
 		let body: Element = doc.body()!
 
 		XCTAssertEqual(1, doc.children().size()) // root node: contains html node
-		XCTAssertEqual(2, doc.child(0).children().size()) // html node: head and body
+		XCTAssertEqual(2, doc.getChild(at: 0).children().size()) // html node: head and body
 		XCTAssertEqual(3, head.children().size())
 		XCTAssertEqual(1, body.children().size())
 
@@ -422,8 +422,8 @@ class HtmlParserTest: XCTestCase {
 		let doc = try SwiftSoup.parse(h)
 		let a: Element = try doc.select("a").first()!
 		XCTAssertEqual("Deprecated", try a.text())
-		XCTAssertEqual("font", a.child(0).tagName())
-		XCTAssertEqual("b", a.child(0).child(0).tagName())
+		XCTAssertEqual("font", a.getChild(at: 0).tagName())
+		XCTAssertEqual("b", a.getChild(at: 0).getChild(at: 0).tagName())
 	}
 
 	func testHandlesBaseWithoutHref()throws {

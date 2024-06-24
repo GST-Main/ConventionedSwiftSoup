@@ -59,7 +59,7 @@ class ElementTest: XCTestCase {
 		let doc2: Document = try! SwiftSoup.parse("<div id=1><div id=2><p>Hello <span id=2>world!</span></p></div></div>")
 		let div2: Element = try! doc2.getElementById("2")!
 		XCTAssertEqual("div", div2.tagName()) // not the span
-		let span: Element = try! div2.child(0).getElementById("2")! // called from <p> context should be span
+		let span: Element = try! div2.getChild(at: 0).getElementById("2")! // called from <p> context should be span
 		XCTAssertEqual("span", span.tagName())
 	}
 
@@ -414,8 +414,8 @@ class ElementTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
 		let div: Element? = try doc.getElementById("1")
 		try div?.prependElement("p").text("Before")
-		XCTAssertEqual("Before", try div?.child(0).text())
-		XCTAssertEqual("Hello", try div?.child(1).text())
+		XCTAssertEqual("Before", try div?.getChild(at: 0).text())
+		XCTAssertEqual("Hello", try div?.getChild(at: 1).text())
 	}
 
 	func testAddNewText()throws {
@@ -707,7 +707,7 @@ class ElementTest: XCTestCase {
 		let div: Element = try doc.select("div").first()!
 
 		XCTAssertEqual(2, div.children().size())
-		XCTAssertEqual("One", try div.child(0).text())
+		XCTAssertEqual("One", try div.getChild(at: 0).text())
 	}
 
 	func testMoveByAppend()throws {

@@ -176,8 +176,8 @@ open class Element: Node {
      * @return the child element, if it exists, otherwise throws an {@code IndexOutOfBoundsException}
      * @see #childNode(int)
      */
-    open func child(_ index: Int) -> Element {
-        return children().get(index)
+    open func getChild(at index: Int) -> Element {
+        return children.get(index)
     }
 
     /**
@@ -189,7 +189,7 @@ open class Element: Node {
      * empty list.
      * @see #childNodes()
      */
-    open func children() -> Elements {
+    open var children: Elements {
         // create on the fly rather than maintaining two lists. if gets slow, memoize, and mark dirty on change
         var elements = Array<Element>()
         for node in childNodes {
@@ -211,7 +211,7 @@ open class Element: Node {
      * <ul>
      *     <li>{@code p.text()} = {@code "One Two Three Four"}</li>
      *     <li>{@code p.ownText()} = {@code "One Three Four"}</li>
-     *     <li>{@code p.children()} = {@code Elements[<span>, <br>]}</li>
+     *     <li>{@code p.children} = {@code Elements[<span>, <br>]}</li>
      *     <li>{@code p.childNodes()} = {@code List<Node>["One ", <span>, " Three ", <br>, " Four"]}</li>
      *     <li>{@code p.textNodes()} = {@code List<TextNode>["One ", " Three ", " Four"]}</li>
      * </ul>
@@ -532,7 +532,7 @@ open class Element: Node {
     public func siblingElements() -> Elements {
         if (parentNode == nil) {return Elements()}
 
-        let elements: Array<Element>? = parent()?.children().array()
+        let elements: Array<Element>? = parent()?.children.array()
         let siblings: Elements = Elements()
         if let elements = elements {
             for el: Element in elements {
@@ -555,7 +555,7 @@ open class Element: Node {
      */
     public func nextElementSibling()throws->Element? {
         if (parentNode == nil) {return nil}
-        let siblings: Array<Element>? = parent()?.children().array()
+        let siblings: Array<Element>? = parent()?.children.array()
         let index: Int? = try Element.indexInList(self, siblings)
         try Validate.notNull(obj: index)
         if let siblings = siblings {
@@ -574,7 +574,7 @@ open class Element: Node {
      */
     public func previousElementSibling()throws->Element? {
         if (parentNode == nil) {return nil}
-        let siblings: Array<Element>? = parent()?.children().array()
+        let siblings: Array<Element>? = parent()?.children.array()
         let index: Int? = try Element.indexInList(self, siblings)
         try Validate.notNull(obj: index)
         if (index! > 0) {
@@ -590,7 +590,7 @@ open class Element: Node {
      */
     public func firstElementSibling() -> Element? {
         // todo: should firstSibling() exclude this?
-        let siblings: Array<Element>? = parent()?.children().array()
+        let siblings: Array<Element>? = parent()?.children.array()
         return (siblings != nil && siblings!.count > 1) ? siblings![0] : nil
     }
 
@@ -601,7 +601,7 @@ open class Element: Node {
      */
     public func elementSiblingIndex()throws->Int {
         if (parent() == nil) {return 0}
-        let x = try Element.indexInList(self, parent()?.children().array())
+        let x = try Element.indexInList(self, parent()?.children.array())
         return x == nil ? 0 : x!
     }
 
@@ -610,7 +610,7 @@ open class Element: Node {
      * @return the last sibling that is an element (aka the parent's last element child)
      */
     public func lastElementSibling() -> Element? {
-        let siblings: Array<Element>? = parent()?.children().array()
+        let siblings: Array<Element>? = parent()?.children.array()
         return (siblings != nil && siblings!.count > 1) ? siblings![siblings!.count - 1] : nil
     }
 

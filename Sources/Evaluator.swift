@@ -490,7 +490,7 @@ open class Evaluator {
             var i = 0
 
             if let l = element.parent() {
-                i = l.children().array().count
+                i = l.children.array().count
             }
             return i - (try element.elementSiblingIndex())
         }
@@ -511,7 +511,7 @@ open class Evaluator {
 
         open override func calculatePosition(_ root: Element, _ element: Element) -> Int {
             var pos = 0
-            let family: Elements? = element.parent()?.children()
+            let family: Elements? = element.parent()?.children
             if let array = family?.array() {
                 for el in array {
                     if (el.tag == element.tag) {pos+=1}
@@ -535,7 +535,7 @@ open class Evaluator {
 
         open override func calculatePosition(_ root: Element, _ element: Element)throws->Int {
             var pos = 0
-            if let family = element.parent()?.children() {
+            if let family = element.parent()?.children {
                 let x = try element.elementSiblingIndex()
                 for i in x..<family.array().count {
                     if (family.get(i).tag == element.tag) {
@@ -576,7 +576,7 @@ open class Evaluator {
      */
     public final class IsRoot: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let r: Element = ((root as? Document) != nil) ? root.child(0) : root
+            let r: Element = ((root as? Document) != nil) ? root.getChild(at: 0) : root
             return element === r
         }
         public override func toString() -> String {
@@ -600,7 +600,7 @@ open class Evaluator {
             if (p == nil || (p as? Document) != nil) {return false}
 
             var pos = 0
-            if let family = p?.children().array() {
+            if let family = p?.children.array() {
                 for  el in family {
                     if (el.tag == element.tag) {pos+=1}
                 }
