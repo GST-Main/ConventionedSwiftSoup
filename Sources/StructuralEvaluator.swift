@@ -130,7 +130,7 @@ public class StructuralEvaluator: Evaluator {
             return false
             }
 
-            var prev = try element.previousElementSibling()
+            var prev = element.previousSiblingElement
 
             while (prev != nil) {
                 do {
@@ -139,7 +139,7 @@ public class StructuralEvaluator: Evaluator {
                 }
                 } catch {}
 
-                prev = try prev!.previousElementSibling()
+                prev = prev!.previousSiblingElement
             }
             return false
         }
@@ -159,7 +159,7 @@ public class StructuralEvaluator: Evaluator {
                 return false
             }
 
-            if let prev = try element.previousElementSibling() {
+            if let prev = element.previousSiblingElement {
                 do {
                     return try evaluator.matches(root, prev)
                 } catch {}

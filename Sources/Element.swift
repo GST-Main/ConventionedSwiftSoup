@@ -539,7 +539,7 @@ open class Element: Node {
      * of itself, so will not be included in the returned list.
      * @return sibling elements
      */
-    public func siblingElements() -> Elements {
+    public var siblingElements: Elements {
         if (parentNode == nil) {return Elements()}
 
         let elements: Array<Element>? = parent()?.children.array()
@@ -563,18 +563,18 @@ open class Element: Node {
      * @return the next element, or null if there is no next element
      * @see #previousElementSibling()
      */
-    public func nextElementSibling()throws->Element? {
-        if (parentNode == nil) {return nil}
+    public var nextSiblingElement: Element? {
+        guard let parentNode else { return nil }
         let siblings: Array<Element>? = parent()?.children.array()
-        let index: Int? = try Element.indexInList(self, siblings)
-        try Validate.notNull(obj: index)
-        if let siblings = siblings {
-            if (siblings.count > index!+1) {
-                return siblings[index!+1]
-            } else {
-                return nil}
+        guard let index = try? Element.indexInList(self, siblings) else {
+            return nil
         }
-        return nil
+        
+        if let siblings = siblings, siblings.count > index + 1 {
+            return siblings[index+1]
+        } else {
+            return nil
+        }
     }
 
     /**
@@ -582,13 +582,15 @@ open class Element: Node {
      * @return the previous element, or null if there is no previous element
      * @see #nextElementSibling()
      */
-    public func previousElementSibling()throws->Element? {
-        if (parentNode == nil) {return nil}
+    public var previousSiblingElement: Element? {
+        guard let parentNode else { return nil }
         let siblings: Array<Element>? = parent()?.children.array()
-        let index: Int? = try Element.indexInList(self, siblings)
-        try Validate.notNull(obj: index)
-        if (index! > 0) {
-            return siblings?[index!-1]
+        guard let index = try? Element.indexInList(self, siblings) else {
+            return nil
+        }
+
+        if index > 0 {
+            return siblings?[index-1]
         } else {
             return nil
         }
