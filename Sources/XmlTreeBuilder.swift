@@ -92,7 +92,7 @@ public class XmlTreeBuilder: TreeBuilder {
                 let parser = Parser.xmlParser()
                 let doc: Document = try parser.parseHTML("<" + data.substring(1, data.count - 2) + ">", baseURI: baseUri)
                 let el: Element = doc.getChild(at: 0)!
-                insert = XmlDeclaration(settings.normalizeTag(el.tagName), comment.getBaseUri(), data.startsWith("!"))
+                insert = XmlDeclaration(settings.normalizeTag(el.tagName), comment.baseURI!, data.startsWith("!"))
                 insert.getAttributes()?.addAll(incoming: el.getAttributes())
             }
         }

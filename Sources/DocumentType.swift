@@ -110,7 +110,7 @@ public class DocumentType: Node {
 		let clone = DocumentType(attributes!.get(key: DocumentType.NAME),
 		                         attributes!.get(key: DocumentType.PUBLIC_ID),
 		                         attributes!.get(key: DocumentType.SYSTEM_ID),
-		                         baseUri!)
+		                         baseURI!)
 		return copy(clone: clone)
 	}
 
@@ -118,7 +118,7 @@ public class DocumentType: Node {
 		let clone = DocumentType(attributes!.get(key: DocumentType.NAME),
 		                         attributes!.get(key: DocumentType.PUBLIC_ID),
 		                         attributes!.get(key: DocumentType.SYSTEM_ID),
-		                         baseUri!)
+		                         baseURI!)
 		return copy(clone: clone, parent: parent)
 	}
 

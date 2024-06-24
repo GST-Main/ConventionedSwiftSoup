@@ -30,7 +30,7 @@ open class TextNode: Node {
     public init(_ text: String, _ baseUri: String?) {
         self._text = text
         super.init()
-        self.baseUri = baseUri
+        self.baseURI = baseUri
 
     }
 
@@ -95,7 +95,7 @@ open class TextNode: Node {
         let head: String = getWholeText().substring(0, offset)
         let tail: String = getWholeText().substring(offset)
         text(head)
-        let tailNode: TextNode = TextNode(tail, self.getBaseUri())
+        let tailNode: TextNode = TextNode(tail, self.baseURI!)
         if (parent() != nil) {
             try parent()?.addChildren(siblingIndex+1, tailNode)
         }
@@ -184,12 +184,12 @@ open class TextNode: Node {
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = TextNode(_text, baseUri)
+		let clone = TextNode(_text, baseURI)
 		return super.copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = TextNode(_text, baseUri)
+		let clone = TextNode(_text, baseURI)
 		return super.copy(clone: clone, parent: parent)
 	}
 

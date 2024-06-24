@@ -98,7 +98,7 @@ open class Document: Element {
      @return new element
      */
     public func createElement(_ tagName: String)throws->Element {
-        return try Element(Tag.valueOf(tagName, ParseSettings.preserveCase), self.getBaseUri())
+        return try Element(Tag.valueOf(tagName, ParseSettings.preserveCase), self.baseURI!)
     }
 
     /**
@@ -337,16 +337,16 @@ open class Document: Element {
                         _ = try  decl.getAttribute(key: "version")
                         try decl.setAttribute(key: "version", value: "1.0")
                     } else {
-                        try Validate.notNull(obj: baseUri)
-                        let decl = XmlDeclaration("xml", baseUri!, false)
+                        try Validate.notNull(obj: baseURI)
+                        let decl = XmlDeclaration("xml", baseURI!, false)
                         try decl.setAttribute(key: "version", value: "1.0")
                         try decl.setAttribute(key: "encoding", value: charset().displayName())
 
                         try prependChild(decl)
                     }
                 } else {
-                    try Validate.notNull(obj: baseUri)
-                    let decl = XmlDeclaration("xml", baseUri!, false)
+                    try Validate.notNull(obj: baseURI)
+                    let decl = XmlDeclaration("xml", baseURI!, false)
                     try decl.setAttribute(key: "version", value: "1.0")
                     try decl.setAttribute(key: "encoding", value: charset().displayName())
 

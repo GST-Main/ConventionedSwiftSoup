@@ -70,12 +70,12 @@ open class DataNode: Node {
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = DataNode(attributes!.get(key: DataNode.DATA_KEY), baseUri!)
+		let clone = DataNode(attributes!.get(key: DataNode.DATA_KEY), baseURI!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = DataNode(attributes!.get(key: DataNode.DATA_KEY), baseUri!)
+		let clone = DataNode(attributes!.get(key: DataNode.DATA_KEY), baseURI!)
 		return copy(clone: clone, parent: parent)
 	}
 

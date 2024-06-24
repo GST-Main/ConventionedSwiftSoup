@@ -51,12 +51,12 @@ public class Comment: Node {
     override func outerHtmlTail(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings) {}
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Comment(attributes!.get(key: Comment.COMMENT_KEY), baseUri!)
+		let clone = Comment(attributes!.get(key: Comment.COMMENT_KEY), baseURI!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Comment(attributes!.get(key: Comment.COMMENT_KEY), baseUri!)
+		let clone = Comment(attributes!.get(key: Comment.COMMENT_KEY), baseURI!)
 		return copy(clone: clone, parent: parent)
 	}
 

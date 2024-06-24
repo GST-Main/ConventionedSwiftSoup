@@ -15,7 +15,7 @@ open class Node: Equatable, Hashable {
     weak var parentNode: Node?
     var childNodes: Array <Node>
     var attributes: Attributes?
-    var baseUri: String?
+    public internal(set) var baseURI: String?
 
 	/**
 	* Get the list index of this node in its node sibling list. I.e. if this is the first node
@@ -32,13 +32,13 @@ open class Node: Equatable, Hashable {
      */
     public init(_ baseUri: String, _ attributes: Attributes) {
         self.childNodes = Node.EMPTY_NODES
-        self.baseUri = baseUri.trim()
+        self.baseURI = baseUri.trim()
         self.attributes = attributes
     }
 
     public init(_ baseUri: String) {
         childNodes = Node.EMPTY_NODES
-        self.baseUri = baseUri.trim()
+        self.baseURI = baseUri.trim()
         self.attributes = Attributes()
     }
 
@@ -48,7 +48,7 @@ open class Node: Equatable, Hashable {
     public init() {
         self.childNodes = Node.EMPTY_NODES
         self.attributes = nil
-        self.baseUri = nil
+        self.baseURI = nil
     }
 
     /**
@@ -143,32 +143,24 @@ open class Node: Equatable, Hashable {
     }
 
     /**
-     Get the base URI of this node.
-     @return base URI
-     */
-    open func getBaseUri() -> String {
-        return baseUri!
-    }
-
-    /**
      Update the base URI of this node and all of its descendants.
      @param baseUri base URI to set
      */
-    open func setBaseUri(_ baseUri: String)throws {
+    open func setBaseURI(_ baseURI: String) throws {
         class nodeVisitor: NodeVisitor {
-            private let baseUri: String
-            init(_ baseUri: String) {
-                self.baseUri = baseUri
+            private let baseURI: String
+            init(_ baseURI: String) {
+                self.baseURI = baseURI
             }
 
-            func head(_ node: Node, _ depth: Int)throws {
-                node.baseUri = baseUri
+            func head(_ node: Node, _ depth: Int) throws {
+                node.baseURI = baseURI
             }
 
-            func tail(_ node: Node, _ depth: Int)throws {
+            func tail(_ node: Node, _ depth: Int) throws {
             }
         }
-        try traverse(nodeVisitor(baseUri))
+        try traverse(nodeVisitor(baseURI))
     }
 
     /**
@@ -344,7 +336,7 @@ open class Node: Equatable, Hashable {
 
         let context: Element? = parent() as? Element
 
-        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         try parentNode?.addChildren(index, nodes)
     }
 
@@ -375,12 +367,12 @@ open class Node: Equatable, Hashable {
         return self
     }
 
-    open func addSiblingHtml(index: Int, _ html: String)throws {
+    open func addSiblingHtml(index: Int, _ html: String) throws {
         try Validate.notNull(obj: html)
         try Validate.notNull(obj: parentNode)
 
         let context: Element? = parent() as? Element
-        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         try parentNode?.addChildren(index, nodes)
     }
 
@@ -390,11 +382,11 @@ open class Node: Equatable, Hashable {
      @return this node, for chaining.
      */
     @discardableResult
-    open func wrap(_ html: String)throws->Node? {
+    open func wrap(_ html: String)throws -> Node? {
         try Validate.notEmpty(string: html)
 
         let context: Element? = parent() as? Element
-        var wrapChildren: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
+        var wrapChildren: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         let wrapNode: Node? = wrapChildren.count > 0 ? wrapChildren[0] : nil
         if (wrapNode == nil || !(((wrapNode as? Element) != nil))) { // nothing to wrap with; noop
             return nil
@@ -729,7 +721,7 @@ open class Node: Equatable, Hashable {
 		clone.parentNode = parent // can be null, to create an orphan split
 		clone.siblingIndex = parent == nil ? 0 : siblingIndex
 		clone.attributes = attributes != nil ? attributes?.clone() : nil
-		clone.baseUri = baseUri
+		clone.baseURI = baseURI
 		clone.childNodes = Array<Node>()
 
 		for  child in childNodes {
@@ -785,7 +777,7 @@ open class Node: Equatable, Hashable {
 	/// your program. Do not save hash values to use during a future execution.
     public func hash(into hasher: inout Hasher) {
         hasher.combine(description)
-        hasher.combine(baseUri)
+        hasher.combine(baseURI)
     }
 }
 

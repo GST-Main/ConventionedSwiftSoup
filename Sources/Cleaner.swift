@@ -32,7 +32,7 @@ open class Cleaner {
     /// - Parameter dirtyDocument: Untrusted base document to clean.
     /// - Returns: A cleaned document.
 	public func clean(_ dirtyDocument: Document) throws -> Document {
-		let clean = Document.createShell(dirtyDocument.getBaseUri())
+		let clean = Document.createShell(dirtyDocument.baseURI!)
         if let headWhitelist, let dirtHead = dirtyDocument.head(), let cleanHead = clean.head() { // frameset documents won't have a head. the clean doc will have empty head.
             try copySafeNodes(dirtHead, cleanHead, whitelist: headWhitelist)
         }
@@ -51,7 +51,7 @@ open class Cleaner {
     /// - Parameter dirtyDocument: document to test
     /// - Returns: true if no tags or attributes need to be removed; false if they do
 	public func isValid(_ dirtyDocument: Document) throws -> Bool {
-        let clean = Document.createShell(dirtyDocument.getBaseUri())
+        let clean = Document.createShell(dirtyDocument.baseURI!)
         let numDiscarded = try copySafeNodes(dirtyDocument.body()!, clean.body()!, whitelist: bodyWhitelist)
         return numDiscarded == 0
 	}
@@ -92,11 +92,11 @@ extension Cleaner {
 					numDiscarded += 1
 				}
 			} else if let sourceText = source as? TextNode {
-				let destText = TextNode(sourceText.getWholeText(), source.getBaseUri())
+				let destText = TextNode(sourceText.getWholeText(), source.baseURI!)
 				try destination?.appendChild(destText)
 			} else if let sourceData = source as? DataNode {
 				if sourceData.parent() != nil && whitelist.isSafeTag(sourceData.parent()!.nodeName()) {
-					let destData =  DataNode(sourceData.getWholeData(), source.getBaseUri())
+					let destData =  DataNode(sourceData.getWholeData(), source.baseURI!)
 					try destination?.appendChild(destData)
                 } else {
                     numDiscarded += 1
@@ -132,7 +132,7 @@ extension Cleaner {
             let enforcedAttrs = try whitelist.getEnforcedAttributes(sourceTag)
             destAttrs.addAll(incoming: enforcedAttrs)
 
-            let dest = try Element(Tag.valueOf(sourceTag), sourceEl.getBaseUri(), destAttrs)
+            let dest = try Element(Tag.valueOf(sourceTag), sourceEl.baseURI!, destAttrs)
             return ElementMeta(dest, numDiscarded)
         }
 	}

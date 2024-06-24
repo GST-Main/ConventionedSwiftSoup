@@ -348,7 +348,7 @@ open class Element: Node {
      */
     @discardableResult
     public func appendElement(tagName: String) throws -> Element {
-        let child = Element(try Tag.valueOf(tagName), getBaseUri())
+        let child = Element(try Tag.valueOf(tagName), baseURI!)
         try appendChild(child)
         return child
     }
@@ -362,7 +362,7 @@ open class Element: Node {
      */
     @discardableResult
     public func prependElement(tagName: String) throws -> Element {
-        let child: Element = Element(try Tag.valueOf(tagName), getBaseUri())
+        let child: Element = Element(try Tag.valueOf(tagName), baseURI!)
         try prependChild(child)
         return child
     }
@@ -375,7 +375,7 @@ open class Element: Node {
      */
     @discardableResult
     public func appendText(_ text: String) throws -> Element {
-        let node: TextNode = TextNode(text, getBaseUri())
+        let node: TextNode = TextNode(text, baseURI!)
         try appendChild(node)
         return self
     }
@@ -388,7 +388,7 @@ open class Element: Node {
      */
     @discardableResult
     public func prependText(_ text: String) throws -> Element {
-        let node: TextNode = TextNode(text, getBaseUri())
+        let node: TextNode = TextNode(text, baseURI!)
         try prependChild(node)
         return self
     }
@@ -401,7 +401,7 @@ open class Element: Node {
      */
     @discardableResult
     public func appendHTML(_ html: String) throws -> Element {
-        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: getBaseUri())
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
         try addChildren(nodes)
         return self
     }
@@ -414,7 +414,7 @@ open class Element: Node {
      */
     @discardableResult
     public func prependHTML(_ html: String) throws -> Element {
-        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: getBaseUri())
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
         try addChildren(0, nodes)
         return self
     }
@@ -1023,7 +1023,7 @@ open class Element: Node {
     @discardableResult
     public func setText(_ text: String) throws -> Element {
         removeAll()
-        let textNode: TextNode = TextNode(text, baseUri)
+        let textNode: TextNode = TextNode(text, baseURI)
         try appendChild(textNode)
         return self
     }
@@ -1309,12 +1309,12 @@ open class Element: Node {
 	}
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Element(tag, baseUri!, attributes!)
+		let clone = Element(tag, baseURI!, attributes!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Element(tag, baseUri!, attributes!)
+		let clone = Element(tag, baseURI!, attributes!)
 		return copy(clone: clone, parent: parent)
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {

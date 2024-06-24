@@ -63,12 +63,12 @@ public class XmlDeclaration: Node {
     override func outerHtmlTail(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings) {}
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = XmlDeclaration(_name, baseUri!, isProcessingInstruction)
+		let clone = XmlDeclaration(_name, baseURI!, isProcessingInstruction)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = XmlDeclaration(_name, baseUri!, isProcessingInstruction)
+		let clone = XmlDeclaration(_name, baseURI!, isProcessingInstruction)
 		return copy(clone: clone, parent: parent)
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {

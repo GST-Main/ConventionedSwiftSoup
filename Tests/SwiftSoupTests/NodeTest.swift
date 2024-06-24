@@ -50,7 +50,7 @@ class NodeTest: XCTestCase {
 		do {
 			let doc: Document = try SwiftSoup.parse("<div><p></p></div>")
 			let baseUri: String = "https://jsoup.org"
-			try doc.setBaseUri(baseUri)
+			try doc.setBaseURI(baseUri)
 
 			XCTAssertEqual(baseUri, doc.getBaseUri())
 			XCTAssertEqual(baseUri, try doc.select(cssQuery: "div").first()?.getBaseUri())
