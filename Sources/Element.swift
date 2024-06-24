@@ -528,7 +528,7 @@ open class Element: Node {
 
         selector.insert(contentsOf: " > ", at: selector.startIndex)
         if (parent()!.select(cssQuery: selector).array().count > 1) {
-            selector.append(":nth-child(\(try elementSiblingIndex() + 1))")
+            selector.append(":nth-child(\(elementSiblingIndex + 1))")
         }
 
         return try parent()!.cssSelector() + (selector)
@@ -600,7 +600,7 @@ open class Element: Node {
      * Gets the first element sibling of this element.
      * @return the first sibling that is an element (aka the parent's first element child)
      */
-    public func firstElementSibling() -> Element? {
+    public var firstSiblingElement: Element? {
         // todo: should firstSibling() exclude this?
         let siblings: Array<Element>? = parent()?.children.array()
         return (siblings != nil && siblings!.count > 1) ? siblings![0] : nil
@@ -611,9 +611,11 @@ open class Element: Node {
      * sibling, returns 0.
      * @return position in element sibling list
      */
-    public func elementSiblingIndex()throws->Int {
-        if (parent() == nil) {return 0}
-        let x = try Element.indexInList(self, parent()?.children.array())
+    public var elementSiblingIndex: Int {
+        guard let parent = parent() else {
+            return 0
+        }
+        let x = try! Element.indexInList(self, parent.children.array()) // TODO: Why throwing?
         return x == nil ? 0 : x!
     }
 
@@ -621,7 +623,7 @@ open class Element: Node {
      * Gets the last element sibling of this element
      * @return the last sibling that is an element (aka the parent's last element child)
      */
-    public func lastElementSibling() -> Element? {
+    public var lastSiblingElement: Element? {
         let siblings: Array<Element>? = parent()?.children.array()
         return (siblings != nil && siblings!.count > 1) ? siblings![siblings!.count - 1] : nil
     }

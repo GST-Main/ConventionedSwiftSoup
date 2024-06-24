@@ -334,7 +334,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return try element.elementSiblingIndex() < index
+            return element.elementSiblingIndex < index
         }
 
         public override func toString() -> String {
@@ -352,7 +352,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return try element.elementSiblingIndex() > index
+            return element.elementSiblingIndex > index
         }
 
         public override func toString() -> String {
@@ -370,7 +370,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return try element.elementSiblingIndex() == index
+            return element.elementSiblingIndex == index
         }
 
         public override func toString() -> String {
@@ -386,7 +386,7 @@ open class Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
 
             if let parent = element.parent() {
-                let index = try element.elementSiblingIndex()
+                let index = element.elementSiblingIndex
                 return !(parent is Document) && index == (parent.getChildNodes().count - 1)
             }
             return false
@@ -468,7 +468,7 @@ open class Evaluator {
         }
 
         public override func calculatePosition(_ root: Element, _ element: Element)throws->Int {
-            return try element.elementSiblingIndex()+1
+            return element.elementSiblingIndex + 1
         }
 
         public override func getPseudoClass() -> String {
@@ -492,7 +492,7 @@ open class Evaluator {
             if let l = element.parent() {
                 i = l.children.array().count
             }
-            return i - (try element.elementSiblingIndex())
+            return i - element.elementSiblingIndex
         }
 
         public override func getPseudoClass() -> String {
@@ -536,7 +536,7 @@ open class Evaluator {
         open override func calculatePosition(_ root: Element, _ element: Element)throws->Int {
             var pos = 0
             if let family = element.parent()?.children {
-                let x = try element.elementSiblingIndex()
+                let x = element.elementSiblingIndex
                 for i in x..<family.array().count {
                     if (family.get(i).tag == element.tag) {
                         pos+=1
@@ -559,7 +559,7 @@ open class Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             let p = element.parent()
             if(p != nil && !(((p as? Document) != nil))) {
-                return (try element.elementSiblingIndex()) == 0
+                return element.elementSiblingIndex == 0
             }
             return false
         }
