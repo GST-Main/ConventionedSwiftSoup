@@ -514,7 +514,7 @@ open class Evaluator {
             let family: Elements? = element.parent()?.children()
             if let array = family?.array() {
                 for el in array {
-                    if (el.tag() == element.tag()) {pos+=1}
+                    if (el.tag == element.tag) {pos+=1}
                     if (el === element) {break}
                 }
             }
@@ -538,7 +538,7 @@ open class Evaluator {
             if let family = element.parent()?.children() {
                 let x = try element.elementSiblingIndex()
                 for i in x..<family.array().count {
-                    if (family.get(i).tag() == element.tag()) {
+                    if (family.get(i).tag == element.tag) {
                         pos+=1
                     }
                 }
@@ -602,7 +602,7 @@ open class Evaluator {
             var pos = 0
             if let family = p?.children().array() {
                 for  el in family {
-                    if (el.tag() == element.tag()) {pos+=1}
+                    if (el.tag == element.tag) {pos+=1}
                 }
             }
             return pos == 1

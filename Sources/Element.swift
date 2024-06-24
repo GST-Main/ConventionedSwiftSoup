@@ -9,7 +9,7 @@
 import Foundation
 
 open class Element: Node {
-	var _tag: Tag
+	public internal(set) var tag: Tag
 
     private static let classString = "class"
     private static let emptyString = ""
@@ -29,7 +29,7 @@ open class Element: Node {
      * @see #appendElement(String)
      */
     public init(_ tag: Tag, _ baseUri: String, _ attributes: Attributes) {
-        self._tag = tag
+        self.tag = tag
         super.init(baseUri, attributes)
     }
     /**
@@ -41,12 +41,12 @@ open class Element: Node {
      * @see Tag#valueOf(String, ParseSettings)
      */
     public init(_ tag: Tag, _ baseUri: String) {
-        self._tag = tag
+        self.tag = tag
         super.init(baseUri, Attributes())
     }
 
     open override func nodeName() -> String {
-        return _tag.getName()
+        return tag.getName()
     }
     /**
      * Get the name of the tag for this element. E.g. {@code div}
@@ -54,11 +54,11 @@ open class Element: Node {
      * @return the tag name
      */
     open var tagName: String {
-        return _tag.getName()
+        return tag.getName()
     }
     // TODO: Document
     open var tagNameNormal: String {
-        return _tag.getNameNormal()
+        return tag.getNameNormal()
     }
 
     /**
@@ -71,17 +71,8 @@ open class Element: Node {
     @discardableResult
     public func tagName(_ tagName: String)throws->Element {
         try Validate.notEmpty(string: tagName, msg: "Tag name must not be empty.")
-        _tag = try Tag.valueOf(tagName, ParseSettings.preserveCase) // preserve the requested tag case
+        tag = try Tag.valueOf(tagName, ParseSettings.preserveCase) // preserve the requested tag case
         return self
-    }
-
-    /**
-     * Get the Tag for this element.
-     *
-     * @return the tag object
-     */
-    open func tag() -> Tag {
-        return _tag
     }
 
     /**
@@ -91,7 +82,7 @@ open class Element: Node {
      * @return true if block, false if not (and thus inline)
      */
     open func isBlock() -> Bool {
-        return _tag.isBlock()
+        return tag.isBlock()
     }
 
     /**
@@ -933,7 +924,7 @@ open class Element: Node {
                 }
             } else if let element = (node as? Element) {
                 if !accum.isEmpty &&
-                    (element.isBlock() || element._tag.getName() == "br") &&
+                    (element.isBlock() || element.tag.getName() == "br") &&
                     !TextNode.lastCharIsWhitespace(accum) {
                     accum.append(" ")
                 }
@@ -991,7 +982,7 @@ open class Element: Node {
     }
 
     private static func appendWhitespaceIfBr(_ element: Element, _ accum: StringBuilder) {
-        if (element._tag.getName() == "br" && !TextNode.lastCharIsWhitespace(accum)) {
+        if (element.tag.getName() == "br" && !TextNode.lastCharIsWhitespace(accum)) {
             accum.append(" ")
         }
     }
@@ -999,7 +990,7 @@ open class Element: Node {
     static func preserveWhitespace(_ node: Node?) -> Bool {
         // looks only at this element and one level up, to prevent recursion & needless stack searches
         if let element = (node as? Element) {
-            return element._tag.preserveWhitespace() || element.parent() != nil && element.parent()!._tag.preserveWhitespace()
+            return element.tag.preserveWhitespace() || element.parent() != nil && element.parent()!.tag.preserveWhitespace()
         }
         return false
     }
@@ -1214,7 +1205,7 @@ open class Element: Node {
     }
 
     override func outerHtmlHead(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings)throws {
-        if (out.prettyPrint() && (_tag.formatAsBlock() || (parent() != nil && parent()!.tag().formatAsBlock()) || out.outline())) {
+        if (out.prettyPrint() && (tag.formatAsBlock() || (parent() != nil && parent()!.tag.formatAsBlock()) || out.outline())) {
             if !accum.isEmpty {
                 indent(accum, depth, out)
             }
@@ -1225,8 +1216,8 @@ open class Element: Node {
         try attributes?.html(accum: accum, out: out)
 
         // selfclosing includes unknown tags, isEmpty defines tags that are always empty
-        if (childNodes.isEmpty && _tag.isSelfClosing()) {
-            if (out.syntax() == OutputSettings.Syntax.html && _tag.isEmpty()) {
+        if (childNodes.isEmpty && tag.isSelfClosing()) {
+            if (out.syntax() == OutputSettings.Syntax.html && tag.isEmpty()) {
                 accum.append(" />") // <img /> for "always empty" tags. selfclosing is ignored but retained for xml/xhtml compatibility
             } else {
                 accum.append(" />") // <img /> in xml
@@ -1237,9 +1228,9 @@ open class Element: Node {
     }
 
     override func outerHtmlTail(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings) {
-        if (!(childNodes.isEmpty && _tag.isSelfClosing())) {
+        if (!(childNodes.isEmpty && tag.isSelfClosing())) {
             if (out.prettyPrint() && (!childNodes.isEmpty && (
-                _tag.formatAsBlock() || (out.outline() && (childNodes.count>1 || (childNodes.count==1 && !(((childNodes[0] as? TextNode) != nil)))))
+                tag.formatAsBlock() || (out.outline() && (childNodes.count>1 || (childNodes.count==1 && !(((childNodes[0] as? TextNode) != nil)))))
                 ))) {
                 indent(accum, depth, out)
             }
@@ -1290,12 +1281,12 @@ open class Element: Node {
 	}
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Element(_tag, baseUri!, attributes!)
+		let clone = Element(tag, baseUri!, attributes!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Element(_tag, baseUri!, attributes!)
+		let clone = Element(tag, baseUri!, attributes!)
 		return copy(clone: clone, parent: parent)
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {
@@ -1307,11 +1298,11 @@ open class Element: Node {
             return false
         }
         
-        return lhs._tag == rhs._tag
+        return lhs.tag == rhs.tag
     }
 	
     override public func hash(into hasher: inout Hasher) {
         super.hash(into: &hasher)
-        hasher.combine(_tag)
+        hasher.combine(tag)
     }
 }

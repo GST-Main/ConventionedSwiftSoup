@@ -104,7 +104,7 @@ open class TextNode: Node {
 
     override func outerHtmlHead(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings)throws {
 		if (out.prettyPrint() &&
-			((siblingIndex == 0 && (parentNode as? Element) != nil &&  (parentNode as! Element).tag().formatAsBlock() && !isBlank()) ||
+			((siblingIndex == 0 && (parentNode as? Element) != nil &&  (parentNode as! Element).tag.formatAsBlock() && !isBlank()) ||
 				(out.outline() && siblingNodes().count > 0 && !isBlank()) )) {
             indent(accum, depth, out)
 		}

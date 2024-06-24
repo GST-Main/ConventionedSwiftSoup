@@ -723,7 +723,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                 try commonAncestor!.appendChild(lastNode!)
                             }
 
-                            let adopter: Element = Element(formatEl!.tag(), tb.getBaseUri())
+                            let adopter: Element = Element(formatEl!.tag, tb.getBaseUri())
                             adopter.getAttributes()?.addAll(incoming: formatEl!.getAttributes())
                             let childNodes: [Node] = furthestBlock!.getChildNodes()
                             for childNode: Node in childNodes {

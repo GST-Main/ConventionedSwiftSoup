@@ -276,7 +276,7 @@ class HtmlTreeBuilder: TreeBuilder {
 
         // connect form controls to their form element
         if let n = (node as? Element) {
-            if(n.tag().isFormListed()) {
+            if(n.tag.isFormListed()) {
                 if ( formElement != nil) {
                     formElement!.addElement(n)
                 }
