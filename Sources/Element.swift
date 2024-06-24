@@ -200,6 +200,11 @@ open class Element: Node {
         }
         return Elements(elements)
     }
+    
+    // TODO: Document
+    open var firstChild: Element? {
+        getChild(at: 0)
+    }
 
     /**
      * Get this element's child text nodes. The list is unmodifiable but the text nodes may be manipulated.
