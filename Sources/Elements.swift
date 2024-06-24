@@ -495,7 +495,7 @@ open class Elements: NSCopying {
 	open func parents() -> Elements {
 		let combo: OrderedSet<Element> = OrderedSet<Element>()
 		for e: Element in this {
-			combo.append(contentsOf: e.parents().array())
+			combo.append(contentsOf: e.ancestors.array())
 		}
 		return Elements(combo)
 	}

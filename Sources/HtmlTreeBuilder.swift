@@ -100,7 +100,7 @@ class HtmlTreeBuilder: TreeBuilder {
 
             // setup form element to nearest form on context (up ancestor chain). ensures form controls are associated
             // with form correctly
-            let contextChain: Elements = context.parents()
+            let contextChain: Elements = context.ancestors
             contextChain.add(0, context)
             for parent: Element in contextChain.array() {
                 if let x = (parent as? FormElement) {

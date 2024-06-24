@@ -139,8 +139,8 @@ open class Element: Node {
      * You can find elements that have data attributes using the {@code [^data-]} attribute key prefix selector.
      * @return a map of {@code key=value} custom data attributes.
      */
-    open func dataset()->Dictionary<String, String> {
-        return attributes!.dataset()
+    open var attributesAsDictionary: Dictionary<String, String> {
+        attributes!.dataset()
     }
 
     open override func parent() -> Element? {
@@ -151,10 +151,10 @@ open class Element: Node {
      * Get this element's parent and ancestors, up to the document root.
      * @return this element's stack of parents, closest first.
      */
-    open func parents() -> Elements {
-        let parents: Elements = Elements()
-        Element.accumulateParents(self, parents)
-        return parents
+    open var ancestors: Elements {
+        let ancestors: Elements = Elements()
+        Element.accumulateParents(self, ancestors)
+        return ancestors
     }
 
     private static func accumulateParents(_ el: Element, _ parents: Elements) {
