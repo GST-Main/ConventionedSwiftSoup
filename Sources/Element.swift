@@ -514,7 +514,7 @@ open class Element: Node {
         // Translate HTML namespace ns:tag to CSS namespace syntax ns|tag
         let tagName: String = self.tagName.replacingOccurrences(of: ":", with: "|")
         var selector: String = tagName
-        let cl = try classNames()
+        let cl = classNames
         let classes: String = cl.joined(separator: ".")
         if (classes.count > 0) {
             selector.append(".")
@@ -1109,8 +1109,8 @@ open class Element: Node {
      * separated. (E.g. on <code>&lt;div class="header gray"&gt;</code> returns, "<code>header gray</code>")
      * @return The literal class attribute, or <b>empty string</b> if no class attribute set.
      */
-    public func className()throws->String {
-        return try attr(Element.classString).trim()
+    public var className: String? {
+        return try? attr(Element.classString).trim()
     }
 
     /**
@@ -1119,10 +1119,11 @@ open class Element: Node {
      * the backing {@code class} attribute; use the {@link #classNames(java.util.Set)} method to persist them.
      * @return set of classnames, empty if no class attribute
      */
-	public func classNames()throws->OrderedSet<String> {
-		let fitted = try className().replaceAll(of: Element.classSplit, with: " ", options: .caseInsensitive)
+    public var classNames: OrderedSet<String> {
+        guard let className else { return [] }
+		let fitted = className.replaceAll(of: Element.classSplit, with: " ", options: .caseInsensitive)
 		let names: [String] = fitted.components(separatedBy: " ")
-		let classNames: OrderedSet<String> = OrderedSet(sequence: names)
+		let classNames = OrderedSet(sequence: names)
 		classNames.remove(Element.emptyString) // if classNames() was empty, would include an empty class
 		return classNames
 	}
@@ -1133,7 +1134,7 @@ open class Element: Node {
      @return this element, for chaining
      */
     @discardableResult
-    public func classNames(_ classNames: OrderedSet<String>)throws->Element {
+    public func setClass(names: OrderedSet<String>) throws -> Element {
         try attributes?.put(Element.classString, StringUtil.join(classNames, sep: " "))
         return self
     }
@@ -1144,7 +1145,7 @@ open class Element: Node {
      * @return true if it does, false if not
      */
     // performance sensitive
-    public func hasClass(_ className: String) -> Bool {
+    public func hasClass(named className: String) -> Bool {
         let classAtt: String? = attributes?.get(key: Element.classString)
         let len: Int = (classAtt != nil) ? classAtt!.count : 0
         let wantLen: Int = className.count
@@ -1197,10 +1198,11 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-	public func addClass(_ className: String)throws->Element {
-		let classes: OrderedSet<String> = try classNames()
+	public func addClass(named className: String) throws -> Element {
+		let classes = classNames
 		classes.append(className)
-		try classNames(classes)
+		try setClass(names: classes)
+        
 		return self
 	}
 
@@ -1210,10 +1212,11 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-    public func removeClass(_ className: String)throws->Element {
-        let classes: OrderedSet<String> = try classNames()
+    public func removeClass(named className: String) throws -> Element {
+        let classes = classNames
 		classes.remove(className)
-        try classNames(classes)
+        try setClass(names: classes)
+        
         return self
     }
 
@@ -1223,13 +1226,14 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-    public func toggleClass(_ className: String)throws->Element {
-        let classes: OrderedSet<String> = try classNames()
-        if (classes.contains(className)) {classes.remove(className)
+    public func toggleClass(named className: String) throws -> Element {
+        let classes = classNames
+        if classes.contains(className) {
+            classes.remove(className)
         } else {
             classes.append(className)
         }
-        try classNames(classes)
+        try setClass(names: classes)
 
         return self
     }

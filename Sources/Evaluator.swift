@@ -101,7 +101,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element) -> Bool {
-            return (element.hasClass(className))
+            return (element.hasClass(named: className))
         }
 
         public override func toString() -> String {

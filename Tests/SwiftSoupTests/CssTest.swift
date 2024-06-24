@@ -180,7 +180,7 @@ class CssTest: XCTestCase {
 		XCTAssertEqual("span", sel.get(2).tagName())
 		XCTAssertEqual("br", sel.get(3).tagName())
 		XCTAssertEqual("p", sel.get(4).tagName())
-		XCTAssertTrue(sel.get(4).hasClass("empty"))
+		XCTAssertTrue(sel.get(4).hasClass(named: "empty"))
 		XCTAssertEqual("em", sel.get(5).tagName())
 	}
 

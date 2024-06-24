@@ -205,8 +205,8 @@ class ElementTest: XCTestCase {
 		let els: Elements = try! doc.getElementsByAttribute("class")
 		let span: Element = els.get(0)
 		XCTAssertEqual("mellow yellow", try! span.className())
-		XCTAssertTrue(span.hasClass("mellow"))
-		XCTAssertTrue(span.hasClass("yellow"))
+		XCTAssertTrue(span.hasClass(named: "mellow"))
+		XCTAssertTrue(span.hasClass(named: "yellow"))
 		var classes: OrderedSet<String> = try! span.classNames()
 		XCTAssertEqual(2, classes.count)
 		XCTAssertTrue(classes.contains("mellow"))
@@ -215,7 +215,7 @@ class ElementTest: XCTestCase {
 		XCTAssertEqual("", try! doc.className())
 		classes = try! doc.classNames()
 		XCTAssertEqual(0, classes.count)
-		XCTAssertFalse(doc.hasClass("mellow"))
+		XCTAssertFalse(doc.hasClass(named: "mellow"))
 	}
 
     func testHasClassDomMethods()throws {
@@ -224,51 +224,51 @@ class ElementTest: XCTestCase {
         let el: Element = Element(tag, "", attribs)
 
         try attribs.put("class", "toto")
-        var hasClass = el.hasClass("toto")
+        var hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", " toto")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", "toto ")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", "\ttoto ")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", "  toto ")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", "ab")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertFalse(hasClass)
 
         try attribs.put("class", "     ")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertFalse(hasClass)
 
         try attribs.put("class", "tototo")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertFalse(hasClass)
 
         try attribs.put("class", "raulpismuth  ")
-        hasClass = el.hasClass("raulpismuth")
+        hasClass = el.hasClass(named: "raulpismuth")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", " abcd  raulpismuth efgh ")
-        hasClass = el.hasClass("raulpismuth")
+        hasClass = el.hasClass(named: "raulpismuth")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", " abcd efgh raulpismuth")
-        hasClass = el.hasClass("raulpismuth")
+        hasClass = el.hasClass(named: "raulpismuth")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", " abcd efgh raulpismuth ")
-        hasClass = el.hasClass("raulpismuth")
+        hasClass = el.hasClass(named: "raulpismuth")
         XCTAssertTrue(hasClass)
     }
 
@@ -276,12 +276,12 @@ class ElementTest: XCTestCase {
         let doc: Document = try SwiftSoup.parse("<div class='mellow yellow'></div>")
         let div: Element = try doc.select(cssQuery: "div").first()!
 
-        try div.addClass("green")
+        try div.addClass(named: "green")
         XCTAssertEqual("mellow yellow green", try div.className())
-        try div.removeClass("red") // noop
-        try div.removeClass("yellow")
+        try div.removeClass(named: "red") // noop
+        try div.removeClass(named: "yellow")
         XCTAssertEqual("mellow green", try div.className())
-        try div.toggleClass("green").toggleClass("red")
+        try div.toggleClass(named: "green").toggleClass(named: "red")
         XCTAssertEqual("mellow red", try div.className())
     }
 
@@ -826,7 +826,7 @@ class ElementTest: XCTestCase {
 		newSet.append(contentsOf: set1)
 		//newSet["c3"] //todo: nabil not a set , add == append but not change exists c3
 
-		try div.classNames(newSet)
+		try div.setClass(names: newSet)
 
 		XCTAssertEqual("c1 c2 c3", try div.className())
 

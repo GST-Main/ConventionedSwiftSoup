@@ -107,7 +107,7 @@ open class Elements: NSCopying {
     @discardableResult
 	open func addClass(_ className: String)throws->Elements {
 		for  element in this {
-			try element.addClass(className)
+			try element.addClass(named: className)
 		}
 		return self
 	}
@@ -120,7 +120,7 @@ open class Elements: NSCopying {
     @discardableResult
 	open func removeClass(_ className: String)throws->Elements {
 		for element: Element in this {
-			try element.removeClass(className)
+			try element.removeClass(named: className)
 		}
 		return self
 	}
@@ -133,7 +133,7 @@ open class Elements: NSCopying {
     @discardableResult
 	open func toggleClass(_ className: String)throws->Elements {
 		for element: Element in this {
-			try element.toggleClass(className)
+			try element.toggleClass(named: className)
 		}
 		return self
 	}
@@ -146,7 +146,7 @@ open class Elements: NSCopying {
 
 	open func hasClass(_ className: String) -> Bool {
 		for element: Element in this {
-			if (element.hasClass(className)) {
+			if (element.hasClass(named: className)) {
 				return true
 			}
 		}

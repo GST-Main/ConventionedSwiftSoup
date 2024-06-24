@@ -362,16 +362,16 @@ class NodeTest: XCTestCase {
 		do {
 			let doc: Document = try SwiftSoup.parse("<div class=foo>Text</div>")
 			let el: Element = try doc.select(cssQuery: "div").first()!
-			XCTAssertTrue(el.hasClass("foo"))
+			XCTAssertTrue(el.hasClass(named: "foo"))
 
 			let elClone: Element = try (doc.copy() as! Document).select(cssQuery: "div").first()!
-			XCTAssertTrue(elClone.hasClass("foo"))
+			XCTAssertTrue(elClone.hasClass(named: "foo"))
 			XCTAssertTrue(try elClone.getText() == "Text")
 
-			try el.removeClass("foo")
+			try el.removeClass(named: "foo")
 			try el.text("None")
-			XCTAssertFalse(el.hasClass("foo"))
-			XCTAssertTrue(elClone.hasClass("foo"))
+			XCTAssertFalse(el.hasClass(named: "foo"))
+			XCTAssertTrue(elClone.hasClass(named: "foo"))
 			XCTAssertTrue(try el.getText() == "None")
 			XCTAssertTrue(try elClone.getText()=="Text")
 		} catch {
