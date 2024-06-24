@@ -700,11 +700,11 @@ open class Element: Node {
      * @param key name of the attribute, e.g. {@code href}
      * @return elements that have this attribute, empty if none
      */
-    public func getElementsByAttribute(_ key: String)throws->Elements {
-        try Validate.notEmpty(string: key)
+    public func getElementsByAttribute(key: String) -> Elements? {
+        guard !key.isEmpty else { return nil }
         let key = key.trim()
 
-        return try Collector.collect(Evaluator.Attribute(key), self)
+        return try? Collector.collect(Evaluator.Attribute(key), self)
     }
 
     /**
@@ -713,11 +713,11 @@ open class Element: Node {
      * @param keyPrefix name prefix of the attribute e.g. {@code data-}
      * @return elements that have attribute names that start with with the prefix, empty if none.
      */
-    public func getElementsByAttributeStarting(_ keyPrefix: String)throws->Elements {
-        try Validate.notEmpty(string: keyPrefix)
+    public func getElementsByAttribute(keyPrefix: String) -> Elements? {
+        guard !keyPrefix.isEmpty else { return nil }
         let keyPrefix = keyPrefix.trim()
 
-        return try Collector.collect(Evaluator.AttributeStarting(keyPrefix), self)
+        return try? Collector.collect(Evaluator.AttributeStarting(keyPrefix), self)
     }
 
     /**
@@ -727,8 +727,8 @@ open class Element: Node {
      * @param value value of the attribute
      * @return elements that have this attribute with this value, empty if none
      */
-    public func getElementsByAttributeValue(_ key: String, _ value: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValue(key, value), self)
+    public func getElementsByAttribute(key: String, value: String) -> Elements? {
+        return try? Collector.collect(Evaluator.AttributeWithValue(key, value), self)
     }
 
     /**
@@ -738,8 +738,8 @@ open class Element: Node {
      * @param value value of the attribute
      * @return elements that do not have a matching attribute
      */
-    public func getElementsByAttributeValueNot(_ key: String, _ value: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueNot(key, value), self)
+    public func getElementsByAttributeNotMatching(key: String, value: String) -> Elements? {
+        return try? Collector.collect(Evaluator.AttributeWithValueNot(key, value), self)
     }
 
     /**
@@ -749,8 +749,8 @@ open class Element: Node {
      * @param valuePrefix start of attribute value
      * @return elements that have attributes that start with the value prefix
      */
-    public func getElementsByAttributeValueStarting(_ key: String, _ valuePrefix: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueStarting(key, valuePrefix), self)
+    public func getElementsByAttribute(key: String, valueStartingWith valuePrefix: String) -> Elements? {
+        return try? Collector.collect(Evaluator.AttributeWithValueStarting(key, valuePrefix), self)
     }
 
     /**
@@ -760,8 +760,8 @@ open class Element: Node {
      * @param valueSuffix end of the attribute value
      * @return elements that have attributes that end with the value suffix
      */
-    public func getElementsByAttributeValueEnding(_ key: String, _ valueSuffix: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueEnding(key, valueSuffix), self)
+    public func getElementsByAttribute(key: String, valueEndingWith valueSuffix: String) -> Elements? {
+        return try? Collector.collect(Evaluator.AttributeWithValueEnding(key, valueSuffix), self)
     }
 
     /**
@@ -771,8 +771,8 @@ open class Element: Node {
      * @param match substring of value to search for
      * @return elements that have attributes containing this text
      */
-    public func getElementsByAttributeValueContaining(_ key: String, _ match: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueContaining(key, match), self)
+    public func getElementsByAttribute(key: String, valueMathcingWith match: String) -> Elements? {
+        return try? Collector.collect(Evaluator.AttributeWithValueContaining(key, match), self)
     }
 
     /**
@@ -781,8 +781,8 @@ open class Element: Node {
      * @param pattern compiled regular expression to match against attribute values
      * @return elements that have attributes matching this regular expression
      */
-    public func getElementsByAttributeValueMatching(_ key: String, _ pattern: Pattern)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueMatching(key, pattern), self)
+    public func getElementsByAttribute(key: String, valueMathcingWith pattern: Pattern) -> Elements? {
+        return try? Collector.collect(Evaluator.AttributeWithValueMatching(key, pattern), self)
 
     }
 
@@ -792,16 +792,18 @@ open class Element: Node {
      * @param regex regular expression to match against attribute values. You can use <a href="http://java.sun.com/docs/books/tutorial/essential/regex/pattern.html#embedded">embedded flags</a> (such as (?i) and (?m) to control regex options.
      * @return elements that have attributes matching this regular expression
      */
-    public func getElementsByAttributeValueMatching(_ key: String, _ regex: String)throws->Elements {
+    public func getElementsByAttribute(key: String, valueRegex regex: String) -> Elements? {
         var pattern: Pattern
         do {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw IllegalArgumentError(message: "Pattern syntax error: \(regex)")
+            return nil
         }
-        return try getElementsByAttributeValueMatching(key, pattern)
+        return getElementsByAttribute(key: key, valueMathcingWith: pattern)
     }
+    
+    // TODO: SwiftRegex
 
     /**
      * Find elements whose sibling index is less than the supplied index.
