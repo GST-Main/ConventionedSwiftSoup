@@ -512,8 +512,12 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     } else if (name.equals("input")) {
                         try tb.reconstructFormattingElements()
                         let el: Element = try tb.insertEmpty(startTag)
-                        if (try !el.attr("type").equalsIgnoreCase(string: "hidden")) {
-                            tb.framesetOk(false)
+                        if let attribute = el.getAttribute(key: "type") {
+                            if (!attribute.equalsIgnoreCase(string: "hidden")) {
+                                tb.framesetOk(false)
+                            }
+                        } else {
+                            fatalError("FIXME") // FIXME: Throw error
                         }
                     } else if Constants.InBodyStartMedia.contains(name) {
                         try tb.insertEmpty(startTag)

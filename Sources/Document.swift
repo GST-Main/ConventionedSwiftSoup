@@ -334,7 +334,7 @@ open class Document: Element {
                     if (decl.name()=="xml") {
                         try decl.setAttribute(key: "encoding", value: charset().displayName())
 
-                        _ = try  decl.attr("version")
+                        _ = try  decl.getAttribute(key: "version")
                         try decl.setAttribute(key: "version", value: "1.0")
                     } else {
                         try Validate.notNull(obj: baseUri)

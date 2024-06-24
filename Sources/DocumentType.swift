@@ -70,29 +70,27 @@ public class DocumentType: Node {
             accum.append("<!DOCTYPE")
         }
         if (has(DocumentType.NAME)) {
-            do {
-                accum.append(" ").append(try attr(DocumentType.NAME))
-            } catch {}
-
+            if let attribute = getAttribute(key: DocumentType.NAME) {
+                accum.append(" ").append(attribute)
+            }
         }
 
         if (has(DocumentType.PUB_SYS_KEY)) {
-            do {
-                try accum.append(" ").append(attr(DocumentType.PUB_SYS_KEY))
-            } catch {}
+            if let attribute = getAttribute(key: DocumentType.PUB_SYS_KEY) {
+                accum.append(" ").append(attribute)
+            }
         }
 
         if (has(DocumentType.PUBLIC_ID)) {
-            do {
-                try accum.append(" \"").append(attr(DocumentType.PUBLIC_ID)).append("\"")
-            } catch {}
-
+            if let attribute = getAttribute(key: DocumentType.PUBLIC_ID) {
+                accum.append(" \"").append(attribute).append("\"")
+            }
         }
+        
         if (has(DocumentType.SYSTEM_ID)) {
-            do {
-                accum.append(" \"").append(try attr(DocumentType.SYSTEM_ID)).append("\"")
-            } catch {}
-
+            if let attribute = getAttribute(key: DocumentType.SYSTEM_ID) {
+                accum.append(" \"").append(attribute).append("\"")
+            }
         }
         accum.append(">")
     }
@@ -101,9 +99,11 @@ public class DocumentType: Node {
     }
 
     private func has(_ attribute: String) -> Bool {
-        do {
-            return !StringUtil.isBlank(try attr(attribute))
-        } catch {return false}
+        if let attribute = getAttribute(key: attribute) {
+            return !StringUtil.isBlank(attribute)
+        } else {
+            return false
+        }
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {

@@ -64,8 +64,8 @@ class NodeTest: XCTestCase {
 		do {
 			let doc: Document = try SwiftSoup.parse("<a href=/foo>Hello</a>", "https://jsoup.org/")
 			let a: Element? = try doc.select(cssQuery: "a").first()
-			XCTAssertEqual("/foo", try a?.attr("href"))
-			XCTAssertEqual("https://jsoup.org/foo", try a?.attr("abs:href"))
+			XCTAssertEqual("/foo", try a?.getAttribute(key: "href"))
+			XCTAssertEqual("https://jsoup.org/foo", try a?.getAttribute(key: "abs:href"))
 			//XCTAssertTrue(a!.hasAttr("abs:href"));//TODO:nabil
 		} catch {
 			XCTAssertEqual(1, 2)
@@ -76,8 +76,8 @@ class NodeTest: XCTestCase {
 		do {
 			let doc: Document = try SwiftSoup.parse("<p><img src=\"/rez/osi_logo.png\" /></p>", "https://jsoup.org/")
 			let img: Element? = try doc.select(cssQuery: "img").first()
-			XCTAssertEqual("https://jsoup.org/rez/osi_logo.png", try img?.attr("abs:src"))
-			XCTAssertEqual(try img?.absUrl("src"), try img?.attr("abs:src"))
+			XCTAssertEqual("https://jsoup.org/rez/osi_logo.png", try img?.getAttribute(key: "abs:src"))
+			XCTAssertEqual(try img?.absUrl("src"), try img?.getAttribute(key: "abs:src"))
 		} catch {
 			XCTAssertEqual(1, 2)
 		}
@@ -110,7 +110,7 @@ class NodeTest: XCTestCase {
 			let doc: Document = try SwiftSoup.parse("<a abs:href='odd'>One</a>")
 			let el: Element = try doc.select(cssQuery: "a").first()!
 			XCTAssertTrue(el.hasAttr("abs:href"))
-			XCTAssertEqual("odd", try el.attr("abs:href"))
+			XCTAssertEqual("odd", try el.getAttribute(key: "abs:href"))
 		} catch {
 			XCTAssertEqual(1, 2)
 		}

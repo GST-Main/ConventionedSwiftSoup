@@ -247,7 +247,7 @@ class DocumentTest: XCTestCase {
 
 		let selectedElement: Element = try! doc.select(cssQuery: "meta[charset]").first()!
 		XCTAssertEqual(DocumentTest.charsetUtf8, doc.charset())
-		XCTAssertEqual("UTF-8", try! selectedElement.attr("charset"))
+		XCTAssertEqual("UTF-8", try! selectedElement.getAttribute(key: "charset"))
 		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
 
 	}
@@ -267,7 +267,7 @@ class DocumentTest: XCTestCase {
 
 		let selectedElement: Element = try doc.select(cssQuery: "meta[charset]").first()!
 		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), doc.charset().displayName())
-		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), try selectedElement.attr("charset"))
+		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), try selectedElement.getAttribute(key: "charset"))
 		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
 	}
 
@@ -312,11 +312,11 @@ class DocumentTest: XCTestCase {
 
 		var selectedElement: Element = try doc.select(cssQuery: "meta[charset]").first()!
 		XCTAssertNotNil(selectedElement)
-		try XCTAssertEqual("dontTouch", selectedElement.attr("charset"))
+		try XCTAssertEqual("dontTouch", selectedElement.getAttribute(key: "charset"))
 
 		selectedElement = try doc.select(cssQuery: "meta[name=charset]").first()!
 		XCTAssertNotNil(selectedElement)
-		try XCTAssertEqual("dontTouch", selectedElement.attr("content"))
+		try XCTAssertEqual("dontTouch", selectedElement.getAttribute(key: "content"))
 	}
 
 	func testMetaCharsetUpdateEnabledAfterCharsetChange()throws {
@@ -324,7 +324,7 @@ class DocumentTest: XCTestCase {
 		try doc.charset(String.Encoding.utf8)
 
 		let selectedElement: Element = try doc.select(cssQuery: "meta[charset]").first()!
-		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedElement.attr("charset"))
+		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedElement.getAttribute(key: "charset"))
 		try XCTAssertTrue(doc.select(cssQuery: "meta[name=charset]").isEmpty())
 	}
 
@@ -356,7 +356,7 @@ class DocumentTest: XCTestCase {
 
 		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
 		XCTAssertEqual(String.Encoding.utf8.displayName(), doc.charset().displayName())
-		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.attr("encoding"))
+		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.getAttribute(key: "encoding"))
 		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
 	}
 
@@ -373,7 +373,7 @@ class DocumentTest: XCTestCase {
 
 		let selectedNode: XmlDeclaration =  doc.childNode(0) as! XmlDeclaration
 		XCTAssertEqual(String.Encoding.iso2022JP.displayName(), doc.charset().displayName())
-		try XCTAssertEqual(String.Encoding.iso2022JP.displayName(), selectedNode.attr("encoding"))
+		try XCTAssertEqual(String.Encoding.iso2022JP.displayName(), selectedNode.getAttribute(key: "encoding"))
 		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
 	}
 
@@ -389,7 +389,7 @@ class DocumentTest: XCTestCase {
 		try XCTAssertEqual(xmlCharsetUTF8, doc.outerHtml())
 
 		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
-		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.attr("encoding"))
+		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.getAttribute(key: "encoding"))
 	}
 
 	func testMetaCharsetUpdateXmlDisabled()throws {
@@ -411,8 +411,8 @@ class DocumentTest: XCTestCase {
 		try XCTAssertEqual(xmlCharset, doc.outerHtml())
 
 		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
-		try XCTAssertEqual("dontTouch", selectedNode.attr("encoding"))
-		try XCTAssertEqual("dontTouch", selectedNode.attr("version"))
+		try XCTAssertEqual("dontTouch", selectedNode.getAttribute(key: "encoding"))
+		try XCTAssertEqual("dontTouch", selectedNode.getAttribute(key: "version"))
 	}
 
 	func testMetaCharsetUpdatedDisabledPerDefault() {

@@ -74,13 +74,17 @@ open class Node: Equatable, Hashable {
      * @see #hasAttr(String)
      * @see #absUrl(String)
      */
-    open func attr(_ attributeKey: String)throws ->String {
-        let val: String = try attributes!.getIgnoreCase(key: attributeKey)
-        if (val.count > 0) {
-            return val
-        } else if (attributeKey.lowercased().startsWith(Node.abs)) {
-            return try absUrl(attributeKey.substring(Node.abs.count))
-        } else {return Node.empty}
+    open func getAttribute(key: String) -> String? {
+        guard let value = try? attributes!.getIgnoreCase(key: key) else {
+            return nil
+        }
+        if value.count > 0 {
+            return value
+        } else if (key.lowercased().startsWith(Node.abs)) {
+            return nil
+        } else {
+            return Node.empty
+        }
     }
 
     /**
@@ -98,7 +102,7 @@ open class Node: Equatable, Hashable {
      * @return this (for chaining)
      */
     @discardableResult
-    open func setAttribute(key attributeKey: String, value attributeValue: String)throws->Node {
+    open func setAttribute(key attributeKey: String, value attributeValue: String) throws -> Node {
         try attributes?.put(attributeKey, attributeValue)
         return self
     }
@@ -196,7 +200,8 @@ open class Node: Equatable, Hashable {
         if (!hasAttr(attributeKey)) {
             return Node.empty // nothing to make absolute with
         } else {
-            return StringUtil.resolve(baseUri!, relUrl: try attr(attributeKey))
+            fatalError("FIXME") // FIXME: fixme
+//            return StringUtil.resolve(baseUri!, relUrl: getAttribute(key: attributeKey))
         }
     }
 

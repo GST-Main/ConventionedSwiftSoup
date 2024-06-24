@@ -1073,7 +1073,7 @@ open class Element: Node {
      * @return The literal class attribute, or <b>empty string</b> if no class attribute set.
      */
     public var className: String? {
-        return try? attr(Element.classString).trim()
+        return getAttribute(key: Element.classString)?.trim()
     }
 
     /**
@@ -1209,7 +1209,7 @@ open class Element: Node {
         if tagName == "textarea" {
             return text
         } else {
-            return try? attr("value")
+            return try? getAttribute(key: "value")
         }
     }
 

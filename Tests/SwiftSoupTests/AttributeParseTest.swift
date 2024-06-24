@@ -43,8 +43,8 @@ class AttributeParseTest: XCTestCase {
 		let html: String = "<a\r\nfoo='bar\r\nqux'\r\nbar\r\n=\r\ntwo>One</a>"
 		let el: Element = try SwiftSoup.parse(html).select("a").first()!
 		XCTAssertEqual(2, el.getAttributes()?.size())
-		XCTAssertEqual("bar\r\nqux", try el.attr("foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
-		XCTAssertEqual("two", try el.attr("bar"))
+		XCTAssertEqual("bar\r\nqux", try el.getAttribute(key: "foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
+		XCTAssertEqual("two", try el.getAttribute(key: "bar"))
 	}
 
 	func testparsesEmptyString()throws {
@@ -80,9 +80,9 @@ class AttributeParseTest: XCTestCase {
 		let html: String = "<a normal=\"123\" boolean empty=\"\"></a>"
 		let el: Element = try SwiftSoup.parse(html).select("a").first()!
 
-		XCTAssertEqual("123", try el.attr("normal"))
-		XCTAssertEqual("", try el.attr("boolean"))
-		XCTAssertEqual("", try el.attr("empty"))
+		XCTAssertEqual("123", try el.getAttribute(key: "normal"))
+		XCTAssertEqual("", try el.getAttribute(key: "boolean"))
+		XCTAssertEqual("", try el.getAttribute(key: "empty"))
 
 		let attributes: Array<Attribute> = el.getAttributes()!.asList()
 		XCTAssertEqual(3, attributes.count, "There should be 3 attribute present")

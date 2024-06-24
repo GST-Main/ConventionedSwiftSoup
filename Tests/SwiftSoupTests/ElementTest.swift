@@ -377,7 +377,7 @@ class ElementTest: XCTestCase {
 		try div.setAttribute(key: "false", value: false)
 
 		XCTAssertTrue(div.hasAttr("true"))
-		XCTAssertEqual("", try div.attr("true"))
+		XCTAssertEqual("", try div.getAttribute(key: "true"))
 
 		let attributes: Array<Attribute> = div.getAttributes()!.asList()
 		XCTAssertEqual(1, attributes.count)
