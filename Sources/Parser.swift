@@ -15,84 +15,28 @@ import Foundation
 public class Parser {
 	private static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
 
-	private var _treeBuilder: TreeBuilder
-	private var _maxErrors: Int = DEFAULT_MAX_ERRORS
-	private var _errors: ParseErrorList = ParseErrorList(16, 16)
-	private var _settings: ParseSettings
+	public var treeBuilder: TreeBuilder
+	public var maxErrors: Int = DEFAULT_MAX_ERRORS
+	public private(set) var errors: ParseErrorList = ParseErrorList(16, 16)
+    public var isTrackErrors: Bool { maxErrors > 0 }
+	public var settings: ParseSettings
 
 	/**
 	* Create a new Parser, using the specified TreeBuilder
 	* @param treeBuilder TreeBuilder to use to parse input into Documents.
 	*/
 	init(_ treeBuilder: TreeBuilder) {
-		self._treeBuilder = treeBuilder
-		_settings = treeBuilder.defaultSettings()
+		self.treeBuilder = treeBuilder
+        self.settings = treeBuilder.defaultSettings()
 	}
 
     // TODO: Document
 	public func parseHTML(_ html: String, baseURI: String) throws -> Document {
-		_errors = isTrackErrors() ? ParseErrorList.tracking(_maxErrors) : ParseErrorList.noTracking()
-		return try _treeBuilder.parse(html, baseURI, _errors, _settings)
+		errors = isTrackErrors ? ParseErrorList.tracking(maxErrors) : ParseErrorList.noTracking()
+		return try treeBuilder.parse(html, baseURI, errors, settings)
 	}
 
-	// gets & sets
-	/**
-	* Get the TreeBuilder currently in use.
-	* @return current TreeBuilder.
-	*/
-	public func getTreeBuilder() -> TreeBuilder {
-		return _treeBuilder
-	}
-
-	/**
-	* Update the TreeBuilder used when parsing content.
-	* @param treeBuilder current TreeBuilder
-	* @return this, for chaining
-	*/
-    @discardableResult
-	public func setTreeBuilder(_ treeBuilder: TreeBuilder) -> Parser {
-		self._treeBuilder = treeBuilder
-		return self
-	}
-
-	/**
-	* Check if parse error tracking is enabled.
-	* @return current track error state.
-	*/
-	public func isTrackErrors() -> Bool {
-		return _maxErrors > 0
-	}
-
-	/**
-	* Enable or disable parse error tracking for the next parse.
-	* @param maxErrors the maximum number of errors to track. Set to 0 to disable.
-	* @return this, for chaining
-	*/
-    @discardableResult
-	public func setTrackErrors(_ maxErrors: Int) -> Parser {
-		self._maxErrors = maxErrors
-		return self
-	}
-
-	/**
-	* Retrieve the parse errors, if any, from the last parse.
-	* @return list of parse errors, up to the size of the maximum errors tracked.
-	*/
-	public func getErrors() -> ParseErrorList {
-		return _errors
-	}
-
-    @discardableResult
-	public func settings(_ settings: ParseSettings) -> Parser {
-		self._settings = settings
-		return self
-	}
-
-	public func settings() -> ParseSettings {
-		return _settings
-	}
-    
-	// static parse functions below
+	// MARK: Static Methods
 	/**
 	* Parse HTML into a Document.
 	*
@@ -240,8 +184,7 @@ public class Parser {
         return try Parser._parseHTML(bodyHtml, baseURI: baseURI)
 	}
 
-	// builders
-
+	// MARK: Builders
 	/**
 	* Create a new HTML parser. This parser treats input as HTML5, and enforces the creation of a normalised document,
 	* based on a knowledge of the semantics of the incoming tags.
