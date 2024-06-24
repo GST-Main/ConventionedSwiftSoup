@@ -12,7 +12,7 @@ import Foundation
 * Parses HTML into a {@link Document}. Generally best to use one of the  more convenient parse methods
 * in {@link SwiftSoup}.
 */
-public class HTMLParser {
+public class Parser {
 	private static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
 
 	public var treeBuilder: TreeBuilder
@@ -181,7 +181,7 @@ public class HTMLParser {
 	* @deprecated Use {@link #parseBodyFragment} or {@link #parseFragment} instead.
 	*/
 	public static func parseBodyFragmentRelaxed(_ bodyHtml: String, baseURI: String) throws -> Document {
-        return try HTMLParser._parseHTML(bodyHtml, baseURI: baseURI)
+        return try Parser._parseHTML(bodyHtml, baseURI: baseURI)
 	}
 
 	// MARK: Builders
@@ -190,8 +190,8 @@ public class HTMLParser {
 	* based on a knowledge of the semantics of the incoming tags.
 	* @return a new HTML parser.
 	*/
-	public static func htmlParser() -> HTMLParser {
-		return HTMLParser(HtmlTreeBuilder())
+	public static func htmlParser() -> Parser {
+		return Parser(HtmlTreeBuilder())
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class HTMLParser {
 	* rather creates a simple tree directly from the input.
 	* @return a new simple XML parser.
 	*/
-	public static func xmlParser() -> HTMLParser {
-		return HTMLParser(XmlTreeBuilder())
+	public static func xmlParser() -> Parser {
+		return Parser(XmlTreeBuilder())
 	}
 }

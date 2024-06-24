@@ -339,7 +339,7 @@ open class Node: Equatable, Hashable {
 
         let context: Element? = parent() as? Element
 
-        let nodes: Array<Node> = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
         try parentNode?.addChildren(index, nodes)
     }
 
@@ -375,7 +375,7 @@ open class Node: Equatable, Hashable {
         try Validate.notNull(obj: parentNode)
 
         let context: Element? = parent() as? Element
-        let nodes: Array<Node> = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
         try parentNode?.addChildren(index, nodes)
     }
 
@@ -389,7 +389,7 @@ open class Node: Equatable, Hashable {
         try Validate.notEmpty(string: html)
 
         let context: Element? = parent() as? Element
-        var wrapChildren: Array<Node> = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
+        var wrapChildren: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: getBaseUri())
         let wrapNode: Node? = wrapChildren.count > 0 ? wrapChildren[0] : nil
         if (wrapNode == nil || !(((wrapNode as? Element) != nil))) { // nothing to wrap with; noop
             return nil

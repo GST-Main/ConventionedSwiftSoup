@@ -409,7 +409,7 @@ open class Element: Node {
      */
     @discardableResult
     public func append(_ html: String)throws->Element {
-        let nodes: Array<Node> = try HTMLParser._parseHTMLFragment(html, context: self, baseURI: getBaseUri())
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: getBaseUri())
         try addChildren(nodes)
         return self
     }
@@ -422,7 +422,7 @@ open class Element: Node {
      */
     @discardableResult
     public func prepend(_ html: String)throws->Element {
-        let nodes: Array<Node> = try HTMLParser._parseHTMLFragment(html, context: self, baseURI: getBaseUri())
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: getBaseUri())
         try addChildren(0, nodes)
         return self
     }
