@@ -200,7 +200,7 @@ open class Elements: NSCopying {
 	/// Check if an element has text
 	open func hasText() -> Bool {
 		for element: Element in this {
-			if (element.hasText()) {
+			if (element.hasText) {
 				return true
 			}
 		}
@@ -218,7 +218,7 @@ open class Elements: NSCopying {
     public func eachText()throws->Array<String> {
         var texts: Array<String> = Array()
         for el: Element in this {
-            if (el.hasText()){
+            if (el.hasText){
                 texts.append(try el.getText())
             }
         }

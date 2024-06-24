@@ -1058,7 +1058,7 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func text(_ text: String)throws->Element {
+    public func setText(_ text: String) throws -> Element {
         empty()
         let textNode: TextNode = TextNode(text, baseUri)
         try appendChild(textNode)
@@ -1069,14 +1069,14 @@ open class Element: Node {
      Test if this element has any text content (that is not just whitespace).
      @return true if element has non-blank text content.
      */
-    public func hasText() -> Bool {
-        for child: Node in childNodes {
-            if let textNode = (child as? TextNode) {
-                if (!textNode.isBlank()) {
+    public var hasText: Bool {
+        for childNode in childNodes {
+            if let textNode = childNode as? TextNode {
+                if !textNode.isBlank() {
                     return true
                 }
-            } else if let el = (child as? Element) {
-                if (el.hasText()) {
+            } else if let element = childNode as? Element {
+                if element.hasText {
                     return true
                 }
             }
@@ -1090,14 +1090,14 @@ open class Element: Node {
      *
      * @see #dataNodes()
      */
-    public func data() -> String {
+    public var data: String {
         let sb: StringBuilder = StringBuilder()
 
         for childNode: Node in childNodes {
             if let data = (childNode as? DataNode) {
                 sb.append(data.getWholeData())
             } else if let element = (childNode as? Element) {
-                let elementData: String = element.data()
+                let elementData: String = element.data
                 sb.append(elementData)
             }
         }
@@ -1254,7 +1254,7 @@ open class Element: Node {
     @discardableResult
     public func val(_ value: String)throws->Element {
         if (tagName == "textarea") {
-            try text(value)
+            try setText(value)
         } else {
             try setAttribute(key: "value", value: value)
         }

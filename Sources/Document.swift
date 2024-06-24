@@ -83,12 +83,12 @@ open class Document: Element {
      not present
      @param title string to set as title
      */
-    public func title(_ title: String)throws {
+    public func title(_ title: String) throws {
         let titleEl: Element? = getElementsByTag("title")?.first
         if (titleEl == nil) { // add to head
-            try head()?.appendElement("title").text(title)
+            try head()?.appendElement("title").setText(title)
         } else {
-            try titleEl?.text(title)
+            try titleEl?.setText(title)
         }
     }
 
@@ -205,8 +205,8 @@ open class Document: Element {
      @return this document
      */
     @discardableResult
-    public override func text(_ text: String)throws->Element {
-        try body()?.text(text) // overridden to not nuke doc structure
+    public override func setText(_ text: String) throws -> Element {
+        try body()?.setText(text) // overridden to not nuke doc structure
         return self
     }
 
