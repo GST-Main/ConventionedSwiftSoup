@@ -307,7 +307,7 @@ open class Document: Element {
             let syntax: OutputSettings.Syntax = outputSettings().syntax()
 
             if (syntax == OutputSettings.Syntax.html) {
-                let metaCharset: Element? = try select("meta[charset]").first()
+                let metaCharset: Element? = select(cssQuery: "meta[charset]").first()
 
                 if (metaCharset != nil) {
                     try metaCharset?.setAttribute(key: "charset", value: charset().displayName())
@@ -320,7 +320,7 @@ open class Document: Element {
                 }
 
                 // Remove obsolete elements
-				let s = try select("meta[name=charset]")
+				let s = select(cssQuery: "meta[name=charset]")
 				try s.remove()
 
             } else if (syntax == OutputSettings.Syntax.xml) {

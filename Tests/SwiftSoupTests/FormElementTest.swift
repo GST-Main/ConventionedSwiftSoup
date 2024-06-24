@@ -26,7 +26,7 @@ class FormElementTest: XCTestCase {
 		"<select id=7><option></select><textarea id=8><p id=9>"
 		let doc: Document = try SwiftSoup.parse(html)
 
-		let form: FormElement = try doc.select("form").first()! as! FormElement
+		let form: FormElement = try doc.select(cssQuery: "form").first()! as! FormElement
 		XCTAssertEqual(8, form.elements().size())
 	}
 
@@ -103,7 +103,7 @@ class FormElementTest: XCTestCase {
 	func testFormsAddedAfterParseAreFormElements()throws {
 		let doc: Document = try SwiftSoup.parse("<body />")
 		try doc.body()?.html("<form action='http://example.com/search'><input name='q' value='search'>")
-		let formEl: Element = try doc.select("form").first()!
+		let formEl: Element = try doc.select(cssQuery: "form").first()!
 		XCTAssertNotNil(formEl as? FormElement)
 
 		let form: FormElement =  formEl as! FormElement
@@ -114,7 +114,7 @@ class FormElementTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<body />")
 		try doc.body()?.html("<form />")
 
-		let formEl: Element = try doc.select("form").first()!
+		let formEl: Element = try doc.select(cssQuery: "form").first()!
 		try formEl.append("<input name=foo value=bar>")
 
 		XCTAssertNotNil(formEl as? FormElement)

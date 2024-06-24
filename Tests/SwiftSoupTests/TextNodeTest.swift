@@ -56,7 +56,7 @@ class TextNodeTest: XCTestCase {
 
 	func testSplitText()throws {
 		let doc: Document = try SwiftSoup.parse("<div>Hello there</div>")
-		let div: Element = try doc.select("div").first()!
+		let div: Element = try doc.select(cssQuery: "div").first()!
 		let tn: TextNode =  div.childNode(0) as! TextNode
 		let tail: TextNode = try tn.splitText(6)
 		XCTAssertEqual("Hello ", tn.getWholeText())
@@ -68,7 +68,7 @@ class TextNodeTest: XCTestCase {
 
 	func testSplitAnEmbolden()throws {
 		let doc: Document = try SwiftSoup.parse("<div>Hello there</div>")
-		let div: Element = try doc.select("div").first()!
+		let div: Element = try doc.select(cssQuery: "div").first()!
 		let tn: TextNode = div.childNode(0) as! TextNode
 		let tail: TextNode = try  tn.splitText(6)
 		try tail.wrap("<b></b>")

@@ -271,8 +271,12 @@ open class Element: Node {
      * @see CssSelector
      * @throws CssSelector.SelectorParseException (unchecked) on an invalid CSS query.
      */
-    public func select(_ cssQuery: String)throws->Elements {
-        return try CssSelector.select(cssQuery, self)
+    public func select(cssQuery: String) -> Elements {
+        do {
+            return try CssSelector.select(cssQuery, self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
@@ -523,7 +527,7 @@ open class Element: Node {
         }
 
         selector.insert(contentsOf: " > ", at: selector.startIndex)
-        if (try parent()!.select(selector).array().count > 1) {
+        if (parent()!.select(cssQuery: selector).array().count > 1) {
             selector.append(":nth-child(\(try elementSiblingIndex() + 1))")
         }
 

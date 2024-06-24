@@ -66,7 +66,7 @@ class DocumentTest: XCTestCase {
 			try doc.text("Replaced")
 			XCTAssertEqual("Replaced", try doc.text())
 			XCTAssertEqual("Replaced", try doc.body()!.text())
-			XCTAssertEqual(1, try doc.select("head").size())
+			XCTAssertEqual(1, try doc.select(cssQuery: "head").size())
 		} catch {
 			XCTAssertEqual(1, 2)
 		}
@@ -80,12 +80,12 @@ class DocumentTest: XCTestCase {
 			XCTAssertEqual("", try noTitle.title())
 			try noTitle.title("Hello")
 			XCTAssertEqual("Hello", try noTitle.title())
-			XCTAssertEqual("Hello", try noTitle.select("title").first()?.text())
+			XCTAssertEqual("Hello", try noTitle.select(cssQuery: "title").first()?.text())
 
 			XCTAssertEqual("First", try withTitle.title())
 			try withTitle.title("Hello")
 			XCTAssertEqual("Hello", try withTitle.title())
-			XCTAssertEqual("Hello", try withTitle.select("title").first()?.text())
+			XCTAssertEqual("Hello", try withTitle.select(cssQuery: "title").first()?.text())
 
 			let normaliseTitle: Document = try SwiftSoup.parse("<title>   Hello\nthere   \n   now   \n")
 			XCTAssertEqual("Hello there now", try normaliseTitle.title())
@@ -130,7 +130,7 @@ class DocumentTest: XCTestCase {
 
 		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(clone.html()))
 		try! clone.title("Hello there")
-		try! clone.select("p").first()!.text("One more").setAttribute(key: "id", value: "1")
+		try! clone.select(cssQuery: "p").first()!.text("One more").setAttribute(key: "id", value: "1")
 		XCTAssertEqual("<html><head><title>Hello there</title> </head><body><p id=\"1\">One more</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(clone.html()))
 		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(doc.html()))
 	}
@@ -245,7 +245,7 @@ class DocumentTest: XCTestCase {
 		let htmlCharsetUTF8: String = "<html>\n" + " <head>\n" + "  <meta charset=\"" + "UTF-8" + "\">\n" + " </head>\n" + " <body></body>\n" + "</html>"
 		XCTAssertEqual(htmlCharsetUTF8, try! doc.outerHtml())
 
-		let selectedElement: Element = try! doc.select("meta[charset]").first()!
+		let selectedElement: Element = try! doc.select(cssQuery: "meta[charset]").first()!
 		XCTAssertEqual(DocumentTest.charsetUtf8, doc.charset())
 		XCTAssertEqual("UTF-8", try! selectedElement.attr("charset"))
 		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
@@ -265,7 +265,7 @@ class DocumentTest: XCTestCase {
 		"</html>"
 		XCTAssertEqual(htmlCharsetISO, try doc.outerHtml())
 
-		let selectedElement: Element = try doc.select("meta[charset]").first()!
+		let selectedElement: Element = try doc.select(cssQuery: "meta[charset]").first()!
 		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), doc.charset().displayName())
 		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), try selectedElement.attr("charset"))
 		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
@@ -276,7 +276,7 @@ class DocumentTest: XCTestCase {
 		docNoCharset.updateMetaCharsetElement(true)
 		try docNoCharset.charset(String.Encoding.utf8)
 
-		try XCTAssertEqual(String.Encoding.utf8.displayName(), docNoCharset.select("meta[charset]").first()?.attr("charset"))
+		try XCTAssertEqual(String.Encoding.utf8.displayName(), docNoCharset.select(cssQuery: "meta[charset]").first()?.attr("charset"))
 
 		let htmlCharsetUTF8 = "<html>\n" +
 			" <head>\n" +
@@ -295,7 +295,7 @@ class DocumentTest: XCTestCase {
 			" <body></body>\n" +
 		"</html>"
 		try XCTAssertEqual(htmlNoCharset, docDisabled.outerHtml())
-		try XCTAssertNil(docDisabled.select("meta[charset]").first())
+		try XCTAssertNil(docDisabled.select(cssQuery: "meta[charset]").first())
 	}
 
 	func testMetaCharsetUpdateDisabledNoChanges()throws {
@@ -310,11 +310,11 @@ class DocumentTest: XCTestCase {
 		"</html>"
 		try XCTAssertEqual(htmlCharset, doc.outerHtml())
 
-		var selectedElement: Element = try doc.select("meta[charset]").first()!
+		var selectedElement: Element = try doc.select(cssQuery: "meta[charset]").first()!
 		XCTAssertNotNil(selectedElement)
 		try XCTAssertEqual("dontTouch", selectedElement.attr("charset"))
 
-		selectedElement = try doc.select("meta[name=charset]").first()!
+		selectedElement = try doc.select(cssQuery: "meta[name=charset]").first()!
 		XCTAssertNotNil(selectedElement)
 		try XCTAssertEqual("dontTouch", selectedElement.attr("content"))
 	}
@@ -323,9 +323,9 @@ class DocumentTest: XCTestCase {
 		let doc: Document = createHtmlDocument("dontTouch")
 		try doc.charset(String.Encoding.utf8)
 
-		let selectedElement: Element = try doc.select("meta[charset]").first()!
+		let selectedElement: Element = try doc.select(cssQuery: "meta[charset]").first()!
 		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedElement.attr("charset"))
-		try XCTAssertTrue(doc.select("meta[name=charset]").isEmpty())
+		try XCTAssertTrue(doc.select(cssQuery: "meta[name=charset]").isEmpty())
 	}
 
 	func testMetaCharsetUpdateCleanup()throws {

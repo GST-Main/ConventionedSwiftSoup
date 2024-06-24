@@ -100,15 +100,15 @@ class HtmlParserTest: XCTestCase {
 	func testParsesUnterminatedTextarea()throws {
 		// don't parse right to end, but break on <p>
 		let doc: Document = try SwiftSoup.parse("<body><p><textarea>one<p>two")
-		let t: Element = try doc.select("textarea").first()!
+		let t: Element = try doc.select(cssQuery: "textarea").first()!
 		XCTAssertEqual("one", try t.text())
-		XCTAssertEqual("two", try doc.select("p").get(1).text())
+		XCTAssertEqual("two", try doc.select(cssQuery: "p").get(1).text())
 	}
 
 	func testParsesUnterminatedOption()throws {
 		// bit weird this -- browsers and spec get stuck in select until there's a </select>
 		let doc: Document = try SwiftSoup.parse("<body><p><select><option>One<option>Two</p><p>Three</p>")
-		let options: Elements = try doc.select("option")
+		let options: Elements = try doc.select(cssQuery: "option")
 		XCTAssertEqual(2, options.size())
 		XCTAssertEqual("One", try options.first()!.text())
 		XCTAssertEqual("TwoThree", try options.last()!.text())
@@ -175,7 +175,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testHandlesTextArea()throws {
 		let doc: Document = try SwiftSoup.parse("<textarea>Hello</textarea>")
-		let els: Elements = try doc.select("textarea")
+		let els: Elements = try doc.select(cssQuery: "textarea")
 		XCTAssertEqual("Hello", try els.text())
 		XCTAssertEqual("Hello", try els.val())
 	}
@@ -184,7 +184,7 @@ class HtmlParserTest: XCTestCase {
 		// preserve because the tag is marked as preserve white space
 		let doc: Document = try SwiftSoup.parse("<textarea>\n\tOne\n\tTwo\n\tThree\n</textarea>")
 		let expect: String = "One\n\tTwo\n\tThree" // the leading and trailing spaces are dropped as a convenience to authors
-		let el: Element = try doc.select("textarea").first()!
+		let el: Element = try doc.select(cssQuery: "textarea").first()!
 		XCTAssertEqual(expect, try el.text())
 		XCTAssertEqual(expect, try el.val())
 		XCTAssertEqual(expect, try el.html())
@@ -195,7 +195,7 @@ class HtmlParserTest: XCTestCase {
 		// preserve because it's content is a data node
 		let doc: Document = try SwiftSoup.parse("<script>\nOne\n\tTwo\n\tThree\n</script>")
 		let expect = "\nOne\n\tTwo\n\tThree\n"
-		let el: Element = try doc.select("script").first()!
+		let el: Element = try doc.select(cssQuery: "script").first()!
 		XCTAssertEqual(expect, el.data())
 		XCTAssertEqual("One\n\tTwo\n\tThree", try el.html())
 		XCTAssertEqual("<script>" + expect + "</script>", try el.outerHtml())
@@ -205,9 +205,9 @@ class HtmlParserTest: XCTestCase {
 		// old SwiftSoup used to wrap this in <ul>, but that's not to spec
 		let h: String = "<li>Point one<li>Point two"
 		let doc: Document = try SwiftSoup.parse(h)
-		let ol: Elements = try doc.select("ul") // should NOT have created a default ul.
+		let ol: Elements = try doc.select(cssQuery: "ul") // should NOT have created a default ul.
 		XCTAssertEqual(0, ol.size())
-		let lis: Elements = try doc.select("li")
+		let lis: Elements = try doc.select(cssQuery: "li")
 		XCTAssertEqual(2, lis.size())
 		XCTAssertEqual("body", lis.first()!.parent()!.tagName())
 
@@ -215,10 +215,10 @@ class HtmlParserTest: XCTestCase {
 		let h2: String = "<ol><li><p>Point the first<li><p>Point the second"
 		let doc2: Document = try SwiftSoup.parse(h2)
 
-		XCTAssertEqual(0, try doc2.select("ul").size())
-		XCTAssertEqual(1, try doc2.select("ol").size())
-		XCTAssertEqual(2, try doc2.select("ol li").size())
-		XCTAssertEqual(2, try doc2.select("ol li p").size())
+		XCTAssertEqual(0, try doc2.select(cssQuery: "ul").size())
+		XCTAssertEqual(1, try doc2.select(cssQuery: "ol").size())
+		XCTAssertEqual(2, try doc2.select(cssQuery: "ol li").size())
+		XCTAssertEqual(2, try doc2.select(cssQuery: "ol li p").size())
 		XCTAssertEqual(1, try doc2.select("ol li").get(0).children().size()) // one p in first li
 	}
 
@@ -309,7 +309,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesInvalidStartTags()throws {
 		let h: String = "<div>Hello < There <&amp;></div>" // parse to <div {#text=Hello < There <&>}>
 		let doc: Document = try SwiftSoup.parse(h)
-		XCTAssertEqual("Hello < There <&>", try doc.select("div").first()!.text())
+		XCTAssertEqual("Hello < There <&>", try doc.select(cssQuery: "div").first()!.text())
 	}
 
 	func testHandlesUnknownTags()throws {
@@ -333,7 +333,7 @@ class HtmlParserTest: XCTestCase {
 		let h = "<!-- comment --><p><a href='foo'>One</a></p>"
 		let doc: Document = try SwiftSoup.parseBodyFragment(h, "http://example.com")
 		XCTAssertEqual("<body><!-- comment --><p><a href=\"foo\">One</a></p></body>", try TextUtil.stripNewlines(doc.body()!.outerHtml()))
-		XCTAssertEqual("http://example.com/foo", try doc.select("a").first()!.absUrl("href"))
+		XCTAssertEqual("http://example.com/foo", try doc.select(cssQuery: "a").first()!.absUrl("href"))
 	}
 
 	func testHandlesUnknownNamespaceTags()throws {
@@ -378,7 +378,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesMultiClosingBody()throws {
 		let h = "<body><p>Hello</body><p>there</p></body></body></html><p>now"
 		let doc: Document = try SwiftSoup.parse(h)
-		XCTAssertEqual(3, try doc.select("p").size())
+		XCTAssertEqual(3, try doc.select(cssQuery: "p").size())
 		XCTAssertEqual(3, doc.body()!.children().size())
 	}
 
