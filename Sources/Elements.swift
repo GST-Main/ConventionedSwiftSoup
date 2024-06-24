@@ -154,18 +154,6 @@ open class Elements: NSCopying {
 	}
 
 	/**
-	* Get the form element's value of the first matched element.
-	* @return The form element's value, or empty if not set.
-	* @see Element#val()
-	*/
-	open func val()throws->String {
-		if (size() > 0) {
-			return try first()!.val()
-		}
-		return ""
-	}
-
-	/**
 	* Set the form element's value in each of the matched elements.
 	* @param value The value to set into each matched element
 	* @return this (for chaining)
@@ -173,7 +161,7 @@ open class Elements: NSCopying {
     @discardableResult
 	open func val(_ value: String)throws->Elements {
 		for element: Element in this {
-			try element.val(value)
+			try element.setValue(value)
 		}
 		return self
 	}

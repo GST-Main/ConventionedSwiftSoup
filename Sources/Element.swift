@@ -1242,11 +1242,11 @@ open class Element: Node {
      * Get the value of a form element (input, textarea, etc).
      * @return the value of the form element, or empty string if not set.
      */
-    public func val()throws->String {
-        if (tagName=="textarea") {
-            return try getText()
+    public var value: String? {
+        if tagName == "textarea" {
+            return text
         } else {
-            return try attr("value")
+            return try? attr("value")
         }
     }
 
@@ -1256,8 +1256,8 @@ open class Element: Node {
      * @return this element (for chaining)
      */
     @discardableResult
-    public func val(_ value: String)throws->Element {
-        if (tagName == "textarea") {
+    public func setValue(_ value: String) throws -> Element {
+        if tagName == "textarea" {
             try setText(value)
         } else {
             try setAttribute(key: "value", value: value)
