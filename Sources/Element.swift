@@ -810,8 +810,12 @@ open class Element: Node {
      * @param index 0-based index
      * @return elements less than index
      */
-    public func getElementsByIndexLessThan(_ index: Int)throws->Elements {
-        return try Collector.collect(Evaluator.IndexLessThan(index), self)
+    public func getElementsByIndex(lessThan index: Int) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.IndexLessThan(index), self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
@@ -819,8 +823,12 @@ open class Element: Node {
      * @param index 0-based index
      * @return elements greater than index
      */
-    public func getElementsByIndexGreaterThan(_ index: Int)throws->Elements {
-        return try Collector.collect(Evaluator.IndexGreaterThan(index), self)
+    public func getElementsByIndex(greaterThan index: Int) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.IndexGreaterThan(index), self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
@@ -828,8 +836,12 @@ open class Element: Node {
      * @param index 0-based index
      * @return elements equal to index
      */
-    public func getElementsByIndexEquals(_ index: Int)throws->Elements {
-        return try Collector.collect(Evaluator.IndexEquals(index), self)
+    public func getElementsByIndex(equals index: Int) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.IndexEquals(index), self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
