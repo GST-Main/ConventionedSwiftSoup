@@ -168,14 +168,14 @@ open class TextNode: Node {
         return try super.setAttribute(key: attributeKey, value: attributeValue)
     }
 
-    open override func hasAttr(_ attributeKey: String) -> Bool {
+    open override func hasAttribute(withKey attributeKey: String) -> Bool {
         ensureAttributes()
-        return super.hasAttr(attributeKey)
+        return super.hasAttribute(withKey: attributeKey)
     }
 
-    open override func removeAttr(_ attributeKey: String)throws->Node {
+    open override func removeAttribute(withKey attributeKey: String)throws->Node {
         ensureAttributes()
-        return try super.removeAttr(attributeKey)
+        return try super.removeAttribute(withKey: attributeKey)
     }
 
     open override func absUrl(_ attributeKey: String)throws->String {

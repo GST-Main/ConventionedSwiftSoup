@@ -54,7 +54,7 @@ public class FormElement: Element {
      * document's base URI when parsing.
      */
 //    public func submit()throws->Connection {
-//        let action: String = hasAttr("action") ? try absUrl("action") : try baseUri()
+//        let action: String = hasAttribute("action") ? try absUrl("action") : try baseUri()
 //        Validate.notEmpty(action, "Could not determine a form action URL for submit. Ensure you set a base URI when parsing.")
 //        Connection.Method method = attr("method").toUpperCase().equals("POST") ?
 //            Connection.Method.POST : Connection.Method.GET
@@ -76,7 +76,7 @@ public class FormElement: Element {
 //        // iterate the form control elements and accumulate their values
 //        for (Element el: elements) {
 //            if (!el.tag().isFormSubmittable()) continue; // contents are form listable, superset of submitable
-//            if (el.hasAttr("disabled")) continue; // skip disabled form inputs
+//            if (el.hasAttribute("disabled")) continue; // skip disabled form inputs
 //            String name = el.attr("name");
 //            if (name.length() == 0) continue;
 //            String type = el.attr("type");
@@ -95,7 +95,7 @@ public class FormElement: Element {
 //                }
 //            } else if ("checkbox".equalsIgnoreCase(type) || "radio".equalsIgnoreCase(type)) {
 //                // only add checkbox or radio if they have the checked attribute
-//                if (el.hasAttr("checked")) {
+//                if (el.hasAttribute("checked")) {
 //                    final String val = el.val().length() >  0 ? el.val() : "on";
 //                    data.add(HttpConnection.KeyVal.create(name, val));
 //                }

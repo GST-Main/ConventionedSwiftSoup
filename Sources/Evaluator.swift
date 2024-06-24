@@ -121,7 +121,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return element.hasAttr(key)
+            return element.hasAttribute(withKey: key)
         }
 
         public override func toString() -> String {
@@ -165,7 +165,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element) throws -> Bool {
-            if element.hasAttr(key) {
+            if element.hasAttribute(withKey: key) {
                 let string = element.getAttribute(key: key)
                 return value.equalsIgnoreCase(string: string?.trim())
             }
@@ -206,7 +206,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            if element.hasAttr(key) {
+            if element.hasAttribute(withKey: key) {
                 return element.getAttribute(key: key)?.lowercased().hasPrefix(value) == true  // value is lower case already
             }
             return false
@@ -227,7 +227,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            if element.hasAttr(key) {
+            if element.hasAttribute(withKey: key) {
                 return element.getAttribute(key: key)?.lowercased().hasSuffix(value) == true // value is lower case
             }
             return false
@@ -248,7 +248,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            if element.hasAttr(key) {
+            if element.hasAttribute(withKey: key) {
                 return element.getAttribute(key: key)?.lowercased().contains(value) == true // value is lower case
             }
             return false
@@ -274,7 +274,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            if element.hasAttr(key) {
+            if element.hasAttribute(withKey: key) {
                 guard let string = element.getAttribute(key: key) else {
                     return false
                 }

@@ -376,14 +376,14 @@ class ElementTest: XCTestCase {
 		try div.setAttribute(key: "false", value: "value")
 		try div.setAttribute(key: "false", value: false)
 
-		XCTAssertTrue(div.hasAttr("true"))
+		XCTAssertTrue(div.hasAttribute(withKey: "true"))
 		XCTAssertEqual("", try div.getAttribute(key: "true"))
 
 		let attributes: Array<Attribute> = div.getAttributes()!.asList()
 		XCTAssertEqual(1, attributes.count)
 		XCTAssertTrue((attributes[0] as? BooleanAttribute) != nil)
 
-		XCTAssertFalse(div.hasAttr("false"))
+		XCTAssertFalse(div.hasAttribute(withKey: "false"))
 
 		XCTAssertEqual("<div true></div>", try div.outerHtml())
 	}
@@ -941,12 +941,12 @@ class ElementTest: XCTestCase {
         let html = "<a one two three four>Text</a>"
         let doc = try SwiftSoup.parse(html)
         let a: Element = try doc.select("a").first()!
-       try a.removeAttr("zero")
-            .removeAttr("one")
-            .removeAttr("two")
-            .removeAttr("three")
-            .removeAttr("four")
-            .removeAttr("five")
+       try a.removeAttribute(withKey: "zero")
+            .removeAttribute(withKey: "one")
+            .removeAttribute(withKey: "two")
+            .removeAttribute(withKey: "three")
+            .removeAttribute(withKey: "four")
+            .removeAttribute(withKey: "five")
         XCTAssertEqual("<a>Text</a>", try a.outerHtml())
     }
 

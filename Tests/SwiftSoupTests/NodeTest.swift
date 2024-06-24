@@ -91,12 +91,12 @@ class NodeTest: XCTestCase {
 			let one: Element = try doc.select(cssQuery: "#1").first()!
 			let two: Element = try doc.select(cssQuery: "#2").first()!
 
-			XCTAssertFalse(one.hasAttr("abs:href"))
-			XCTAssertTrue(one.hasAttr("href"))
+			XCTAssertFalse(one.hasAttribute(withKey: "abs:href"))
+			XCTAssertTrue(one.hasAttribute(withKey: "href"))
 			XCTAssertEqual("", try one.absUrl("href"))
 
-			XCTAssertTrue(two.hasAttr("abs:href"))
-			XCTAssertTrue(two.hasAttr("href"))
+			XCTAssertTrue(two.hasAttribute(withKey: "abs:href"))
+			XCTAssertTrue(two.hasAttribute(withKey: "href"))
 			XCTAssertEqual("https://jsoup.org/", try two.absUrl("href"))
 		} catch {
 			XCTAssertEqual(1, 2)
@@ -109,7 +109,7 @@ class NodeTest: XCTestCase {
 			// if there is a literal attribute "abs:xxx", don't try and make absolute.
 			let doc: Document = try SwiftSoup.parse("<a abs:href='odd'>One</a>")
 			let el: Element = try doc.select(cssQuery: "a").first()!
-			XCTAssertTrue(el.hasAttr("abs:href"))
+			XCTAssertTrue(el.hasAttribute(withKey: "abs:href"))
 			XCTAssertEqual("odd", try el.getAttribute(key: "abs:href"))
 		} catch {
 			XCTAssertEqual(1, 2)

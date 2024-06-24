@@ -122,7 +122,7 @@ open class Elements: NSCopying {
     */
     open func hasAttribute(key: String) -> Bool {
         for element in self {
-            if element.hasAttr(key) {
+            if element.hasAttribute(withKey: key) {
                 return true
             }
         }

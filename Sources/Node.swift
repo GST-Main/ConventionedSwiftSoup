@@ -112,12 +112,12 @@ open class Node: Equatable, Hashable {
      * @param attributeKey The attribute key to check.
      * @return true if the attribute exists, false if not.
      */
-    open func hasAttr(_ attributeKey: String) -> Bool {
+    open func hasAttribute(withKey key: String) -> Bool {
 		guard let attributes = attributes else {
 			return false
 		}
-        if (attributeKey.startsWith(Node.abs)) {
-            let key: String = attributeKey.substring(Node.abs.count)
+        if (key.startsWith(Node.abs)) {
+            let key: String = key.substring(Node.abs.count)
             do {
                 let abs = try absUrl(key)
                 if (attributes.hasKeyIgnoreCase(key: key) &&  !Node.empty.equals(abs)) {
@@ -128,7 +128,7 @@ open class Node: Equatable, Hashable {
             }
 
         }
-        return attributes.hasKeyIgnoreCase(key: attributeKey)
+        return attributes.hasKeyIgnoreCase(key: key)
     }
 
     /**
@@ -137,8 +137,8 @@ open class Node: Equatable, Hashable {
      * @return this (for chaining)
      */
     @discardableResult
-    open func removeAttr(_ attributeKey: String)throws->Node {
-        try attributes?.removeIgnoreCase(key: attributeKey)
+    open func removeAttribute(withKey key: String) throws -> Node {
+        try attributes?.removeIgnoreCase(key: key)
         return self
     }
 
@@ -197,7 +197,7 @@ open class Node: Equatable, Hashable {
     open func absUrl(_ attributeKey: String)throws->String {
         try Validate.notEmpty(string: attributeKey)
 
-        if (!hasAttr(attributeKey)) {
+        if (!hasAttribute(withKey: attributeKey)) {
             return Node.empty // nothing to make absolute with
         } else {
             fatalError("FIXME") // FIXME: fixme

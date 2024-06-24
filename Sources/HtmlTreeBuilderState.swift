@@ -168,7 +168,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 } else if TagSets.baseEtc.contains(name) {
                     let el: Element = try tb.insertEmpty(start)
                     // SwiftSoup special: update base the frist time it is seen
-                    if (name.equals("base") && el.hasAttr("href")) {
+                    if (name.equals("base") && el.hasAttribute(withKey: "href")) {
                         try tb.maybeSetBaseUri(el)
                     }
                 } else if (name.equals("meta")) {
@@ -384,7 +384,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         // merge attributes onto real html
                         let html: Element = tb.getStack()[0]
                         for attribute in startTag.getAttributes() {
-                            if (!html.hasAttr(attribute.getKey())) {
+                            if (!html.hasAttribute(withKey: attribute.getKey())) {
                                 html.getAttributes()?.put(attribute: attribute)
                             }
                         }
@@ -400,7 +400,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             tb.framesetOk(false)
                             let body: Element = stack[1]
                             for attribute: Attribute in startTag.getAttributes() {
-                                if (!body.hasAttr(attribute.getKey())) {
+                                if (!body.hasAttribute(withKey: attribute.getKey())) {
                                     body.getAttributes()?.put(attribute: attribute)
                                 }
                             }
