@@ -89,7 +89,8 @@ public class XmlTreeBuilder: TreeBuilder {
             // so we do a bit of a hack and parse the data as an element to pull the attributes out
             let data: String = comment.getData()
             if (data.count > 1 && (data.startsWith("!") || data.startsWith("?"))) {
-                let doc: Document = try SwiftSoup.parse("<" + data.substring(1, data.count - 2) + ">", baseUri, Parser.xmlParser())
+                let parser = Parser.xmlParser()
+                let doc: Document = try parser.parseHTML("<" + data.substring(1, data.count - 2) + ">", baseURI: baseUri)
                 let el: Element = doc.child(0)
                 insert = XmlDeclaration(settings.normalizeTag(el.tagName()), comment.getBaseUri(), data.startsWith("!"))
                 insert.getAttributes()?.addAll(incoming: el.getAttributes())

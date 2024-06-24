@@ -29,9 +29,10 @@ public class Parser {
 		_settings = treeBuilder.defaultSettings()
 	}
 
-	public func parseInput(_ html: String, _ baseUri: String)throws->Document {
+    // TODO: Document
+	public func parseHTML(_ html: String, baseURI: String) throws -> Document {
 		_errors = isTrackErrors() ? ParseErrorList.tracking(_maxErrors) : ParseErrorList.noTracking()
-		return try _treeBuilder.parse(html, baseUri, _errors, _settings)
+		return try _treeBuilder.parse(html, baseURI, _errors, _settings)
 	}
 
 	// gets & sets
@@ -100,10 +101,16 @@ public class Parser {
 	*
 	* @return parsed Document
 	*/
-	public static func parse(_ html: String, _ baseUri: String)throws->Document {
-		let treeBuilder: TreeBuilder = HtmlTreeBuilder()
-		return try treeBuilder.parse(html, baseUri, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
-	}
+    public class func parseHTML(_ html: String, baseURI: String = "") throws -> Document {
+        let treeBuilder: TreeBuilder = HtmlTreeBuilder()
+        return try treeBuilder.parse(html, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
+    }
+    
+    // TODO: Document
+    public class func parseHTML(_ html: String, baseURI: String = "") -> Document? {
+        let treeBuilder: TreeBuilder = HtmlTreeBuilder()
+        return try? treeBuilder.parse(html, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
+    }
 
 	/**
 	* Parse a fragment of HTML into a list of nodes. The context element, if supplied, supplies parsing context.
@@ -115,10 +122,16 @@ public class Parser {
 	*
 	* @return list of nodes parsed from the input HTML. Note that the context element, if supplied, is not modified.
 	*/
-	public static func parseFragment(_ fragmentHtml: String, _ context: Element?, _ baseUri: String)throws->Array<Node> {
-		let treeBuilder = HtmlTreeBuilder()
-		return try treeBuilder.parseFragment(fragmentHtml, context, baseUri, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
-	}
+    public static func parseHTMLFragment(_ fragmentHTML: String, context: Element?, baseURI: String = "") throws -> Array<Node> {
+        let treeBuilder = HtmlTreeBuilder()
+        return try treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
+    }
+
+    // TODO: Document
+    public static func parseHTMLFragment(_ fragmentHTML: String, context: Element?, baseURI: String = "") -> Array<Node>? {
+        let treeBuilder = HtmlTreeBuilder()
+        return try? treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
+    }
 
 	/**
 	* Parse a fragment of XML into a list of nodes.
@@ -127,9 +140,15 @@ public class Parser {
 	* @param baseUri base URI of document (i.e. original fetch location), for resolving relative URLs.
 	* @return list of nodes parsed from the input XML.
 	*/
-	public static func parseXmlFragment(_ fragmentXml: String, _ baseUri: String)throws->Array<Node> {
+    public static func parseXMLFragment(_ fragmentXML: String, baseURI: String = "") throws -> Array<Node> {
+        let treeBuilder: XmlTreeBuilder = XmlTreeBuilder()
+        return try treeBuilder.parseFragment(fragmentXML, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
+    }
+
+    // TODO: Document
+	public static func parseXMLFragment(_ fragmentXML: String, baseURI: String = "") -> Array<Node>? {
 		let treeBuilder: XmlTreeBuilder = XmlTreeBuilder()
-		return try treeBuilder.parseFragment(fragmentXml, baseUri, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
+		return try? treeBuilder.parseFragment(fragmentXML, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
 	}
 
 	/**
@@ -140,22 +159,102 @@ public class Parser {
 	*
 	* @return Document, with empty head, and HTML parsed into body
 	*/
-	public static func parseBodyFragment(_ bodyHtml: String, _ baseUri: String)throws->Document {
-		let doc: Document = Document.createShell(baseUri)
-		if let body: Element = doc.body() {
-			let nodeList: Array<Node> = try parseFragment(bodyHtml, body, baseUri)
-			//var nodes: [Node] = nodeList.toArray(Node[nodeList.size()]) // the node list gets modified when re-parented
+    public static func parseBodyFragment(_ bodyHTML: String, baseURI: String = "") throws -> Document {
+        let document = Document.createShell(baseURI)
+        if let body: Element = document.body() {
+            let nodeList: Array<Node> = try parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI)
             if nodeList.count > 0 {
                 for i in 1..<nodeList.count {
                     try nodeList[i].remove()
                 }
             }
+            for node: Node in nodeList {
+                try body.appendChild(node)
+            }
+        }
+        return document
+    }
+
+    // TODO: Document
+	public static func parseBodyFragment(_ bodyHTML: String, baseURI: String = "") -> Document? {
+		let document = Document.createShell(baseURI)
+		if let body: Element = document.body() {
+            guard let nodeList: Array<Node> = parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI) else {
+                return nil
+            }
+            if nodeList.count > 0 {
+                for i in 1..<nodeList.count {
+                    do {
+                        try nodeList[i].remove()
+                    } catch {
+                        return nil
+                    }
+                }
+            }
 			for node: Node in nodeList {
-				try body.appendChild(node)
+                do {
+                    try body.appendChild(node)
+                } catch {
+                    return nil
+                }
 			}
 		}
-		return doc
+		return document
 	}
+    
+    // FIXME: Document
+    /**
+    * Get safe HTML from untrusted input HTML, by parsing input HTML and filtering it through a white-list of
+    * permitted
+    * tags and attributes.
+    *
+    * @param bodyHtml input untrusted HTML (body fragment)
+    * @param baseUri URL to resolve relative URLs against
+    * @param whitelist white-list of permitted HTML elements
+    * @param outputSettings document output settings; use to control pretty-printing and entity escape modes
+    * @return safe HTML (body fragment)
+    * @see Cleaner#clean(Document)
+    */
+    public static func cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) throws -> String {
+        let dirty: Document = try parseBodyFragment(bodyHTML, baseURI: baseURI)
+        let cleaner = Cleaner(whitelist)
+        let clean: Document = try cleaner.clean(dirty)
+        if let settings {
+            clean.outputSettings(settings)
+        }
+        guard let body = clean.body() else {
+            throw IllegalArgumentError(message: "No body fragment after cleaning")
+        }
+        return try body.html()
+    }
+
+    // TODO: Document
+    public static func cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) -> String? {
+        do {
+            let result: String = try cleanBodyFragment(bodyHTML, baseURI: baseURI, whitelist: whitelist, settings: settings)
+            return result
+        } catch {
+            return nil
+        }
+    }
+    
+    /**
+     Test if the input HTML has only tags and attributes allowed by the Whitelist. Useful for form validation. The input HTML should
+     still be run through the cleaner to set up enforced attributes, and to tidy the output.
+     @param bodyHtml HTML to test
+     @param whitelist whitelist to test against
+     @return true if no tags or attributes were removed; false otherwise
+     @see #clean(String, Whitelist)
+     */
+    public static func validateBodyFragment(_ bodyHTML: String, whitelist: Whitelist) -> Bool {
+        do {
+            let dirty: Document = try parseBodyFragment(bodyHTML, baseURI: "")
+            let cleaner  = Cleaner(whitelist)
+            return try cleaner.isValid(dirty)
+        } catch {
+            return false
+        }
+    }
 
 	/**
 	* Utility method to unescape HTML entities from a string
@@ -175,8 +274,8 @@ public class Parser {
 	* @return parsed Document
 	* @deprecated Use {@link #parseBodyFragment} or {@link #parseFragment} instead.
 	*/
-	public static func parseBodyFragmentRelaxed(_ bodyHtml: String, _ baseUri: String)throws->Document {
-		return try parse(bodyHtml, baseUri)
+	public static func parseBodyFragmentRelaxed(_ bodyHtml: String, baseURI: String) throws -> Document {
+        return try Parser.parseHTML(bodyHtml, baseURI: baseURI)
 	}
 
 	// builders
