@@ -222,8 +222,8 @@ open class Element: Node {
      *     <li>{@code p.textNodes()} = {@code List<TextNode>["One ", " Three ", " Four"]}</li>
      * </ul>
      */
-    open func textNodes()->Array<TextNode> {
-        var textNodes =  Array<TextNode>()
+    open var textNodes: [TextNode] {
+        var textNodes: [TextNode] = []
         for node in childNodes {
             if let n = node as? TextNode {
                 textNodes.append(n)
@@ -241,8 +241,8 @@ open class Element: Node {
      * empty list.
      * @see #data()
      */
-    open func dataNodes()->Array<DataNode> {
-        var dataNodes = Array<DataNode>()
+    open var dataNodes: [DataNode] {
+        var dataNodes: [DataNode] = []
         for node in childNodes {
             if let n = node as? DataNode {
                 dataNodes.append(n)
