@@ -75,7 +75,7 @@
 		8CE418271DAA54A900240B42 /* SwiftSoup.h in Headers */ = {isa = PBXBuildFile; fileRef = 8CE418191DAA54A900240B42 /* SwiftSoup.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		8CE418591DAA568600240B42 /* Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418301DAA568600240B42 /* Connection.swift */; };
 		8CE4185A1DAA568600240B42 /* DataUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418321DAA568600240B42 /* DataUtil.swift */; };
-		8CE4185B1DAA568600240B42 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418331DAA568600240B42 /* Exception.swift */; };
+		8CE4185B1DAA568600240B42 /* SwiftSoupError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418331DAA568600240B42 /* SwiftSoupError.swift */; };
 		8CE4185D1DAA568600240B42 /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418351DAA568600240B42 /* StringBuilder.swift */; };
 		8CE4185F1DAA568600240B42 /* StringUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418371DAA568600240B42 /* StringUtil.swift */; };
 		8CE418601DAA568600240B42 /* Validate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418381DAA568600240B42 /* Validate.swift */; };
@@ -129,7 +129,7 @@
 		BD3B5B791FBED933001FDB3B /* DataNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE4183E1DAA568600240B42 /* DataNode.swift */; };
 		BD3B5B7A1FBED933001FDB3B /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA859601DB69481006B8148 /* Token.swift */; };
 		BD3B5B7B1FBED933001FDB3B /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418351DAA568600240B42 /* StringBuilder.swift */; };
-		BD3B5B7C1FBED933001FDB3B /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418331DAA568600240B42 /* Exception.swift */; };
+		BD3B5B7C1FBED933001FDB3B /* SwiftSoupError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418331DAA568600240B42 /* SwiftSoupError.swift */; };
 		BD3B5B7D1FBED933001FDB3B /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418471DAA568600240B42 /* Node.swift */; };
 		BD3B5B7E1FBED933001FDB3B /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418481DAA568600240B42 /* TextNode.swift */; };
 		BD3B5B7F1FBED933001FDB3B /* SimpleDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9380111DC6945B0014DAD6 /* SimpleDictionary.swift */; };
@@ -185,7 +185,7 @@
 		BD3B5BBC1FC063BD001FDB3B /* DataNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE4183E1DAA568600240B42 /* DataNode.swift */; };
 		BD3B5BBD1FC063BD001FDB3B /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA859601DB69481006B8148 /* Token.swift */; };
 		BD3B5BBE1FC063BD001FDB3B /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418351DAA568600240B42 /* StringBuilder.swift */; };
-		BD3B5BBF1FC063BD001FDB3B /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418331DAA568600240B42 /* Exception.swift */; };
+		BD3B5BBF1FC063BD001FDB3B /* SwiftSoupError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418331DAA568600240B42 /* SwiftSoupError.swift */; };
 		BD3B5BC01FC063BD001FDB3B /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418471DAA568600240B42 /* Node.swift */; };
 		BD3B5BC11FC063BD001FDB3B /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418481DAA568600240B42 /* TextNode.swift */; };
 		BD3B5BC21FC063BD001FDB3B /* SimpleDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9380111DC6945B0014DAD6 /* SimpleDictionary.swift */; };
@@ -241,7 +241,7 @@
 		BD3B5BFF1FC06423001FDB3B /* DataNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE4183E1DAA568600240B42 /* DataNode.swift */; };
 		BD3B5C001FC06423001FDB3B /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA859601DB69481006B8148 /* Token.swift */; };
 		BD3B5C011FC06423001FDB3B /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418351DAA568600240B42 /* StringBuilder.swift */; };
-		BD3B5C021FC06423001FDB3B /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418331DAA568600240B42 /* Exception.swift */; };
+		BD3B5C021FC06423001FDB3B /* SwiftSoupError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418331DAA568600240B42 /* SwiftSoupError.swift */; };
 		BD3B5C031FC06423001FDB3B /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418471DAA568600240B42 /* Node.swift */; };
 		BD3B5C041FC06423001FDB3B /* TextNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418481DAA568600240B42 /* TextNode.swift */; };
 		BD3B5C051FC06423001FDB3B /* SimpleDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9380111DC6945B0014DAD6 /* SimpleDictionary.swift */; };
@@ -362,7 +362,7 @@
 		8CE418261DAA54A900240B42 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8CE418301DAA568600240B42 /* Connection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Connection.swift; sourceTree = "<group>"; };
 		8CE418321DAA568600240B42 /* DataUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataUtil.swift; sourceTree = "<group>"; };
-		8CE418331DAA568600240B42 /* Exception.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exception.swift; sourceTree = "<group>"; };
+		8CE418331DAA568600240B42 /* SwiftSoupError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftSoupError.swift; sourceTree = "<group>"; };
 		8CE418351DAA568600240B42 /* StringBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringBuilder.swift; sourceTree = "<group>"; };
 		8CE418371DAA568600240B42 /* StringUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringUtil.swift; sourceTree = "<group>"; };
 		8CE418381DAA568600240B42 /* Validate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Validate.swift; sourceTree = "<group>"; };
@@ -487,7 +487,7 @@
 			isa = PBXGroup;
 			children = (
 				8CE418321DAA568600240B42 /* DataUtil.swift */,
-				8CE418331DAA568600240B42 /* Exception.swift */,
+				8CE418331DAA568600240B42 /* SwiftSoupError.swift */,
 				8CE418351DAA568600240B42 /* StringBuilder.swift */,
 				8CE418371DAA568600240B42 /* StringUtil.swift */,
 				8CE418381DAA568600240B42 /* Validate.swift */,
@@ -983,7 +983,7 @@
 				8CE418651DAA568600240B42 /* DataNode.swift in Sources */,
 				8CA859611DB69481006B8148 /* Token.swift in Sources */,
 				8CE4185D1DAA568600240B42 /* StringBuilder.swift in Sources */,
-				8CE4185B1DAA568600240B42 /* Exception.swift in Sources */,
+				8CE4185B1DAA568600240B42 /* SwiftSoupError.swift in Sources */,
 				8CE4186E1DAA568700240B42 /* Node.swift in Sources */,
 				8CE4186F1DAA568700240B42 /* TextNode.swift in Sources */,
 				8C9380121DC6945B0014DAD6 /* SimpleDictionary.swift in Sources */,
@@ -1087,7 +1087,7 @@
 				BD3B5B791FBED933001FDB3B /* DataNode.swift in Sources */,
 				BD3B5B7A1FBED933001FDB3B /* Token.swift in Sources */,
 				BD3B5B7B1FBED933001FDB3B /* StringBuilder.swift in Sources */,
-				BD3B5B7C1FBED933001FDB3B /* Exception.swift in Sources */,
+				BD3B5B7C1FBED933001FDB3B /* SwiftSoupError.swift in Sources */,
 				BD3B5B7D1FBED933001FDB3B /* Node.swift in Sources */,
 				BD3B5B7E1FBED933001FDB3B /* TextNode.swift in Sources */,
 				BD3B5B7F1FBED933001FDB3B /* SimpleDictionary.swift in Sources */,
@@ -1152,7 +1152,7 @@
 				BD3B5BBC1FC063BD001FDB3B /* DataNode.swift in Sources */,
 				BD3B5BBD1FC063BD001FDB3B /* Token.swift in Sources */,
 				BD3B5BBE1FC063BD001FDB3B /* StringBuilder.swift in Sources */,
-				BD3B5BBF1FC063BD001FDB3B /* Exception.swift in Sources */,
+				BD3B5BBF1FC063BD001FDB3B /* SwiftSoupError.swift in Sources */,
 				BD3B5BC01FC063BD001FDB3B /* Node.swift in Sources */,
 				BD3B5BC11FC063BD001FDB3B /* TextNode.swift in Sources */,
 				BD3B5BC21FC063BD001FDB3B /* SimpleDictionary.swift in Sources */,
@@ -1217,7 +1217,7 @@
 				BD3B5BFF1FC06423001FDB3B /* DataNode.swift in Sources */,
 				BD3B5C001FC06423001FDB3B /* Token.swift in Sources */,
 				BD3B5C011FC06423001FDB3B /* StringBuilder.swift in Sources */,
-				BD3B5C021FC06423001FDB3B /* Exception.swift in Sources */,
+				BD3B5C021FC06423001FDB3B /* SwiftSoupError.swift in Sources */,
 				BD3B5C031FC06423001FDB3B /* Node.swift in Sources */,
 				BD3B5C041FC06423001FDB3B /* TextNode.swift in Sources */,
 				BD3B5C051FC06423001FDB3B /* SimpleDictionary.swift in Sources */,
