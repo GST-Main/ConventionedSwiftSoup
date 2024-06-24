@@ -131,8 +131,8 @@ open class Attribute {
     public func clone() -> Attribute {
         do {
             return try Attribute(key: key, value: value)
-        } catch Exception.Error( _, let  msg) {
-            print(msg)
+        } catch let error as SwiftSoupError {
+            print(error.localizedDescription)
         } catch {
 
         }

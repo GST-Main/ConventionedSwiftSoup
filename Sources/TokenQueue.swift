@@ -174,12 +174,14 @@ open class TokenQueue {
     open func consume(_ seq: String)throws {
         if (!matches(seq)) {
             //throw new IllegalStateException("Queue did not match expected sequence")
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Queue did not match expected sequence")
+            throw IllegalArgumentError(message: "Queue did not match expected sequence")
+
+            
         }
         let len = seq.count
         if (len > remainingLength()) {
             //throw new IllegalStateException("Queue not long enough to consume sequence")
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Queue not long enough to consume sequence")
+            throw IllegalArgumentError(message: "Queue not long enough to consume sequence")
         }
 
         pos += len

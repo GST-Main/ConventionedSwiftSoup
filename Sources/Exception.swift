@@ -8,15 +8,22 @@
 
 import Foundation
 
-public enum ExceptionType {
-    case IllegalArgumentException
-    case IOException
-    case XmlDeclaration
-    case MalformedURLException
-    case CloneNotSupportedException
-    case SelectorParseException
+protocol SwiftSoupError: Error {
+    
 }
 
-public enum Exception: Error {
-    case Error(type:ExceptionType, Message: String)
+public struct IllegalArgumentError: SwiftSoupError {
+    var localizedDescription: String
+    
+    init(message: String) {
+        localizedDescription = message
+    }
+}
+
+public struct SelectorParseError: SwiftSoupError {
+    var localizedDescription: String
+    
+    init(message: String) {
+        localizedDescription = message
+    }
 }

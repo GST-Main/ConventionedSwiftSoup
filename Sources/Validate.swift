@@ -16,7 +16,7 @@ struct Validate {
      */
     public static func notNull(obj: Any?) throws {
         if (obj == nil) {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Object must not be null")
+            throw IllegalArgumentError(message: "Object must not be null")
         }
     }
 
@@ -27,7 +27,7 @@ struct Validate {
      */
     public static func notNull(obj: AnyObject?, msg: String) throws {
         if (obj == nil) {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: msg)
+            throw IllegalArgumentError(message: msg)
         }
     }
 
@@ -37,7 +37,7 @@ struct Validate {
      */
     public static func isTrue(val: Bool) throws {
         if (!val) {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Must be true")
+            throw IllegalArgumentError(message: "Must be true")
         }
     }
 
@@ -48,7 +48,7 @@ struct Validate {
      */
     public static func isTrue(val: Bool, msg: String) throws {
         if (!val) {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: msg)
+            throw IllegalArgumentError(message: msg)
         }
     }
 
@@ -58,7 +58,7 @@ struct Validate {
      */
     public static func isFalse(val: Bool) throws {
         if (val) {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Must be false")
+            throw IllegalArgumentError(message: "Must be false")
         }
     }
 
@@ -69,7 +69,7 @@ struct Validate {
      */
     public static func isFalse(val: Bool, msg: String) throws {
         if (val) {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: msg)
+            throw IllegalArgumentError(message: msg)
         }
     }
 
@@ -89,7 +89,7 @@ struct Validate {
     public static func noNullElements(objects: [AnyObject?], msg: String) throws {
         for obj in objects {
             if (obj == nil) {
-                throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: msg)
+                throw IllegalArgumentError(message: msg)
             }
         }
     }
@@ -100,7 +100,7 @@ struct Validate {
      */
     public static func notEmpty(string: String?) throws {
         if (string == nil || string?.count == 0) {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "String must not be empty")
+            throw IllegalArgumentError(message: "String must not be empty")
         }
 
     }
@@ -112,7 +112,7 @@ struct Validate {
      */
    public static func notEmpty(string: String?, msg: String ) throws {
         if (string == nil || string?.count == 0) {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: msg)
+            throw IllegalArgumentError(message: msg)
         }
     }
 
@@ -121,13 +121,13 @@ struct Validate {
      @param msg message to output.
      */
     public static func fail(msg: String) throws {
-        throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: msg)
+        throw IllegalArgumentError(message: msg)
     }
 
     /**
      Helper
      */
     public static func exception(msg: String) throws {
-        throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: msg)
+        throw IllegalArgumentError(message: msg)
     }
 }

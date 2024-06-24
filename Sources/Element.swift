@@ -790,7 +790,7 @@ open class Element: Node {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Pattern syntax error: \(regex)")
+            throw IllegalArgumentError(message: "Pattern syntax error: \(regex)")
         }
         return try getElementsByAttributeValueMatching(key, pattern)
     }
@@ -866,7 +866,7 @@ open class Element: Node {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Pattern syntax error: \(regex)")
+            throw IllegalArgumentError(message: "Pattern syntax error: \(regex)")
         }
         return try getElementsMatchingText(pattern)
     }
@@ -893,7 +893,7 @@ open class Element: Node {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Pattern syntax error: \(regex)")
+            throw IllegalArgumentError(message: "Pattern syntax error: \(regex)")
         }
         return try getElementsMatchingOwnText(pattern)
     }
