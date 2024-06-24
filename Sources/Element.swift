@@ -81,7 +81,7 @@ open class Element: Node {
      *
      * @return true if block, false if not (and thus inline)
      */
-    open func isBlock() -> Bool {
+    open var isBlock: Bool {
         return tag.isBlock()
     }
 
@@ -90,8 +90,8 @@ open class Element: Node {
      *
      * @return The id attribute, if present, or an empty string if not.
      */
-    open func id() -> String {
-        guard let attributes = attributes else {return Element.emptyString}
+    open var id: String {
+        guard let attributes = attributes else { return Element.emptyString }
         do {
             return try attributes.getIgnoreCase(key: Element.idString)
         } catch {}
@@ -496,7 +496,7 @@ open class Element: Node {
      * @return the CSS Path that can be used to retrieve the element in a selector.
      */
     public func cssSelector()throws->String {
-        let elementId = id()
+        let elementId = id
         if (elementId.count > 0) {
             return "#" + elementId
         }
@@ -924,7 +924,7 @@ open class Element: Node {
                 }
             } else if let element = (node as? Element) {
                 if !accum.isEmpty &&
-                    (element.isBlock() || element.tag.getName() == "br") &&
+                    (element.isBlock || element.tag.getName() == "br") &&
                     !TextNode.lastCharIsWhitespace(accum) {
                     accum.append(" ")
                 }

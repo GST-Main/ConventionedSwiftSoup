@@ -81,7 +81,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return (id == element.id())
+            return (id == element.id)
         }
 
         public override func toString() -> String {
