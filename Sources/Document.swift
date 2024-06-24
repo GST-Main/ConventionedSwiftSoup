@@ -36,9 +36,9 @@ open class Document: Element {
      */
     static public func createShell(_ baseUri: String) -> Document {
         let doc: Document = Document(baseUri)
-        let html: Element = try! doc.appendElement("html")
-        try! html.appendElement("head")
-        try! html.appendElement("body")
+        let html: Element = try! doc.appendElement(tagName: "html")
+        try! html.appendElement(tagName: "head")
+        try! html.appendElement(tagName: "body")
 
         return doc
     }
@@ -86,7 +86,7 @@ open class Document: Element {
     public func title(_ title: String) throws {
         let titleEl: Element? = getElementsByTag("title")?.first
         if (titleEl == nil) { // add to head
-            try head()?.appendElement("title").setText(title)
+            try head()?.appendElement(tagName: "title").setText(title)
         } else {
             try titleEl?.setText(title)
         }
@@ -110,15 +110,15 @@ open class Document: Element {
     public func normalise()throws->Document {
         var htmlE: Element? = findFirstElementByTagName("html", self)
         if (htmlE == nil) {
-            htmlE = try appendElement("html")
+            htmlE = try appendElement(tagName: "html")
         }
         let htmlEl: Element = htmlE!
 
         if (head() == nil) {
-            try htmlEl.prependElement("head")
+            try htmlEl.prependElement(tagName: "head")
         }
         if (body() == nil) {
-            try htmlEl.appendElement("body")
+            try htmlEl.appendElement(tagName: "body")
         }
 
         // pull text nodes out of root, html, and head els, and push into body. non-text nodes are already taken care
@@ -318,7 +318,7 @@ open class Document: Element {
                     let head: Element? = self.head()
 
                     if (head != nil) {
-                        try head?.appendElement("meta").setAttribute(key: "charset", value: charset().displayName())
+                        try head?.appendElement(tagName: "meta").setAttribute(key: "charset", value: charset().displayName())
                     }
                 }
 

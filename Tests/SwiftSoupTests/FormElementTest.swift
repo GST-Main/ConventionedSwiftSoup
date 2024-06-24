@@ -115,7 +115,7 @@ class FormElementTest: XCTestCase {
 		try doc.body()?.setHTML("<form />")
 
 		let formEl: Element = try doc.select(cssQuery: "form").first()!
-		try formEl.append("<input name=foo value=bar>")
+		try formEl.appendHTML("<input name=foo value=bar>")
 
 		XCTAssertNotNil(formEl as? FormElement)
 		let form: FormElement = formEl as! FormElement

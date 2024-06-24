@@ -391,7 +391,7 @@ class ElementTest: XCTestCase {
 	func testAppendRowToTable()throws {
 		let doc: Document = try SwiftSoup.parse("<table><tr><td>1</td></tr></table>")
 		let table: Element? = try doc.select(cssQuery: "tbody").first()
-		try table?.append("<tr><td>2</td></tr>")
+		try table?.appendHTML("<tr><td>2</td></tr>")
 
 		XCTAssertEqual("<table><tbody><tr><td>1</td></tr><tr><td>2</td></tr></tbody></table>", try TextUtil.stripNewlines(doc.body()!.html()))
 	}
@@ -399,7 +399,7 @@ class ElementTest: XCTestCase {
 	func testPrependRowToTable()throws {
 		let doc: Document = try SwiftSoup.parse("<table><tr><td>1</td></tr></table>")
 		let table: Element? = try doc.select(cssQuery: "tbody").first()
-		try table?.prepend("<tr><td>2</td></tr>")
+		try table?.prependHTML("<tr><td>2</td></tr>")
 
 		XCTAssertEqual("<table><tbody><tr><td>2</td></tr><tr><td>1</td></tr></tbody></table>", try TextUtil.stripNewlines(doc.body()!.html()))
 
@@ -450,7 +450,7 @@ class ElementTest: XCTestCase {
 	func testAddNewHtml()throws {
 		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
 		let div: Element = try doc.getElementById("1")!
-		try div.append("<p>there</p><p>now</p>")
+		try div.appendHTML("<p>there</p><p>now</p>")
 		XCTAssertEqual("<p>Hello</p><p>there</p><p>now</p>", try TextUtil.stripNewlines(div.html()))
 
 		// check sibling index (no reindexChildren):
@@ -463,7 +463,7 @@ class ElementTest: XCTestCase {
 	func testPrependNewHtml()throws {
 		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
 		let div: Element = try doc.getElementById("1")!
-		try div.prepend("<p>there</p><p>now</p>")
+		try div.prependHTML("<p>there</p><p>now</p>")
 		XCTAssertEqual("<p>there</p><p>now</p><p>Hello</p>", try TextUtil.stripNewlines(div.html()))
 
 		// check sibling index (reindexChildren):
@@ -599,7 +599,7 @@ class ElementTest: XCTestCase {
 		XCTAssertEqual(1, p.siblingIndex)
 		XCTAssertNotNil(p.parent())
 
-		try clone.append("<span>Three")
+		try clone.appendHTML("<span>Three")
 		XCTAssertEqual("<p><span>Two</span><span>Three</span></p>", try TextUtil.stripNewlines(clone.outerHtml()))
 		XCTAssertEqual("<div><p>One</p><p><span>Two</span></p></div>", try TextUtil.stripNewlines(doc.body()!.html())) // not modified
 
@@ -955,21 +955,21 @@ class ElementTest: XCTestCase {
         let doc: Document = try SwiftSoup.parse(html)
         let p: Element = try doc.select(cssQuery: "p").first()!
 
-        try XCTAssertTrue(p.iS("p"))
-        try XCTAssertFalse(p.iS("div"))
-        try XCTAssertTrue(p.iS("p:has(a)"))
-        try XCTAssertTrue(p.iS("p:first-child"))
-        try XCTAssertFalse(p.iS("p:last-child"))
-        try XCTAssertTrue(p.iS("*"))
-        try XCTAssertTrue(p.iS("div p"))
+        try XCTAssertTrue(p.is(cssQuery: "p"))
+        try XCTAssertFalse(p.is(cssQuery: "div"))
+        try XCTAssertTrue(p.is(cssQuery: "p:has(a)"))
+        try XCTAssertTrue(p.is(cssQuery: "p:first-child"))
+        try XCTAssertFalse(p.is(cssQuery: "p:last-child"))
+        try XCTAssertTrue(p.is(cssQuery: "*"))
+        try XCTAssertTrue(p.is(cssQuery: "div p"))
 
         let q: Element = try doc.select(cssQuery: "p").last()!
-        try XCTAssertTrue(q.iS("p"))
-        try XCTAssertTrue(q.iS("p ~ p"))
-        try XCTAssertTrue(q.iS("p + p"))
-        try XCTAssertTrue(q.iS("p:last-child"))
-        try XCTAssertFalse(q.iS("p a"))
-        try XCTAssertFalse(q.iS("a"))
+        try XCTAssertTrue(q.is(cssQuery: "p"))
+        try XCTAssertTrue(q.is(cssQuery: "p ~ p"))
+        try XCTAssertTrue(q.is(cssQuery: "p + p"))
+        try XCTAssertTrue(q.is(cssQuery: "p:last-child"))
+        try XCTAssertFalse(q.is(cssQuery: "p a"))
+        try XCTAssertFalse(q.is(cssQuery: "a"))
     }
 
 	static var allTests = {

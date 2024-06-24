@@ -177,8 +177,7 @@ open class Element: Node {
      * @see #childNode(int)
      */
     open func getChild(at index: Int) -> Element? {
-        guard children.count > index else { return nil }
-        return children[index]
+        return children.get(index: index)
     }
 
     /**
@@ -192,12 +191,7 @@ open class Element: Node {
      */
     open var children: Elements {
         // create on the fly rather than maintaining two lists. if gets slow, memoize, and mark dirty on change
-        var elements = Array<Element>()
-        for node in childNodes {
-            if let n = node as? Element {
-                elements.append(n)
-            }
-        }
+        let elements = childNodes.compactMap { $0 as? Element }
         return Elements(elements)
     }
     
@@ -223,13 +217,7 @@ open class Element: Node {
      * </ul>
      */
     open var textNodes: [TextNode] {
-        var textNodes: [TextNode] = []
-        for node in childNodes {
-            if let n = node as? TextNode {
-                textNodes.append(n)
-            }
-        }
-        return textNodes
+        return childNodes.compactMap { $0 as? TextNode }
     }
 
     /**
@@ -242,13 +230,7 @@ open class Element: Node {
      * @see #data()
      */
     open var dataNodes: [DataNode] {
-        var dataNodes: [DataNode] = []
-        for node in childNodes {
-            if let n = node as? DataNode {
-                dataNodes.append(n)
-            }
-        }
-        return dataNodes
+        return childNodes.compactMap{ $0 as? DataNode }
     }
 
     /**
@@ -275,7 +257,7 @@ open class Element: Node {
         do {
             return try CssSelector.select(cssQuery, self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -284,8 +266,12 @@ open class Element: Node {
      * @param cssQuery a {@link CssSelector} CSS query
      * @return if this element matches the query
      */
-    public func iS(_ cssQuery: String)throws->Bool {
-        return try iS(QueryParser.parse(cssQuery))
+    public func isMatchedWith(cssQuery: String) -> Bool {
+        do {
+            return try self.isMatchedWith(evaluator: QueryParser.parse(cssQuery))
+        } catch {
+            return false
+        }
     }
 
     /**
@@ -293,11 +279,15 @@ open class Element: Node {
      * @param cssQuery a {@link CssSelector} CSS query
      * @return if this element matches the query
      */
-    public func iS(_ evaluator: Evaluator)throws->Bool {
+    public func isMatchedWith(evaluator: Evaluator) -> Bool {
         guard let od = self.ownerDocument() else {
             return false
         }
-        return try evaluator.matches(od, self)
+        do {
+            return try evaluator.matches(od, self)
+        } catch {
+            return false
+        }
     }
 
     /**
@@ -307,8 +297,7 @@ open class Element: Node {
      * @return this element, so that you can add more child nodes or elements.
      */
     @discardableResult
-    public func appendChild(_ child: Node)throws->Element {
-        // was - Node#addChildren(child). short-circuits an array create and a loop.
+    public func appendChild(_ child: Node) throws -> Element {
         try reparentChild(child)
         ensureChildNodes()
         childNodes.append(child)
@@ -323,7 +312,7 @@ open class Element: Node {
      * @return this element, so that you can add more child nodes or elements.
      */
     @discardableResult
-    public func prependChild(_ child: Node)throws->Element {
+    public func prependChild(_ child: Node) throws -> Element {
         try addChildren(0, child)
         return self
     }
@@ -338,11 +327,12 @@ open class Element: Node {
      * @return this element, for chaining.
      */
     @discardableResult
-    public func insertChildren(_ index: Int, _ children: Array<Node>)throws->Element {
-        //Validate.notNull(children, "Children collection to be inserted must not be null.")
+    public func insertChildren(_ children: [Node], at index: Int) throws -> Element {
         var index = index
-        let currentSize: Int = childNodeSize()
-        if (index < 0) { index += currentSize + 1} // roll around
+        let currentSize = childNodeSize()
+        if index < 0 {
+            index += currentSize + 1
+        } // roll around
         try Validate.isTrue(val: index >= 0 && index <= currentSize, msg: "Insert position out of bounds.")
 
         try addChildren(index, children)
@@ -357,8 +347,8 @@ open class Element: Node {
      *  {@code parent.appendElement("h1").attr("id", "header").text("Welcome")}
      */
     @discardableResult
-    public func appendElement(_ tagName: String)throws->Element {
-        let child: Element = Element(try Tag.valueOf(tagName), getBaseUri())
+    public func appendElement(tagName: String) throws -> Element {
+        let child = Element(try Tag.valueOf(tagName), getBaseUri())
         try appendChild(child)
         return child
     }
@@ -371,7 +361,7 @@ open class Element: Node {
      *  {@code parent.prependElement("h1").attr("id", "header").text("Welcome")}
      */
     @discardableResult
-    public func prependElement(_ tagName: String)throws->Element {
+    public func prependElement(tagName: String) throws -> Element {
         let child: Element = Element(try Tag.valueOf(tagName), getBaseUri())
         try prependChild(child)
         return child
@@ -384,7 +374,7 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func appendText(_ text: String)throws->Element {
+    public func appendText(_ text: String) throws -> Element {
         let node: TextNode = TextNode(text, getBaseUri())
         try appendChild(node)
         return self
@@ -397,7 +387,7 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func prependText(_ text: String)throws->Element {
+    public func prependText(_ text: String) throws -> Element {
         let node: TextNode = TextNode(text, getBaseUri())
         try prependChild(node)
         return self
@@ -410,7 +400,7 @@ open class Element: Node {
      * @see #html(String)
      */
     @discardableResult
-    public func append(_ html: String)throws->Element {
+    public func appendHTML(_ html: String) throws -> Element {
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: getBaseUri())
         try addChildren(nodes)
         return self
@@ -423,7 +413,7 @@ open class Element: Node {
      * @see #html(String)
      */
     @discardableResult
-    public func prepend(_ html: String)throws->Element {
+    public func prependHTML(_ html: String) throws -> Element {
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: getBaseUri())
         try addChildren(0, nodes)
         return self
@@ -437,7 +427,7 @@ open class Element: Node {
      * @see #after(String)
      */
     @discardableResult
-    open override func before(_ html: String)throws->Element {
+    open override func before(_ html: String) throws -> Element {
         return try super.before(html) as! Element
     }
 
@@ -448,7 +438,7 @@ open class Element: Node {
      * @see #after(Node)
      */
     @discardableResult
-    open override func before(_ node: Node)throws->Element {
+    open override func before(_ node: Node) throws -> Element {
         return try super.before(node) as! Element
     }
 
@@ -460,7 +450,7 @@ open class Element: Node {
      * @see #before(String)
      */
     @discardableResult
-    open override func after(_ html: String)throws->Element {
+    open override func after(_ html: String) throws -> Element {
         return try super.after(html) as! Element
     }
 
@@ -470,7 +460,7 @@ open class Element: Node {
      * @return this element, for chaining
      * @see #before(Node)
      */
-    open override func after(_ node: Node)throws->Element {
+    open override func after(_ node: Node) throws -> Element {
         return try super.after(node) as! Element
     }
 
@@ -479,7 +469,7 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func empty() -> Element {
+    public func removeAll() -> Element {
         childNodes.removeAll()
         return self
     }
@@ -505,7 +495,7 @@ open class Element: Node {
      *
      * @return the CSS Path that can be used to retrieve the element in a selector.
      */
-    public func cssSelector()throws->String {
+    public var cssSelector: String {
         let elementId = id
         if (elementId.count > 0) {
             return "#" + elementId
@@ -531,7 +521,7 @@ open class Element: Node {
             selector.append(":nth-child(\(elementSiblingIndex + 1))")
         }
 
-        return try parent()!.cssSelector() + (selector)
+        return parent()!.cssSelector + (selector)
     }
 
     /**
@@ -559,13 +549,15 @@ open class Element: Node {
      * @see #previousElementSibling()
      */
     public var nextSiblingElement: Element? {
-        guard let parentNode else { return nil }
-        let siblings = parent()?.children
-        guard let index = siblings?.firstIndex(of: self) else {
+        guard let parent = parent() else {
+            return nil
+        }
+        let siblings = parent.children
+        guard let index = siblings.firstIndex(of: self) else {
             return nil
         }
         
-        return siblings?.get(index: index + 1)
+        return siblings.get(index: index + 1)
     }
 
     /**
@@ -574,13 +566,15 @@ open class Element: Node {
      * @see #nextElementSibling()
      */
     public var previousSiblingElement: Element? {
-        guard let parentNode else { return nil }
-        let siblings = parent()?.children
-        guard let index = siblings?.firstIndex(of: self) else {
+        guard let parent = parent() else {
+            return nil
+        }
+        let siblings = parent.children
+        guard let index = siblings.firstIndex(of: self) else {
             return nil
         }
 
-        return siblings?.get(index: index - 1)
+        return siblings.get(index: index - 1)
     }
 
     /**
@@ -588,7 +582,6 @@ open class Element: Node {
      * @return the first sibling that is an element (aka the parent's first element child)
      */
     public var firstSiblingElement: Element? {
-        // todo: should firstSibling() exclude this?
         return parent()?.children.first
     }
 
@@ -601,7 +594,7 @@ open class Element: Node {
         guard let parent = parent() else {
             return 0
         }
-        return parent.children.firstIndex(of: self) ?? 0
+        return parent.children.firstIndex(of: self)!
     }
 
     /**
@@ -612,21 +605,7 @@ open class Element: Node {
         return parent()?.children.last
     }
 
-    private static func indexInList(_ search: Element, _ elements: Array<Element>?)throws->Int? {
-        try Validate.notNull(obj: elements)
-        if let elements = elements {
-            for i in  0..<elements.count {
-                let element: Element = elements[i]
-                if (element == search) {
-                    return i
-                }
-            }
-        }
-        return nil
-    }
-
-    // DOM type methods
-
+    // MARK: `getElemntsBy...` Methods
     /**
      * Finds elements, including and recursively under this element, with the specified tag name.
      * @param tagName The tag name to search for (case insensitively).
@@ -798,7 +777,7 @@ open class Element: Node {
         do {
             return try Collector.collect(Evaluator.IndexLessThan(index), self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -811,7 +790,7 @@ open class Element: Node {
         do {
             return try Collector.collect(Evaluator.IndexGreaterThan(index), self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -824,7 +803,7 @@ open class Element: Node {
         do {
             return try Collector.collect(Evaluator.IndexEquals(index), self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -839,7 +818,7 @@ open class Element: Node {
         do {
             return try Collector.collect(Evaluator.ContainsText(searchText), self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -854,7 +833,7 @@ open class Element: Node {
         do {
             return try Collector.collect(Evaluator.ContainsOwnText(searchText), self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -868,7 +847,7 @@ open class Element: Node {
         do {
             return try Collector.collect(Evaluator.Matches(pattern), self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -884,7 +863,7 @@ open class Element: Node {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            return Elements([])
+            return Elements()
         }
         return getElementsMatchingText(pattern)
     }
@@ -899,7 +878,7 @@ open class Element: Node {
         do {
             return try Collector.collect(Evaluator.MatchesOwn(pattern), self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -915,7 +894,7 @@ open class Element: Node {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            return Elements([])
+            return Elements()
         }
         return getElementsMatchingOwnText(pattern)
     }
@@ -929,7 +908,7 @@ open class Element: Node {
         do {
             return try Collector.collect(Evaluator.AllElements(), self)
         } catch {
-            return Elements([])
+            return Elements()
         }
     }
 
@@ -997,9 +976,9 @@ open class Element: Node {
      * @see #textNodes()
      */
     public var ownText: String {
-        let sb: StringBuilder = StringBuilder()
-        ownText(sb)
-        return sb.toString().trim()
+        let stringBuilder: StringBuilder = StringBuilder()
+        ownText(stringBuilder)
+        return stringBuilder.toString().trim()
     }
 
     private func ownText(_ accum: StringBuilder) {
@@ -1043,7 +1022,7 @@ open class Element: Node {
      */
     @discardableResult
     public func setText(_ text: String) throws -> Element {
-        empty()
+        removeAll()
         let textNode: TextNode = TextNode(text, baseUri)
         try appendChild(textNode)
         return self
@@ -1075,17 +1054,17 @@ open class Element: Node {
      * @see #dataNodes()
      */
     public var data: String {
-        let sb: StringBuilder = StringBuilder()
+        let stringBuilder: StringBuilder = StringBuilder()
 
         for childNode: Node in childNodes {
             if let data = (childNode as? DataNode) {
-                sb.append(data.getWholeData())
+                stringBuilder.append(data.getWholeData())
             } else if let element = (childNode as? Element) {
                 let elementData: String = element.data
-                sb.append(elementData)
+                stringBuilder.append(elementData)
             }
         }
-        return sb.toString()
+        return stringBuilder.toString()
     }
 
     /**
@@ -1324,8 +1303,8 @@ open class Element: Node {
 	*/
     @discardableResult
 	public func setHTML(_ html: String) throws -> Element {
-		empty()
-		try append(html)
+		removeAll()
+		try appendHTML(html)
 		return self
 	}
 

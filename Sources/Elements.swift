@@ -197,7 +197,7 @@ open class Elements: NSCopying {
         }
         
         for element in self {
-            if element.is(eval) {
+            if element.isMatchedWith(evaluator: eval) {
                 return true
             }
         }
