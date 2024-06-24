@@ -30,7 +30,7 @@ public class StructuralEvaluator: Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            for e in try element.getAllElements().array() {
+            for e in element.allElements.array() {
                 do {
                     if(e != element) {
                         if ((try evaluator.matches(root, e))) {

@@ -941,8 +941,12 @@ open class Element: Node {
      *
      * @return all elements
      */
-    public func getAllElements()throws->Elements {
-        return try Collector.collect(Evaluator.AllElements(), self)
+    public var allElements: Elements {
+        do {
+            return try Collector.collect(Evaluator.AllElements(), self)
+        } catch {
+            return Elements([])
+        }
     }
 
     /**
