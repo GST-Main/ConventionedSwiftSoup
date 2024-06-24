@@ -46,7 +46,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testSupplyParserToJsoupClass()throws {
 		let xml = "<doc><val>One<val>Two</val></bar>Three</doc>"
-		let doc = try SwiftSoup.parse(xml, "http://foo.com/", Parser.xmlParser())
+		let doc = try SwiftSoup.parse(xml, "http://foo.com/", HTMLParser.xmlParser())
 		try XCTAssertEqual("<doc><val>One<val>Two</val>Three</val></doc>", TextUtil.stripNewlines(doc.html()))
 	}
 
@@ -85,13 +85,13 @@ class XmlTreeBuilderTest: XCTestCase {
 		let htmlDoc = try SwiftSoup.parse("<br>one</br>")
 		XCTAssertEqual("<br>one\n<br>", try htmlDoc.body()?.html())
 
-		let xmlDoc = try SwiftSoup.parse("<br>one</br>", "", Parser.xmlParser())
+		let xmlDoc = try SwiftSoup.parse("<br>one</br>", "", HTMLParser.xmlParser())
 		XCTAssertEqual("<br>one</br>", try xmlDoc.html())
 	}
 
 	func testHandlesXmlDeclarationAsDeclaration()throws {
 		let html = "<?xml encoding='UTF-8' ?><body>One</body><!-- comment -->"
-		let doc = try SwiftSoup.parse(html, "", Parser.xmlParser())
+		let doc = try SwiftSoup.parse(html, "", HTMLParser.xmlParser())
 		try XCTAssertEqual("<?xml encoding=\"UTF-8\"?> <body> One </body> <!-- comment -->",
                            StringUtil.normaliseWhitespace(doc.outerHtml()))
 		XCTAssertEqual("#declaration", doc.childNode(0).nodeName())
@@ -100,7 +100,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testXmlFragment()throws {
 		let xml = "<one src='/foo/' />Two<three><four /></three>"
-		let nodes: [Node] = try Parser.parseXmlFragment(xml, "http://example.com/")
+		let nodes: [Node] = try HTMLParser.parseXmlFragment(xml, "http://example.com/")
 		XCTAssertEqual(3, nodes.count)
 
 		try XCTAssertEqual("http://example.com/foo/", nodes[0].absUrl("src"))
@@ -109,13 +109,13 @@ class XmlTreeBuilderTest: XCTestCase {
 	}
 
 	func testXmlParseDefaultsToHtmlOutputSyntax()throws {
-		let doc = try SwiftSoup.parse("x", "", Parser.xmlParser())
+		let doc = try SwiftSoup.parse("x", "", HTMLParser.xmlParser())
 		XCTAssertEqual(OutputSettings.Syntax.xml, doc.outputSettings().syntax())
 	}
 
 	func testDoesHandleEOFInTag()throws {
 		let html = "<img src=asdf onerror=\"alert(1)\" x="
-		let xmlDoc = try SwiftSoup.parse(html, "", Parser.xmlParser())
+		let xmlDoc = try SwiftSoup.parse(html, "", HTMLParser.xmlParser())
 		try XCTAssertEqual("<img src=\"asdf\" onerror=\"alert(1)\" x=\"\" />", xmlDoc.html())
 	}
 	//todo:
@@ -130,7 +130,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testParseDeclarationAttributes()throws {
 		let xml = "<?xml version='1' encoding='UTF-8' something='else'?><val>One</val>"
-		let doc = try SwiftSoup.parse(xml, "", Parser.xmlParser())
+		let doc = try SwiftSoup.parse(xml, "", HTMLParser.xmlParser())
         guard let decl: XmlDeclaration =  doc.childNode(0) as? XmlDeclaration else {
             XCTAssertTrue(false)
             return
@@ -144,7 +144,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testCaseSensitiveDeclaration()throws {
 		let xml = "<?XML version='1' encoding='UTF-8' something='else'?>"
-		let doc = try SwiftSoup.parse(xml, "", Parser.xmlParser())
+		let doc = try SwiftSoup.parse(xml, "", HTMLParser.xmlParser())
 		try XCTAssertEqual("<?XML version=\"1\" encoding=\"UTF-8\" something=\"else\"?>", doc.outerHtml())
 	}
 
@@ -161,13 +161,13 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testPreservesCaseByDefault()throws {
 		let xml = "<TEST ID=1>Check</TEST>"
-		let doc = try SwiftSoup.parse(xml, "", Parser.xmlParser())
+		let doc = try SwiftSoup.parse(xml, "", HTMLParser.xmlParser())
 		try XCTAssertEqual("<TEST ID=\"1\">Check</TEST>", TextUtil.stripNewlines(doc.html()))
 	}
 
 	func testCanNormalizeCase()throws {
 		let xml = "<TEST ID=1>Check</TEST>"
-		let doc = try  SwiftSoup.parse(xml, "", Parser.xmlParser().settings(ParseSettings.htmlDefault))
+		let doc = try  SwiftSoup.parse(xml, "", HTMLParser.xmlParser().settings(ParseSettings.htmlDefault))
 		try XCTAssertEqual("<test id=\"1\">Check</test>", TextUtil.stripNewlines(doc.html()))
 	}
 

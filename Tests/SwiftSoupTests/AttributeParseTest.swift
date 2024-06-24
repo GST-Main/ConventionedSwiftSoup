@@ -101,7 +101,7 @@ class AttributeParseTest: XCTestCase {
 		XCTAssertTrue(try doc.select("img[onerror]").size() != 0, "SelfClosingStartTag ignores last character")
 		XCTAssertEqual("<img onerror=\"doMyJob\">", try doc.body()!.html())
 
-		doc = try SwiftSoup.parse(html, "", Parser.xmlParser())
+		doc = try SwiftSoup.parse(html, "", HTMLParser.xmlParser())
 		XCTAssertEqual("<img onerror=\"doMyJob\" />", try doc.html())
 	}
 
