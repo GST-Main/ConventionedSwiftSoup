@@ -160,7 +160,7 @@ open class Element: Node {
     private static func accumulateParents(_ el: Element, _ parents: Elements) {
         let parent: Element? = el.parent()
         if (parent != nil && !(parent!.tagName == Element.rootString)) {
-            parents.add(parent!)
+            parents.append(parent!)
             accumulateParents(parent!, parents)
         }
     }
@@ -178,7 +178,7 @@ open class Element: Node {
      */
     open func getChild(at index: Int) -> Element? {
         guard children.count > index else { return nil }
-        return children.get(index)
+        return children[index]
     }
 
     /**
@@ -527,7 +527,7 @@ open class Element: Node {
         }
 
         selector.insert(contentsOf: " > ", at: selector.startIndex)
-        if (parent()!.select(cssQuery: selector).array().count > 1) {
+        if (parent()!.select(cssQuery: selector).count > 1) {
             selector.append(":nth-child(\(elementSiblingIndex + 1))")
         }
 
@@ -542,16 +542,11 @@ open class Element: Node {
     public var siblingElements: Elements {
         if (parentNode == nil) {return Elements()}
 
-        let elements: Array<Element>? = parent()?.children.array()
-        let siblings: Elements = Elements()
-        if let elements = elements {
-            for el: Element in elements {
-                if (el != self) {
-                    siblings.add(el)
-                }
-            }
+        if let elements = parent()?.children {
+            return elements.copy() as! Elements
+        } else {
+            return Elements()
         }
-        return siblings
     }
 
     /**
@@ -565,16 +560,12 @@ open class Element: Node {
      */
     public var nextSiblingElement: Element? {
         guard let parentNode else { return nil }
-        let siblings: Array<Element>? = parent()?.children.array()
-        guard let index = try? Element.indexInList(self, siblings) else {
+        let siblings = parent()?.children
+        guard let index = siblings?.firstIndex(of: self) else {
             return nil
         }
         
-        if let siblings = siblings, siblings.count > index + 1 {
-            return siblings[index+1]
-        } else {
-            return nil
-        }
+        return siblings?.get(index: index + 1)
     }
 
     /**
@@ -584,16 +575,12 @@ open class Element: Node {
      */
     public var previousSiblingElement: Element? {
         guard let parentNode else { return nil }
-        let siblings: Array<Element>? = parent()?.children.array()
-        guard let index = try? Element.indexInList(self, siblings) else {
+        let siblings = parent()?.children
+        guard let index = siblings?.firstIndex(of: self) else {
             return nil
         }
 
-        if index > 0 {
-            return siblings?[index-1]
-        } else {
-            return nil
-        }
+        return siblings?.get(index: index - 1)
     }
 
     /**
@@ -602,8 +589,7 @@ open class Element: Node {
      */
     public var firstSiblingElement: Element? {
         // todo: should firstSibling() exclude this?
-        let siblings: Array<Element>? = parent()?.children.array()
-        return (siblings != nil && siblings!.count > 1) ? siblings![0] : nil
+        return parent()?.children.first
     }
 
     /*
@@ -615,8 +601,7 @@ open class Element: Node {
         guard let parent = parent() else {
             return 0
         }
-        let x = try! Element.indexInList(self, parent.children.array()) // TODO: Why throwing?
-        return x == nil ? 0 : x!
+        return parent.children.firstIndex(of: self) ?? 0
     }
 
     /**
@@ -624,8 +609,7 @@ open class Element: Node {
      * @return the last sibling that is an element (aka the parent's last element child)
      */
     public var lastSiblingElement: Element? {
-        let siblings: Array<Element>? = parent()?.children.array()
-        return (siblings != nil && siblings!.count > 1) ? siblings![siblings!.count - 1] : nil
+        return parent()?.children.last
     }
 
     private static func indexInList(_ search: Element, _ elements: Array<Element>?)throws->Int? {
@@ -670,8 +654,8 @@ open class Element: Node {
         guard let elements: Elements = try? Collector.collect(Evaluator.Id(id), self) else {
             return nil
         }
-        if (elements.array().count > 0) {
-            return elements.get(0)
+        if (elements.count > 0) {
+            return elements.get(index: 0)
         } else {
             return nil
         }

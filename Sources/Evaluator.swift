@@ -490,7 +490,7 @@ open class Evaluator {
             var i = 0
 
             if let l = element.parent() {
-                i = l.children.array().count
+                i = l.children.count
             }
             return i - element.elementSiblingIndex
         }
@@ -512,7 +512,7 @@ open class Evaluator {
         open override func calculatePosition(_ root: Element, _ element: Element) -> Int {
             var pos = 0
             let family: Elements? = element.parent()?.children
-            if let array = family?.array() {
+            if let array = family {
                 for el in array {
                     if (el.tag == element.tag) {pos+=1}
                     if (el === element) {break}
@@ -537,8 +537,8 @@ open class Evaluator {
             var pos = 0
             if let family = element.parent()?.children {
                 let x = element.elementSiblingIndex
-                for i in x..<family.array().count {
-                    if (family.get(i).tag == element.tag) {
+                for i in x..<family.count {
+                    if (family.get(index: i)?.tag == element.tag) { // TODO: Check this optional chaining
                         pos+=1
                     }
                 }
@@ -587,7 +587,7 @@ open class Evaluator {
     public final class IsOnlyChild: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             let p = element.parent()
-            return p != nil && !((p as? Document) != nil) && element.siblingElements.array().count == 0
+            return p != nil && !((p as? Document) != nil) && element.siblingElements.count == 0
         }
         public override func toString() -> String {
             return ":only-child"
@@ -600,7 +600,7 @@ open class Evaluator {
             if (p == nil || (p as? Document) != nil) {return false}
 
             var pos = 0
-            if let family = p?.children.array() {
+            if let family = p?.children {
                 for  el in family {
                     if (el.tag == element.tag) {pos+=1}
                 }

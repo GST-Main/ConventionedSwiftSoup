@@ -41,7 +41,7 @@ public class FormElement: Element {
      */
     @discardableResult
     public func addElement(_ element: Element) -> FormElement {
-        _elements.add(element)
+        _elements.append(element)
         return self
     }
 
@@ -117,8 +117,8 @@ public class FormElement: Element {
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {
 		let clone = clone as! FormElement
-		for att in _elements.array() {
-			clone._elements.add(att)
+		for att in _elements {
+			clone._elements.append(att)
 		}
 		return super.copy(clone: clone, parent: parent)
 	}

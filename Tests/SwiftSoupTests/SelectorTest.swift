@@ -423,7 +423,7 @@ class SelectorTest: XCTestCase {
 		// make sure doesn't get nested
 		h = "<div id=1><div id=2><div id=3></div></div></div>"
 		doc = try SwiftSoup.parse(h)
-		let div: Element = try doc.select(cssQuery: "div").select(" > div").first()!
+		let div: Element = try doc.select(cssQuery: "div").select(cssQuery: " > div").first()!
 		XCTAssertEqual("2", div.id())
 	}
 
@@ -688,7 +688,7 @@ class SelectorTest: XCTestCase {
 		let els: Elements = try doc.select(cssQuery: "div")
 		XCTAssertEqual(2, els.size())
 
-		let subSelect: Elements = try els.select(":contains(one)")
+		let subSelect: Elements = try els.select(cssQuery: ":contains(one)")
 		XCTAssertEqual(2, subSelect.size())
 	}
 

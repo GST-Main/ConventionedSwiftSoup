@@ -132,7 +132,7 @@ open class CssSelector {
 
         for root: Element in roots {
             let found: Elements = try select(evaluator, root)
-            for  el: Element in found.array() {
+            for  el: Element in found {
                 if (!seenElements.contains(el)) {
                     elements.append(el)
                     seenElements.append(el)
@@ -158,7 +158,7 @@ open class CssSelector {
                 }
             }
             if (!found) {
-                output.add(el)
+                output.append(el)
             }
         }
         return output

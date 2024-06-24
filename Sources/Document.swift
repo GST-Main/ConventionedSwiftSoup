@@ -160,10 +160,10 @@ open class Document: Element {
             throw IllegalArgumentError(message: "Cannot get elements") // FIXME: fixme
         }
         let master: Element? = elements.first // will always be available as created above if not existent
-        if (elements.size() > 1) { // dupes, move contents to master
+        if (elements.count > 1) { // dupes, move contents to master
             var toMove: Array<Node> = Array<Node>()
-            for i in 1..<elements.size() {
-                let dupe: Node = elements.get(i)
+            for i in 1..<elements.count {
+                let dupe: Node = elements.get(index: i)!
                 for node: Node in dupe.childNodes {
                     toMove.append(node)
                 }
@@ -310,7 +310,7 @@ open class Document: Element {
             let syntax: OutputSettings.Syntax = outputSettings().syntax()
 
             if (syntax == OutputSettings.Syntax.html) {
-                let metaCharset: Element? = select(cssQuery: "meta[charset]").first()
+                let metaCharset: Element? = select(cssQuery: "meta[charset]").first
 
                 if (metaCharset != nil) {
                     try metaCharset?.setAttribute(key: "charset", value: charset().displayName())
@@ -324,7 +324,7 @@ open class Document: Element {
 
                 // Remove obsolete elements
 				let s = select(cssQuery: "meta[name=charset]")
-				try s.remove()
+                try s.forEach{ try $0.remove() }
 
             } else if (syntax == OutputSettings.Syntax.xml) {
                 let node: Node = getChildNodes()[0]

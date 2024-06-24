@@ -202,7 +202,7 @@ class CssTest: XCTestCase {
 		XCTAssertNotNil(sel.get(0))
 		try XCTAssertEqual(Tag.valueOf("html"), sel.get(0).tag())
 
-		let sel2: Elements = try html.select(cssQuery: "body").select(":root")
+		let sel2: Elements = try html.select(cssQuery: "body").select(cssQuery: ":root")
 		XCTAssertEqual(1, sel2.size())
 		XCTAssertNotNil(sel2.get(0))
 		try XCTAssertEqual(Tag.valueOf("body"), sel2.get(0).tag())

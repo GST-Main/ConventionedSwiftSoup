@@ -440,8 +440,8 @@ open class Node: Equatable, Hashable {
 
     private func getDeepChild(el: Element) -> Element {
         let children = el.children
-        if (children.size() > 0) {
-            return getDeepChild(el: children.get(0))
+        if (children.count > 0) {
+            return getDeepChild(el: children.get(index: 0)!)
         } else {
             return el
         }

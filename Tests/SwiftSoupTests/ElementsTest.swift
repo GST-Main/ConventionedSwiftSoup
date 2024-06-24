@@ -24,7 +24,7 @@ class ElementsTest: XCTestCase {
 	func testFilter()throws {
 		let h: String = "<p>Excl</p><div class=headline><p>Hello</p><p>There</p></div><div class=headline><h1>Headline</h1></div>"
 		let doc: Document = try SwiftSoup.parse(h)
-		let els: Elements = try doc.select(cssQuery: ".headline").select("p")
+		let els: Elements = try doc.select(cssQuery: ".headline").select(cssQuery: "p")
 		XCTAssertEqual(2, els.size())
 		try XCTAssertEqual("Hello", els.get(0).getText())
 		try XCTAssertEqual("There", els.get(1).getText())
@@ -248,11 +248,11 @@ class ElementsTest: XCTestCase {
 	func testNot()throws {
 		let doc: Document = try SwiftSoup.parse("<div id=1><p>One</p></div> <div id=2><p><span>Two</span></p></div>")
 
-		let div1: Elements = try doc.select(cssQuery: "div").not(":has(p > span)")
+		let div1: Elements = try doc.select(cssQuery: "div").selectNot(cssQuery: ":has(p > span)")
 		XCTAssertEqual(1, div1.size())
 		XCTAssertEqual("1", div1.first()?.id())
 
-		let div2: Elements = try doc.select(cssQuery: "div").not("#1")
+		let div2: Elements = try doc.select(cssQuery: "div").selectNot(cssQuery: "#1")
 		XCTAssertEqual(1, div2.size())
 		XCTAssertEqual("2", div2.first()?.id())
 	}
