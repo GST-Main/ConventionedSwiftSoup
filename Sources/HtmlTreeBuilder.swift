@@ -77,7 +77,7 @@ class HtmlTreeBuilder: TreeBuilder {
             }
 
             // initialise the tokeniser state:
-            switch context.tagName() {
+            switch context.tagName {
                 case TagSets.titleTextarea:
                     tokeniser.transition(TokeniserState.Rcdata)
                 case TagSets.frames:
@@ -193,7 +193,7 @@ class HtmlTreeBuilder: TreeBuilder {
             let el: Element = try insertEmpty(startTag)
             stack.append(el)
             tokeniser.transition(TokeniserState.Data) // handles <script />, otherwise needs breakout steps from script data
-            try tokeniser.emit(emptyEnd.reset().name(el.tagName()))  // ensure we get out of whatever state we are in. emitted for yielded processing
+            try tokeniser.emit(emptyEnd.reset().name(el.tagName))  // ensure we get out of whatever state we are in. emitted for yielded processing
             return el
         }
         try Validate.notNull(obj: startTag._attributes)
@@ -253,7 +253,7 @@ class HtmlTreeBuilder: TreeBuilder {
     func insert(_ characterToken: Token.Char)throws {
         var node: Node
         // characters in script and style go in as datanodes, not text nodes
-        let tagName: String? = currentElement()?.tagName()
+        let tagName: String? = currentElement()?.tagName
         if (tagName=="script" || tagName=="style") {
             try Validate.notNull(obj: characterToken.getData())
             node = DataNode(characterToken.getData()!, baseUri)

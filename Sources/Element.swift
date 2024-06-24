@@ -53,10 +53,11 @@ open class Element: Node {
      *
      * @return the tag name
      */
-    open func tagName() -> String {
+    open var tagName: String {
         return _tag.getName()
     }
-    open func tagNameNormal() -> String {
+    // TODO: Document
+    open var tagNameNormal: String {
         return _tag.getNameNormal()
     }
 
@@ -167,7 +168,7 @@ open class Element: Node {
 
     private static func accumulateParents(_ el: Element, _ parents: Elements) {
         let parent: Element? = el.parent()
-        if (parent != nil && !(parent!.tagName() == Element.rootString)) {
+        if (parent != nil && !(parent!.tagName == Element.rootString)) {
             parents.add(parent!)
             accumulateParents(parent!, parents)
         }
@@ -510,7 +511,7 @@ open class Element: Node {
         }
 
         // Translate HTML namespace ns:tag to CSS namespace syntax ns|tag
-        let tagName: String = self.tagName().replacingOccurrences(of: ":", with: "|")
+        let tagName: String = self.tagName.replacingOccurrences(of: ":", with: "|")
         var selector: String = tagName
         let cl = try classNames()
         let classes: String = cl.joined(separator: ".")
@@ -1190,7 +1191,7 @@ open class Element: Node {
      * @return the value of the form element, or empty string if not set.
      */
     public func val()throws->String {
-        if (tagName()=="textarea") {
+        if (tagName=="textarea") {
             return try text()
         } else {
             return try attr("value")
@@ -1204,7 +1205,7 @@ open class Element: Node {
      */
     @discardableResult
     public func val(_ value: String)throws->Element {
-        if (tagName() == "textarea") {
+        if (tagName == "textarea") {
             try text(value)
         } else {
             try attr("value", value)
@@ -1220,7 +1221,7 @@ open class Element: Node {
         }
         accum
             .append("<")
-            .append(tagName())
+            .append(tagName)
         try attributes?.html(accum: accum, out: out)
 
         // selfclosing includes unknown tags, isEmpty defines tags that are always empty
@@ -1242,7 +1243,7 @@ open class Element: Node {
                 ))) {
                 indent(accum, depth, out)
             }
-            accum.append("</").append(tagName()).append(">")
+            accum.append("</").append(tagName).append(">")
         }
     }
 

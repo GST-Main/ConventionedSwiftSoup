@@ -43,7 +43,7 @@ open class Evaluator {
         }
 
         open override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return element.tagNameNormal() == tagNameNormal
+            return element.tagNameNormal == tagNameNormal
         }
 
         open override func toString() -> String {
@@ -62,7 +62,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return (element.tagName().hasSuffix(tagName))
+            return (element.tagName.hasSuffix(tagName))
         }
 
         public override func toString() -> String {

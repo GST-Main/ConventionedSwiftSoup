@@ -81,7 +81,7 @@ extension Cleaner {
 
 		public func head(_ source: Node, _ depth: Int) throws {
 			if let sourceEl = source as? Element {
-				if whitelist.isSafeTag(sourceEl.tagName()) { // safe, clone and copy safe attrs
+				if whitelist.isSafeTag(sourceEl.tagName) { // safe, clone and copy safe attrs
 					let meta = try createSafeElement(sourceEl)
 					let destChild = meta.el
 					try destination?.appendChild(destChild)
@@ -116,7 +116,7 @@ extension Cleaner {
 		}
 
         private func createSafeElement(_ sourceEl: Element) throws -> ElementMeta {
-            let sourceTag = sourceEl.tagName()
+            let sourceTag = sourceEl.tagName
             let destAttrs = Attributes()
             var numDiscarded = 0
 
