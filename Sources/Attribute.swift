@@ -70,7 +70,7 @@ open class Attribute {
      */
     public func html() -> String {
         let accum =  StringBuilder()
-		html(accum: accum, out: (Document("")).outputSettings())
+		html(accum: accum, out: (Document("")).outputSettings)
         return accum.toString()
     }
 

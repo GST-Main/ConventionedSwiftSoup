@@ -101,7 +101,7 @@ public class Parser {
     }
     public class func _parseBodyFragment(_ bodyHTML: String, baseURI: String = "") throws -> Document {
         let document = Document.createShell(baseURI)
-        if let body: Element = document.body() {
+        if let body: Element = document.body {
             let nodeList: Array<Node> = try _parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI)
             if nodeList.count > 0 {
                 for i in 1..<nodeList.count {
@@ -136,9 +136,9 @@ public class Parser {
         let cleaner = Cleaner(whitelist)
         let clean: Document = try cleaner.clean(dirty)
         if let settings {
-            clean.outputSettings(settings)
+            clean.outputSettings = settings
         }
-        guard let body = clean.body() else {
+        guard let body = clean.body else {
             throw IllegalArgumentError(message: "No body fragment after cleaning")
         }
         guard let html = body.html else {

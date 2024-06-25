@@ -31,7 +31,7 @@ public class XmlTreeBuilder: TreeBuilder {
     override public func initialiseParse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings) {
 		super.initialiseParse(input, baseUri, errors, settings)
         stack.append(doc) // place the document onto the stack. differs from HtmlTreeBuilder (not on stack)
-        doc.outputSettings().syntax(syntax: OutputSettings.Syntax.xml)
+        doc.outputSettings.syntax(syntax: OutputSettings.Syntax.xml)
     }
 
     override public func process(_ token: Token)throws->Bool {

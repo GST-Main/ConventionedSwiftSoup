@@ -13,9 +13,9 @@ open class Document: Element {
         case noQuirks, quirks, limitedQuirks
     }
 
-    private var _outputSettings: OutputSettings  = OutputSettings()
+    public var outputSettings = OutputSettings()
     private var _quirksMode: Document.QuirksMode = QuirksMode.noQuirks
-    private let _location: String
+    public let location: String
     private var updateMetaCharset: Bool = false
 
     /**
@@ -25,7 +25,7 @@ open class Document: Element {
      @see #createShell
      */
     public init(_ baseUri: String) {
-        self._location = baseUri
+        self.location = baseUri
         super.init(try! Tag.valueOf("#root", ParseSettings.htmlDefault), baseUri)
     }
 
@@ -44,27 +44,18 @@ open class Document: Element {
     }
 
     /**
-     * Get the URL this Document was parsed from. If the starting URL is a redirect,
-     * this will return the final URL from which the document was served from.
-     * @return location
-     */
-    public func location() -> String {
-    return _location
-    }
-
-    /**
      Accessor to the document's {@code head} element.
      @return {@code head}
      */
-    public func head() -> Element? {
-        return findFirstElementByTagName("head", self)
+    public var head: Element? {
+        findFirstElementByTagName("head", self)
     }
 
     /**
      Accessor to the document's {@code body} element.
      @return {@code body}
      */
-    public func body() -> Element? {
+    public var body: Element? {
         return findFirstElementByTagName("body", self)
     }
 
@@ -72,10 +63,13 @@ open class Document: Element {
      Get the string contents of the document's {@code title} element.
      @return Trimmed title, or empty string if none set.
      */
-    public func title()throws->String {
+    public var title: String? {
         // title is a preserve whitespace tag (for document output), but normalised here
-        let titleEl: Element? = getElementsByTag("title")?.first
-        return titleEl != nil ? try StringUtil.normaliseWhitespace(titleEl!.getText()).trim() : ""
+        if let titleElement = getElementsByTag("title")?.first {
+            return StringUtil.normaliseWhitespace(titleElement.getText()).trim()
+        } else {
+            return nil
+        }
     }
 
     /**
@@ -86,7 +80,7 @@ open class Document: Element {
     public func title(_ title: String) throws {
         let titleEl: Element? = getElementsByTag("title")?.first
         if (titleEl == nil) { // add to head
-            try head()?.appendElement(tagName: "title").setText(title)
+            try head?.appendElement(tagName: "title").setText(title)
         } else {
             try titleEl?.setText(title)
         }
@@ -114,16 +108,16 @@ open class Document: Element {
         }
         let htmlEl: Element = htmlE!
 
-        if (head() == nil) {
+        if (head == nil) {
             try htmlEl.prependElement(tagName: "head")
         }
-        if (body() == nil) {
+        if (body == nil) {
             try htmlEl.appendElement(tagName: "body")
         }
 
         // pull text nodes out of root, html, and head els, and push into body. non-text nodes are already taken care
         // of. do in inverse order to maintain text order.
-        try normaliseTextNodes(head()!)
+        try normaliseTextNodes(head!)
         try normaliseTextNodes(htmlEl)
         try normaliseTextNodes(self)
 
@@ -149,8 +143,8 @@ open class Document: Element {
         for i in (0..<toMove.count).reversed() {
             let node: Node = toMove[i]
             try element.removeChild(node)
-            try body()?.prependChild(TextNode(" ", ""))
-            try body()?.prependChild(node)
+            try body?.prependChild(TextNode(" ", ""))
+            try body?.prependChild(node)
         }
     }
 
@@ -206,12 +200,12 @@ open class Document: Element {
      */
     @discardableResult
     public override func setText(_ text: String) throws -> Element {
-        try body()?.setText(text) // overridden to not nuke doc structure
+        try body?.setText(text) // overridden to not nuke doc structure
         return self
     }
 
     open override func nodeName() -> String {
-    return "#document"
+        return "#document"
     }
 
     /**
@@ -240,7 +234,7 @@ open class Document: Element {
      */
     public func charset(_ charset: String.Encoding)throws {
         updateMetaCharsetElement(true)
-        _outputSettings.charset(charset)
+        outputSettings.charset(charset)
         try ensureMetaCharsetElement()
     }
 
@@ -252,8 +246,8 @@ open class Document: Element {
      *
      * @see OutputSettings#charset()
      */
-    public func charset()->String.Encoding {
-        return _outputSettings.charset()
+    public var charset: String.Encoding {
+        outputSettings.charset()
     }
 
     /**
@@ -306,18 +300,18 @@ open class Document: Element {
      */
     private func ensureMetaCharsetElement()throws {
         if (updateMetaCharset) {
-            let syntax: OutputSettings.Syntax = outputSettings().syntax()
+            let syntax: OutputSettings.Syntax = outputSettings.syntax()
 
             if (syntax == OutputSettings.Syntax.html) {
                 let metaCharset: Element? = select(cssQuery: "meta[charset]").first
 
                 if (metaCharset != nil) {
-                    try metaCharset?.setAttribute(key: "charset", value: charset().displayName())
+                    try metaCharset?.setAttribute(key: "charset", value: charset.displayName())
                 } else {
-                    let head: Element? = self.head()
+                    let head: Element? = self.head
 
                     if (head != nil) {
-                        try head?.appendElement(tagName: "meta").setAttribute(key: "charset", value: charset().displayName())
+                        try head?.appendElement(tagName: "meta").setAttribute(key: "charset", value: charset.displayName())
                     }
                 }
 
@@ -331,7 +325,7 @@ open class Document: Element {
                 if let decl = (node as? XmlDeclaration) {
 
                     if (decl.name()=="xml") {
-                        try decl.setAttribute(key: "encoding", value: charset().displayName())
+                        try decl.setAttribute(key: "encoding", value: charset.displayName())
 
                         _ = try  decl.getAttribute(key: "version")
                         try decl.setAttribute(key: "version", value: "1.0")
@@ -339,7 +333,7 @@ open class Document: Element {
                         try Validate.notNull(obj: baseURI)
                         let decl = XmlDeclaration("xml", baseURI!, false)
                         try decl.setAttribute(key: "version", value: "1.0")
-                        try decl.setAttribute(key: "encoding", value: charset().displayName())
+                        try decl.setAttribute(key: "encoding", value: charset.displayName())
 
                         try prependChild(decl)
                     }
@@ -347,31 +341,12 @@ open class Document: Element {
                     try Validate.notNull(obj: baseURI)
                     let decl = XmlDeclaration("xml", baseURI!, false)
                     try decl.setAttribute(key: "version", value: "1.0")
-                    try decl.setAttribute(key: "encoding", value: charset().displayName())
+                    try decl.setAttribute(key: "encoding", value: charset.displayName())
 
                     try prependChild(decl)
                 }
             }
         }
-    }
-
-    /**
-     * Get the document's current output settings.
-     * @return the document's current output settings.
-     */
-    public func outputSettings() -> OutputSettings {
-    return _outputSettings
-    }
-
-    /**
-     * Set the document's output settings.
-     * @param outputSettings new output settings.
-     * @return this document, for chaining.
-     */
-    @discardableResult
-    public func outputSettings(_ outputSettings: OutputSettings) -> Document {
-        self._outputSettings = outputSettings
-        return self
     }
 
     public func quirksMode()->Document.QuirksMode {
@@ -385,18 +360,18 @@ open class Document: Element {
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Document(_location)
+		let clone = Document(location)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Document(_location)
+		let clone = Document(location)
 		return copy(clone: clone, parent: parent)
 	}
 
 	public override func copy(clone: Node, parent: Node?) -> Node {
 		let clone = clone as! Document
-		clone._outputSettings = _outputSettings.copy() as! OutputSettings
+		clone.outputSettings = outputSettings.copy() as! OutputSettings
 		clone._quirksMode = _quirksMode
 		clone.updateMetaCharset = updateMetaCharset
 		return super.copy(clone: clone, parent: parent)
