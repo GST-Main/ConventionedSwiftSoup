@@ -65,7 +65,7 @@ open class Document: Element {
      */
     public var title: String? {
         // title is a preserve whitespace tag (for document output), but normalised here
-        if let titleElement = getElementsByTag("title")?.first {
+        if let titleElement = getElementsByTag("title").first {
             return StringUtil.normaliseWhitespace(titleElement.getText()).trim()
         } else {
             return nil
@@ -78,7 +78,7 @@ open class Document: Element {
      @param title string to set as title
      */
     public func setTitle(_ title: String) {
-        if let titleElement = getElementsByTag("title")?.first {
+        if let titleElement = getElementsByTag("title").first {
             titleElement.setText(title)
         } else {
             try! head?.appendElement(tagName: "title").setText(title)
@@ -122,8 +122,8 @@ open class Document: Element {
         try normaliseTextNodes(htmlElement)
         try normaliseTextNodes(self)
 
-        try normaliseStructure("head", htmlElement)
-        try normaliseStructure("body", htmlElement)
+        normaliseStructure("head", htmlElement)
+        normaliseStructure("body", htmlElement)
 
         try ensureMetaCharsetElement()
 
@@ -150,10 +150,8 @@ open class Document: Element {
     }
 
     // merge multiple <head> or <body> contents into one, delete the remainder, and ensure they are owned by <html>
-    private func normaliseStructure(_ tag: String, _ htmlEl: Element) throws {
-        guard let elements: Elements = self.getElementsByTag(tag) else {
-            throw SwiftSoupError(message: "Cannot get elements") // FIXME: fixme
-        }
+    private func normaliseStructure(_ tag: String, _ htmlEl: Element) {
+        let elements: Elements = self.getElementsByTag(tag)
         let master: Element? = elements.first // will always be available as created above if not existent
         if (elements.count > 1) { // dupes, move contents to master
             var toMove: Array<Node> = Array<Node>()
