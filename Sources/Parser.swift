@@ -171,7 +171,7 @@ public class Parser {
 	* @param inAttribute if the string is to be escaped in strict mode (as attributes are)
 	* @return an unescaped string
 	*/
-	public static func unescapeEntities(_ string: String, _ inAttribute: Bool)throws->String {
+	public static func unescapeEntities(_ string: String, _ inAttribute: Bool) throws -> String {
 		let tokeniser: Tokeniser = Tokeniser(CharacterReader(string), ParseErrorList.noTracking())
 		return try tokeniser.unescapeEntities(inAttribute)
 	}
