@@ -768,7 +768,7 @@ class HtmlTreeBuilder: TreeBuilder {
 
         if (isLastTableParent) {
             try Validate.notNull(obj: lastTable) // last table cannot be null by this point.
-            try lastTable!.before(input)
+            try lastTable!.insertNodeAsPreviousSibling(input)
         } else {
             try fosterParent?.appendChild(input)
         }

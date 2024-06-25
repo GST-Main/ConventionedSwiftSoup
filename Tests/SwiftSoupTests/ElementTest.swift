@@ -510,7 +510,7 @@ class ElementTest: XCTestCase {
 	func testBefore()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p><p>There</p></div>")
 		let p1: Element = try doc.select(cssQuery: "p").first()!
-		try p1.before("<div>one</div><div>two</div>")
+		try p1.insertHTMLAsPreviousSibling("<div>one</div><div>two</div>")
 		XCTAssertEqual("<div><div>one</div><div>two</div><p>Hello</p><p>There</p></div>", try TextUtil.stripNewlines(doc.body()!.html()))
 
 		try doc.select(cssQuery: "p").last()?.before("<p>Three</p><!-- four -->")
@@ -520,7 +520,7 @@ class ElementTest: XCTestCase {
 	func testAfter()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p><p>There</p></div>")
 		let p1: Element = try doc.select(cssQuery: "p").first()!
-		try p1.after("<div>one</div><div>two</div>")
+		try p1.insertHTMLAsNextSibling("<div>one</div><div>two</div>")
 		XCTAssertEqual("<div><p>Hello</p><div>one</div><div>two</div><p>There</p></div>", try TextUtil.stripNewlines(doc.body()!.html()))
 
 		try doc.select(cssQuery: "p").last()?.after("<p>Three</p><!-- four -->")

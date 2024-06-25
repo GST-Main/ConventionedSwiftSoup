@@ -262,7 +262,7 @@ open class Node: Equatable, Hashable {
     /**
      * Remove (delete) this node from the DOM tree. If this node has children, they are also removed.
      */
-    open func remove()throws {
+    open func remove() throws {
         try parentNode?.removeChild(self)
     }
 
@@ -273,8 +273,8 @@ open class Node: Equatable, Hashable {
      * @see #after(String)
      */
     @discardableResult
-    open func before(_ html: String)throws->Node {
-        try addSiblingHtml(siblingIndex, html)
+    open func insertHTMLAsPreviousSibling(_ html: String) throws -> Node {
+        try insertSiblingHTML(html, at: siblingIndex)
         return self
     }
 
@@ -285,7 +285,7 @@ open class Node: Equatable, Hashable {
      * @see #after(Node)
      */
     @discardableResult
-    open func before(_ node: Node)throws ->Node {
+    open func insertNodeAsPreviousSibling(_ node: Node) throws -> Node {
         try Validate.notNull(obj: node)
         try Validate.notNull(obj: parentNode)
 
@@ -300,8 +300,8 @@ open class Node: Equatable, Hashable {
      * @see #before(String)
      */
     @discardableResult
-    open func after(_ html: String)throws ->Node {
-        try addSiblingHtml(siblingIndex + 1, html)
+    open func insertHTMLAsNextSibling(_ html: String) throws -> Node {
+        try insertSiblingHTML(html, at: siblingIndex + 1)
         return self
     }
 
@@ -312,7 +312,7 @@ open class Node: Equatable, Hashable {
      * @see #before(Node)
      */
     @discardableResult
-    open func after(_ node: Node)throws->Node {
+    open func insertNodeAsNextSibling(_ node: Node) throws -> Node {
         try Validate.notNull(obj: node)
         try Validate.notNull(obj: parentNode)
 
@@ -320,47 +320,12 @@ open class Node: Equatable, Hashable {
         return self
     }
 
-    private func addSiblingHtml(_ index: Int, _ html: String)throws {
-        try Validate.notNull(obj: parentNode)
-
-        let context: Element? = parent as? Element
-
-        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
-        try parentNode?.addChildren(index, nodes)
-    }
-
-    /**
-     * Insert the specified HTML into the DOM after this node (i.e. as a following sibling).
-     * @param html HTML to add after this node
-     * @return this node, for chaining
-     * @see #before(String)
-     */
-    @discardableResult
-    open func after(html: String)throws->Node {
-        try addSiblingHtml(siblingIndex + 1, html)
-        return self
-    }
-
-    /**
-     * Insert the specified node into the DOM after this node (i.e. as a following sibling).
-     * @param node to add after this node
-     * @return this node, for chaining
-     * @see #before(Node)
-     */
-    @discardableResult
-    open func after(node: Node)throws->Node {
-        try Validate.notNull(obj: node)
-        try Validate.notNull(obj: parentNode)
-
-        try parentNode?.addChildren(siblingIndex + 1, node)
-        return self
-    }
-
-    open func addSiblingHtml(index: Int, _ html: String) throws {
+    open func insertSiblingHTML(_ html: String, at index: Int) throws {
         try Validate.notNull(obj: html)
         try Validate.notNull(obj: parentNode)
 
         let context: Element? = parent as? Element
+
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         try parentNode?.addChildren(index, nodes)
     }

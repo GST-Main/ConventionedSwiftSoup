@@ -427,8 +427,8 @@ open class Element: Node {
      * @see #after(String)
      */
     @discardableResult
-    open override func before(_ html: String) throws -> Element {
-        return try super.before(html) as! Element
+    open override func insertHTMLAsPreviousSibling(_ html: String) throws -> Element {
+        return try super.insertHTMLAsPreviousSibling(html) as! Element
     }
 
     /**
@@ -438,8 +438,8 @@ open class Element: Node {
      * @see #after(Node)
      */
     @discardableResult
-    open override func before(_ node: Node) throws -> Element {
-        return try super.before(node) as! Element
+    open override func insertNodeAsPreviousSibling(_ node: Node) throws -> Element {
+        return try super.insertNodeAsPreviousSibling(node) as! Element
     }
 
     /**
@@ -450,8 +450,8 @@ open class Element: Node {
      * @see #before(String)
      */
     @discardableResult
-    open override func after(_ html: String) throws -> Element {
-        return try super.after(html) as! Element
+    open override func insertHTMLAsNextSibling(_ html: String) throws -> Element {
+        return try super.insertHTMLAsNextSibling(html) as! Element
     }
 
     /**
@@ -460,8 +460,8 @@ open class Element: Node {
      * @return this element, for chaining
      * @see #before(Node)
      */
-    open override func after(_ node: Node) throws -> Element {
-        return try super.after(node) as! Element
+    open override func insertNodeAsNextSibling(_ node: Node) throws -> Element {
+        return try super.insertNodeAsNextSibling(node) as! Element
     }
 
     /**
