@@ -616,11 +616,12 @@ open class Element: Node {
      * @param tagName The tag name to search for (case insensitively).
      * @return a matching unmodifiable list of elements. Will be empty if this element and none of its children match.
      */
-    public func getElementsByTag(_ tagName: String) -> Elements? {
-        guard !tagName.isEmpty else { return nil }
+    public func getElementsByTag(_ tagName: String) -> Elements {
+        guard !tagName.isEmpty else { return Elements() }
         let tagName = tagName.lowercased().trim()
 
-        return try? Collector.collect(Evaluator.Tag(tagName), self)
+        let result = try? Collector.collect(Evaluator.Tag(tagName), self)
+        return result ?? Elements()
     }
 
     /**
