@@ -97,18 +97,25 @@ open class Attributes: NSCopying {
      Remove an attribute by key. <b>Case sensitive.</b>
      @param key attribute key to remove
      */
-    open func remove(key: String)throws {
-        try Validate.notEmpty(string: key)
+    open func remove(key: String) throws {
+        if key.isEmpty {
+            throw IllegalArgumentError.emptyAttributeKey
+        }
+        
         if let ix = attributes.firstIndex(where: { $0.getKey() == key }) {
-            attributes.remove(at: ix)        }
+            attributes.remove(at: ix)
+        }
     }
 
     /**
      Remove an attribute by key. <b>Case insensitive.</b>
      @param key attribute key to remove
      */
-    open func removeIgnoreCase(key: String ) throws {
-        try Validate.notEmpty(string: key)
+    open func removeIgnoreCase(key: String) throws {
+        if key.isEmpty {
+            throw IllegalArgumentError.emptyAttributeKey
+        }
+        
         if let ix = attributes.firstIndex(where: { $0.getKey().caseInsensitiveCompare(key) == .orderedSame}) {
             attributes.remove(at: ix)
         }

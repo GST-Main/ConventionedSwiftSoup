@@ -200,8 +200,8 @@ open class Document: Element {
      @return this document
      */
     @discardableResult
-    public override func setText(_ text: String) throws -> Element {
-        try body?.setText(text) // overridden to not nuke doc structure
+    public override func setText(_ text: String) -> Element {
+        body?.setText(text) // overridden to not nuke doc structure
         return self
     }
 

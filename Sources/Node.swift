@@ -141,7 +141,9 @@ open class Node: Equatable, Hashable {
      Update the base URI of this node and all of its descendants.
      @param baseUri base URI to set
      */
-    open func setBaseURI(_ baseURI: String) throws {
+    open func setBaseURI(_ baseURI: String) {
+        try! traverse(nodeVisitor(baseURI)) // Never throws
+        
         class nodeVisitor: NodeVisitor {
             private let baseURI: String
             init(_ baseURI: String) {
@@ -155,7 +157,6 @@ open class Node: Equatable, Hashable {
             func tail(_ node: Node, _ depth: Int) throws {
             }
         }
-        try traverse(nodeVisitor(baseURI))
     }
 
     /**
@@ -257,8 +258,9 @@ open class Node: Equatable, Hashable {
     /**
      * Remove (delete) this node from the DOM tree. If this node has children, they are also removed.
      */
-    open func remove() throws {
-        try parentNode?.removeChild(self)
+    open func remove() {
+        // Assume users never try to remove root node
+        try! parentNode?.removeChild(self)
     }
 
     /**
@@ -281,10 +283,11 @@ open class Node: Equatable, Hashable {
      */
     @discardableResult
     open func insertNodeAsPreviousSibling(_ node: Node) throws -> Node {
-        try Validate.notNull(obj: node)
-        try Validate.notNull(obj: parentNode)
+        guard let parentNode else {
+            throw IllegalArgumentError.noParentNode
+        }
 
-        try parentNode?.insertChildren(node, at: siblingIndex)
+        parentNode.insertChildren(node, at: siblingIndex)
         return self
     }
 
@@ -308,21 +311,22 @@ open class Node: Equatable, Hashable {
      */
     @discardableResult
     open func insertNodeAsNextSibling(_ node: Node) throws -> Node {
-        try Validate.notNull(obj: node)
-        try Validate.notNull(obj: parentNode)
+        guard let parentNode else {
+            throw IllegalArgumentError.noParentNode
+        }
 
-        try parentNode?.insertChildren(node, at: siblingIndex + 1)
+        parentNode.insertChildren(node, at: siblingIndex + 1)
         return self
     }
 
     open func insertSiblingHTML(_ html: String, at index: Int) throws {
-        try Validate.notNull(obj: html)
-        try Validate.notNull(obj: parentNode)
+        guard let parentNode else {
+            throw IllegalArgumentError.noParentNode
+        }
 
         let context: Element? = parent as? Element
-
-        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
-        try parentNode?.insertChildren(nodes, at: index)
+        let nodes: [Node] = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
+        parentNode.insertChildren(nodes, at: index)
     }
 
     /**
@@ -332,28 +336,30 @@ open class Node: Equatable, Hashable {
      */
     @discardableResult
     open func wrap(html: String) throws -> Node {
-        try Validate.notEmpty(string: html)
+        guard !html.isEmpty else {
+            throw IllegalArgumentError.emptyHTML
+        }
 
         let context = parent as? Element
         var wrapChildren = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
-        let wrapNode: Node? = wrapChildren.count > 0 ? wrapChildren[0] : nil
-        guard let wrapNode, let wrap = wrapNode as? Element else {
-            fatalError() // FIXME: fixme throw error
+        guard wrapChildren.count > 0, let wrap = wrapChildren[0] as? Element else {
+            throw IllegalArgumentError.noHTMLElementsToWrap
         }
 
         let deepest: Element = getDeepChild(element: wrap)
         try parentNode?.replaceChildNode(self, with: wrap)
-		wrapChildren = wrapChildren.filter { $0 != wrap}
-        try deepest.appendChildren(self)
+		wrapChildren = wrapChildren.filter { $0 != wrap }
+        deepest.appendChildren(self)
 
         // remainder (unbalanced wrap, like <div></div><p></p> -- The <p> is remainder
         if wrapChildren.count > 0 {
             for i in  0..<wrapChildren.count {
                 let remainder: Node = wrapChildren[i]
                 try remainder.parentNode?.removeChild(remainder)
-                try wrap.appendChild(remainder)
+                wrap.appendChild(remainder)
             }
         }
+        
         return self
     }
 
@@ -374,14 +380,15 @@ open class Node: Equatable, Hashable {
      */
     @discardableResult
     open func unwrap() throws -> Node {
-        try Validate.notNull(obj: parentNode)
-
-        guard childNodes.count > 0 else {
-            fatalError() // FIXME: throw error
+        guard let parentNode else {
+            throw IllegalArgumentError.noParentNode
         }
-        let firstChild: Node = childNodes[0]
-        try parentNode?.insertChildren(self.childNodesAsArray(), at: siblingIndex)
-        try self.remove()
+        guard let firstChild = childNodes.first else {
+            throw IllegalArgumentError.noChildrenToUnwrap
+        }
+        
+        parentNode.insertChildren(self.childNodesAsArray(), at: siblingIndex)
+        self.remove()
 
         return firstChild
     }
@@ -399,22 +406,25 @@ open class Node: Equatable, Hashable {
      * Replace this node in the DOM with the supplied node.
      * @param in the node that will will replace the existing node.
      */
-    public func replace(with newNode: Node) throws {
-        try Validate.notNull(obj: newNode)
-        try Validate.notNull(obj: parentNode)
-        try parentNode?.replaceChildNode(self, with: newNode)
+    public func replace(with newNode: Node) {
+        // Do nothing if self is root node
+        if let parentNode {
+            try! parentNode.replaceChildNode(self, with: newNode)
+        }
     }
 
-    public func setParentNode(_ parentNode: Node) throws {
-        if (self.parentNode != nil) {
-        try self.parentNode?.removeChild(self)
+    public func setParentNode(_ newParentNode: Node) {
+        if let parentNode {
+            try! parentNode.removeChild(self)
         }
-        self.parentNode = parentNode
+        self.parentNode = newParentNode
     }
 
     public func replaceChildNode(_ childNode: Node, with newNode: Node) throws {
-        try Validate.isTrue(val: childNode.parentNode === self)
-        try Validate.notNull(obj: newNode)
+        guard childNode.parentNode === self else {
+            throw IllegalArgumentError.notChildNode
+        }
+
         if let parentNode = newNode.parentNode {
             try parentNode.removeChild(newNode)
         }
@@ -427,37 +437,40 @@ open class Node: Equatable, Hashable {
     }
 
     public func removeChild(_ node: Node) throws {
-        try Validate.isTrue(val: node.parentNode === self)
+        guard node.parentNode === self else {
+            throw IllegalArgumentError.notChildNode
+        }
+
         let index: Int = node.siblingIndex
         childNodes.remove(at: index)
         reindexChildren(index)
         node.parentNode = nil
     }
 
-    public func appendChildren(_ children: Node...) throws {
+    public func appendChildren(_ children: Node...) {
         //most used. short circuit addChildren(int), which hits reindex children and array copy
-        try appendChildren(children)
+        appendChildren(children)
     }
 
-    public func appendChildren(_ children: [Node]) throws {
+    public func appendChildren(_ children: [Node]) {
         //most used. short circuit addChildren(int), which hits reindex children and array copy
         for child in children {
-            try reparentChild(child)
+            reparentChild(child)
             ensureChildNodes()
             childNodes.append(child)
             child.siblingIndex = childNodes.count - 1
         }
     }
 
-    public func insertChildren(_ children: Node..., at index: Int) throws {
-        try insertChildren(children, at: index)
+    public func insertChildren(_ children: Node..., at index: Int) {
+        insertChildren(children, at: index)
     }
 
-    public func insertChildren(_ children: [Node], at index: Int) throws {
+    public func insertChildren(_ children: [Node], at index: Int) {
         ensureChildNodes()
         for i in children.indices.reversed() {
             let input: Node = children[i]
-            try reparentChild(input)
+            reparentChild(input)
             childNodes.insert(input, at: index)
             reindexChildren(index)
         }
@@ -470,11 +483,13 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    public func reparentChild(_ childNode: Node) throws {
+    /// 
+    public func reparentChild(_ childNode: Node) {
         if let parentNode = childNode.parentNode {
-            try parentNode.removeChild(childNode)
+            try! parentNode.removeChild(childNode)
         }
-        try childNode.setParentNode(self)
+        
+        childNode.setParentNode(self)
     }
 
     private func reindexChildren(_ start: Int) {

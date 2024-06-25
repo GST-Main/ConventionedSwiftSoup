@@ -298,8 +298,8 @@ open class Element: Node {
      * @return this element, so that you can add more child nodes or elements.
      */
     @discardableResult
-    public func appendChild(_ child: Node) throws -> Element {
-        try reparentChild(child)
+    public func appendChild(_ child: Node) -> Element {
+        reparentChild(child)
         ensureChildNodes()
         childNodes.append(child)
         child.siblingIndex = childNodes.count - 1
@@ -313,8 +313,8 @@ open class Element: Node {
      * @return this element, so that you can add more child nodes or elements.
      */
     @discardableResult
-    public func prependChild(_ child: Node) throws -> Element {
-        try insertChildren(child, at: 0)
+    public func prependChild(_ child: Node) -> Element {
+        insertChildren(child, at: 0)
         return self
     }
 
@@ -336,7 +336,7 @@ open class Element: Node {
         } // roll around
         try Validate.isTrue(val: index >= 0 && index <= currentSize, msg: "Insert position out of bounds.")
 
-        try super.insertChildren(children, at: index)
+        super.insertChildren(children, at: index)
         return self
     }
 
@@ -350,7 +350,7 @@ open class Element: Node {
     @discardableResult
     public func appendElement(tagName: String) throws -> Element {
         let child = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
-        try appendChild(child)
+        appendChild(child)
         return child
     }
 
@@ -364,7 +364,7 @@ open class Element: Node {
     @discardableResult
     public func prependElement(tagName: String) throws -> Element {
         let child: Element = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
-        try prependChild(child)
+        prependChild(child)
         return child
     }
 
@@ -375,9 +375,9 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func appendText(_ text: String) throws -> Element {
+    public func appendText(_ text: String) -> Element {
         let node: TextNode = TextNode(text, baseURI!)
-        try appendChild(node)
+        appendChild(node)
         return self
     }
 
@@ -388,9 +388,9 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func prependText(_ text: String) throws -> Element {
+    public func prependText(_ text: String) -> Element {
         let node: TextNode = TextNode(text, baseURI!)
-        try prependChild(node)
+        prependChild(node)
         return self
     }
 
@@ -403,7 +403,7 @@ open class Element: Node {
     @discardableResult
     public func appendHTML(_ html: String) throws -> Element {
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
-        try appendChildren(nodes)
+        appendChildren(nodes)
         return self
     }
 
@@ -416,7 +416,7 @@ open class Element: Node {
     @discardableResult
     public func prependHTML(_ html: String) throws -> Element {
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
-        try super.insertChildren(nodes, at: 0)
+        super.insertChildren(nodes, at: 0)
         return self
     }
 
@@ -1022,10 +1022,10 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func setText(_ text: String) throws -> Element {
+    public func setText(_ text: String) -> Element {
         removeAll()
         let textNode: TextNode = TextNode(text, baseURI)
-        try appendChild(textNode)
+        appendChild(textNode)
         return self
     }
 

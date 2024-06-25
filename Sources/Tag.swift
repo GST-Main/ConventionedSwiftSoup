@@ -58,16 +58,18 @@ open class Tag: Hashable {
      * @param settings used to control tag name sensitivity
      * @return The tag, either defined or new generic.
      */
-    public static func valueOf(_ tagName: String, _ settings: ParseSettings)throws->Tag {
+    public static func valueOf(_ tagName: String, _ settings: ParseSettings) throws -> Tag {
         var tagName = tagName
         var tag: Tag? = Tag.tags[tagName]
 
-        if (tag == nil) {
+        if tag == nil {
             tagName = settings.normalizeTag(tagName)
-            try Validate.notEmpty(string: tagName)
+            guard !tagName.isEmpty else {
+                throw IllegalArgumentError.emptyTagName
+            }
             tag = Tag.tags[tagName]
 
-            if (tag == nil) {
+            if tag == nil {
                 // not defined: create default; go anywhere, do anything! (incl be inside a <p>)
                 tag = Tag(tagName)
                 tag!._isBlock = false

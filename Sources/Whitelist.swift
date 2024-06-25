@@ -515,7 +515,7 @@ public class Whitelist {
      * @param attr attribute under test
      * @return true if allowed
      */
-    public func isSafeAttribute(_ tagName: String, _ el: Element, _ attr: Attribute)throws -> Bool {
+    public func isSafeAttribute(_ tagName: String, _ el: Element, _ attr: Attribute) -> Bool {
         let tag: TagName = TagName.valueOf(tagName)
         let key: AttributeKey = AttributeKey.valueOf(attr.getKey())
 
@@ -524,21 +524,21 @@ public class Whitelist {
                 if (protocols[tag] != nil) {
                     let attrProts: Dictionary<AttributeKey, Set<Protocol>> = protocols[tag]!
                     // ok if not defined protocol; otherwise test
-                    return try (attrProts[key] == nil) || testValidProtocol(el, attr, attrProts[key]!)
+                    return (attrProts[key] == nil) || testValidProtocol(el, attr, attrProts[key]!)
                 } else { // attribute found, no protocols defined, so OK
                     return true
                 }
             }
         }
         // no attributes defined for tag, try :all tag
-        return try !(tagName == ":all") && isSafeAttribute(":all", el, attr)
+        return !(tagName == ":all") && isSafeAttribute(":all", el, attr)
     }
 
-    private func testValidProtocol(_ el: Element, _ attr: Attribute, _ protocols: Set<Protocol>)throws->Bool {
+    private func testValidProtocol(_ el: Element, _ attr: Attribute, _ protocols: Set<Protocol>) -> Bool {
         // try to resolve relative urls to abs, and optionally update the attribute so output html has abs.
         // rels without a baseuri get removed
         guard var value = el.absoluteURLPath(ofAttribute: attr.getKey()) else {
-            fatalError() // FIXME: throw error
+            return false
         }
         if (value.count == 0) {
             value = attr.getValue()
@@ -547,7 +547,7 @@ public class Whitelist {
             attr.setValue(value: value)
         }
 
-        for  ptl in protocols {
+        for ptl in protocols {
             var prot: String = ptl.toString()
 
             if (prot=="#") { // allows anchor links
@@ -563,7 +563,6 @@ public class Whitelist {
             if (value.lowercased().hasPrefix(prot)) {
                 return true
             }
-
         }
 
         return false

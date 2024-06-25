@@ -63,13 +63,13 @@ class HtmlTreeBuilder: TreeBuilder {
         return try super.parse(input, baseUri, errors, settings)
     }
 
-    func parseFragment(_ inputFragment: String, _ context: Element?, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->Array<Node> {
+    func parseFragment(_ inputFragment: String, _ context: Element?, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings) throws -> [Node] {
         // context may be null
         _state = HtmlTreeBuilderState.Initial
 		initialiseParse(inputFragment, baseUri, errors, settings)
         contextElement = context
         fragmentParsing = true
-        var root: Element? = nil
+        var root: Element!
 
         if let context = context {
             if let d = context.ownerDocument() { // quirks setup:
@@ -92,10 +92,9 @@ class HtmlTreeBuilder: TreeBuilder {
                     tokeniser.transition(TokeniserState.Data)
             }
 
-            root = try Element(tag: Tag.valueOf("html", settings), baseURI: baseUri)
-            try Validate.notNull(obj: root)
-            try doc.appendChild(root!)
-            stack.append(root!)
+            root = try! Element(tag: Tag.valueOf("html", settings), baseURI: baseUri)
+            doc.appendChild(root)
+            stack.append(root)
             resetInsertionMode()
 
             // setup form element to nearest form on context (up ancestor chain). ensures form controls are associated
@@ -110,8 +109,14 @@ class HtmlTreeBuilder: TreeBuilder {
             }
         }
 
-        try runParser()
-        if (context != nil && root != nil) {
+        do {
+            try runParser()
+        } catch is SwiftSoupError {
+            throw IllegalArgumentError.failedToParseHTML
+        } catch {
+            throw error
+        }
+        if context != nil && root != nil {
             return root!.getChildNodes()
         } else {
             return doc.getChildNodes()
@@ -163,14 +168,14 @@ class HtmlTreeBuilder: TreeBuilder {
     }
 
     func maybeSetBaseUri(_ base: Element) throws {
-        if (baseUriSetFromDoc) { // only listen to the first <base href> in parse
+        if baseUriSetFromDoc { // only listen to the first <base href> in parse
             return
         }
 
         guard let href = base.absoluteURLPath(ofAttribute: "href") else {
             fatalError("FIXME") // FIXME: Throw error
         }
-        if (href.count != 0) { // ignore <base target> etc
+        if href.count != 0 { // ignore <base target> etc
             baseUri = href
             baseUriSetFromDoc = true
             try doc.setBaseURI(href) // set on the doc so doc.createElement(Tag) will get updated base, and to update all descendants
