@@ -99,7 +99,7 @@ class StringUtilTest: XCTestCase {
         let test71540charsExpectedSingleWhitespace = "\\u{d869}\\u{deb2}\\u{304b}\\u{309a} 1"
 
         XCTAssertEqual(test71540charsExpectedSingleWhitespace, StringUtil.normaliseWhitespace(test71540chars))
-        let extractedText = try SwiftSoup.parse(test71540chars).text()
+        let extractedText = try SwiftSoup.parse(test71540chars).getText()
         XCTAssertEqual(test71540charsExpectedSingleWhitespace, extractedText)
     }
 

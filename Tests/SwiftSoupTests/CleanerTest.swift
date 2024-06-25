@@ -252,7 +252,7 @@ class CleanerTest: XCTestCase {
         let cleanHead = cleanDoc.head()
         XCTAssertNotNil(cleanHead)
         XCTAssertEqual(1, cleanHead?.childNodeSize())
-        let title = try cleanHead?.select("title").first()
+        let title = try cleanHead?.select(cssQuery: "title").first()
         XCTAssertNotNil(title)
         XCTAssertEqual("title", title?.tagName())
     }

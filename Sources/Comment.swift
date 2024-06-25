@@ -20,13 +20,13 @@ public class Comment: Node {
      @param baseUri base URI
      */
     public init(_ data: String, _ baseUri: String) {
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
         do {
             try attributes?.put(Comment.COMMENT_KEY, data)
         } catch {}
     }
 
-    public override func nodeName() -> String {
+    public override var nodeName: String {
         return "#comment"
     }
 
@@ -51,12 +51,12 @@ public class Comment: Node {
     override func outerHtmlTail(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings) {}
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Comment(attributes!.get(key: Comment.COMMENT_KEY), baseUri!)
+		let clone = Comment(attributes!.get(key: Comment.COMMENT_KEY), baseURI!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Comment(attributes!.get(key: Comment.COMMENT_KEY), baseUri!)
+		let clone = Comment(attributes!.get(key: Comment.COMMENT_KEY), baseURI!)
 		return copy(clone: clone, parent: parent)
 	}
 

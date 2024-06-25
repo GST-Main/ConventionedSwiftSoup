@@ -43,8 +43,8 @@ class AttributeParseTest: XCTestCase {
 		let html: String = "<a\r\nfoo='bar\r\nqux'\r\nbar\r\n=\r\ntwo>One</a>"
 		let el: Element = try SwiftSoup.parse(html).select("a").first()!
 		XCTAssertEqual(2, el.getAttributes()?.size())
-		XCTAssertEqual("bar\r\nqux", try el.attr("foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
-		XCTAssertEqual("two", try el.attr("bar"))
+		XCTAssertEqual("bar\r\nqux", try el.getAttribute(key: "foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
+		XCTAssertEqual("two", try el.getAttribute(key: "bar"))
 	}
 
 	func testparsesEmptyString()throws {
@@ -80,9 +80,9 @@ class AttributeParseTest: XCTestCase {
 		let html: String = "<a normal=\"123\" boolean empty=\"\"></a>"
 		let el: Element = try SwiftSoup.parse(html).select("a").first()!
 
-		XCTAssertEqual("123", try el.attr("normal"))
-		XCTAssertEqual("", try el.attr("boolean"))
-		XCTAssertEqual("", try el.attr("empty"))
+		XCTAssertEqual("123", try el.getAttribute(key: "normal"))
+		XCTAssertEqual("", try el.getAttribute(key: "boolean"))
+		XCTAssertEqual("", try el.getAttribute(key: "empty"))
 
 		let attributes: Array<Attribute> = el.getAttributes()!.asList()
 		XCTAssertEqual(3, attributes.count, "There should be 3 attribute present")
@@ -92,13 +92,13 @@ class AttributeParseTest: XCTestCase {
 		XCTAssertTrue((attributes[1] as? BooleanAttribute) != nil, "'boolean' attribute should be boolean")
 		XCTAssertFalse((attributes[2] as? BooleanAttribute) != nil, "'empty' attribute should not be boolean")
 
-		XCTAssertEqual(html, try el.outerHtml())
+		XCTAssertEqual(html, try el.outerHTML())
 	}
 
 	func testdropsSlashFromAttributeName()throws {
 		let html: String = "<img /onerror='doMyJob'/>"
 		var doc: Document = try SwiftSoup.parse(html)
-		XCTAssertTrue(try doc.select("img[onerror]").size() != 0, "SelfClosingStartTag ignores last character")
+		XCTAssertTrue(try doc.select(cssQuery: "img[onerror]").size() != 0, "SelfClosingStartTag ignores last character")
 		XCTAssertEqual("<img onerror=\"doMyJob\">", try doc.body()!.html())
 
 		doc = try SwiftSoup.parse(html, "", Parser.xmlParser())

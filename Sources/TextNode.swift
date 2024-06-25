@@ -30,11 +30,11 @@ open class TextNode: Node {
     public init(_ text: String, _ baseUri: String?) {
         self._text = text
         super.init()
-        self.baseUri = baseUri
+        self.baseURI = baseUri
 
     }
 
-    open override func nodeName() -> String {
+    open override var nodeName: String {
         return "#text"
     }
 
@@ -95,21 +95,21 @@ open class TextNode: Node {
         let head: String = getWholeText().substring(0, offset)
         let tail: String = getWholeText().substring(offset)
         text(head)
-        let tailNode: TextNode = TextNode(tail, self.getBaseUri())
-        if (parent() != nil) {
-            try parent()?.addChildren(siblingIndex+1, tailNode)
+        let tailNode: TextNode = TextNode(tail, self.baseURI!)
+        if (parent != nil) {
+            parent?.insertChildren(tailNode, at: siblingIndex+1)
         }
         return tailNode
     }
 
     override func outerHtmlHead(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings)throws {
 		if (out.prettyPrint() &&
-			((siblingIndex == 0 && (parentNode as? Element) != nil &&  (parentNode as! Element).tag().formatAsBlock() && !isBlank()) ||
-				(out.outline() && siblingNodes().count > 0 && !isBlank()) )) {
+			((siblingIndex == 0 && (parentNode as? Element) != nil &&  (parentNode as! Element).tag.formatAsBlock() && !isBlank()) ||
+				(out.outline() && siblingNodes.count > 0 && !isBlank()) )) {
             indent(accum, depth, out)
 		}
 
-        let par: Element? = parent() as? Element
+        let par: Element? = parent as? Element
         let normaliseWhite = out.prettyPrint() && par != nil && !Element.preserveWhitespace(par!)
 
         Entities.escape(accum, getWholeText(), out, false, normaliseWhite, false)
@@ -153,9 +153,9 @@ open class TextNode: Node {
         }
     }
 
-    open override func attr(_ attributeKey: String)throws->String {
+    open override func getAttribute(key attributeKey: String) -> String? {
         ensureAttributes()
-        return try super.attr(attributeKey)
+        return super.getAttribute(key: attributeKey)
     }
 
     open override func getAttributes() -> Attributes {
@@ -163,33 +163,33 @@ open class TextNode: Node {
         return super.getAttributes()!
     }
 
-    open override func attr(_ attributeKey: String, _ attributeValue: String)throws->Node {
+    open override func setAttribute(key attributeKey: String, value attributeValue: String)throws->Node {
         ensureAttributes()
-        return try super.attr(attributeKey, attributeValue)
+        return try super.setAttribute(key: attributeKey, value: attributeValue)
     }
 
-    open override func hasAttr(_ attributeKey: String) -> Bool {
+    open override func hasAttribute(withKey attributeKey: String) -> Bool {
         ensureAttributes()
-        return super.hasAttr(attributeKey)
+        return super.hasAttribute(withKey: attributeKey)
     }
 
-    open override func removeAttr(_ attributeKey: String)throws->Node {
+    open override func removeAttribute(withKey attributeKey: String)throws->Node {
         ensureAttributes()
-        return try super.removeAttr(attributeKey)
+        return try super.removeAttribute(withKey: attributeKey)
     }
 
-    open override func absUrl(_ attributeKey: String)throws->String {
+    open override func absoluteURLPath(ofAttribute attributeKey: String) -> String? {
         ensureAttributes()
-        return try super.absUrl(attributeKey)
+        return super.absoluteURLPath(ofAttribute: attributeKey)
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = TextNode(_text, baseUri)
+		let clone = TextNode(_text, baseURI)
 		return super.copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = TextNode(_text, baseUri)
+		let clone = TextNode(_text, baseURI)
 		return super.copy(clone: clone, parent: parent)
 	}
 

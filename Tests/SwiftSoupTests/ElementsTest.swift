@@ -24,16 +24,16 @@ class ElementsTest: XCTestCase {
 	func testFilter()throws {
 		let h: String = "<p>Excl</p><div class=headline><p>Hello</p><p>There</p></div><div class=headline><h1>Headline</h1></div>"
 		let doc: Document = try SwiftSoup.parse(h)
-		let els: Elements = try doc.select(".headline").select("p")
+		let els: Elements = try doc.select(cssQuery: ".headline").select(cssQuery: "p")
 		XCTAssertEqual(2, els.size())
-		try XCTAssertEqual("Hello", els.get(0).text())
-		try XCTAssertEqual("There", els.get(1).text())
+		try XCTAssertEqual("Hello", els.get(0).getText())
+		try XCTAssertEqual("There", els.get(1).getText())
 	}
 
 	func testRandomAccessCollection()throws {
 		let h: String = "<div><p>one</p><div class=headline><p>two</p><p>three</p></div><p>four</p></div>"
 		let doc: Document = try SwiftSoup.parse(h)
-		let els: Elements = try doc.select("p")
+		let els: Elements = try doc.select(cssQuery: "p")
 		XCTAssertEqual(els.count, 4)
 		for i in (els.startIndex ..< els.endIndex).shuffled() {
 			let el = els[i]
@@ -44,7 +44,7 @@ class ElementsTest: XCTestCase {
 	func testAttributes()throws {
 		let h = "<p title=foo><p title=bar><p class=foo><p class=bar>"
 		let doc: Document = try SwiftSoup.parse(h)
-		let withTitle: Elements = try doc.select("p[title]")
+		let withTitle: Elements = try doc.select(cssQuery: "p[title]")
 		XCTAssertEqual(2, withTitle.size())
 		XCTAssertTrue(withTitle.hasAttr("title"))
 		XCTAssertFalse(withTitle.hasAttr("class"))
@@ -52,9 +52,9 @@ class ElementsTest: XCTestCase {
 
 		try withTitle.removeAttr("title")
 		XCTAssertEqual(2, withTitle.size()) // existing Elements are not reevaluated
-		try XCTAssertEqual(0, doc.select("p[title]").size())
+		try XCTAssertEqual(0, doc.select(cssQuery: "p[title]").size())
 
-		let ps: Elements = try doc.select("p").attr("style", "classy")
+		let ps: Elements = try doc.select(cssQuery: "p").attr("style", "classy")
 		XCTAssertEqual(4, ps.size())
 		try XCTAssertEqual("classy", ps.last()?.attr("style"))
 		try XCTAssertEqual("bar", ps.last()?.attr("class"))
@@ -62,16 +62,16 @@ class ElementsTest: XCTestCase {
 
 	func testHasAttr()throws {
 		let doc: Document = try SwiftSoup.parse("<p title=foo><p title=bar><p class=foo><p class=bar>")
-		let ps: Elements = try doc.select("p")
+		let ps: Elements = try doc.select(cssQuery: "p")
 		XCTAssertTrue(ps.hasAttr("class"))
 		XCTAssertFalse(ps.hasAttr("style"))
 	}
 
 	func testHasAbsAttr()throws {
 		let doc: Document = try SwiftSoup.parse("<a id=1 href='/foo'>One</a> <a id=2 href='https://google.com'>Two</a>")
-		let one: Elements = try doc.select("#1")
-		let two: Elements = try doc.select("#2")
-		let both: Elements = try doc.select("a")
+		let one: Elements = try doc.select(cssQuery: "#1")
+		let two: Elements = try doc.select(cssQuery: "#2")
+		let both: Elements = try doc.select(cssQuery: "a")
 		XCTAssertFalse(one.hasAttr("abs:href"))
 		XCTAssertTrue(two.hasAttr("abs:href"))
 		XCTAssertTrue(both.hasAttr("abs:href")) // hits on #2
@@ -79,15 +79,15 @@ class ElementsTest: XCTestCase {
 
 	func testAttr()throws {
 		let doc: Document = try SwiftSoup.parse("<p title=foo><p title=bar><p class=foo><p class=bar>")
-		let classVal = try doc.select("p").attr("class")
+		let classVal = try doc.select(cssQuery: "p").attr("class")
 		XCTAssertEqual("foo", classVal)
 	}
 
 	func testAbsAttr()throws {
 		let doc: Document = try SwiftSoup.parse("<a id=1 href='/foo'>One</a> <a id=2 href='https://google.com'>Two</a>")
-		let one: Elements = try doc.select("#1")
-		let two: Elements = try doc.select("#2")
-		let both: Elements = try doc.select("a")
+		let one: Elements = try doc.select(cssQuery: "#1")
+		let two: Elements = try doc.select(cssQuery: "#2")
+		let both: Elements = try doc.select(cssQuery: "a")
 
 		XCTAssertEqual("", try one.attr("abs:href"))
 		XCTAssertEqual("https://google.com", try two.attr("abs:href"))
@@ -97,7 +97,7 @@ class ElementsTest: XCTestCase {
 	func testClasses()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p class='mellow yellow'></p><p class='red green'></p>")
 
-		let els: Elements = try doc.select("p")
+		let els: Elements = try doc.select(cssQuery: "p")
 		XCTAssertTrue(els.hasClass("red"))
 		XCTAssertFalse(els.hasClass("blue"))
 		try els.addClass("blue")
@@ -111,31 +111,31 @@ class ElementsTest: XCTestCase {
 	func testText()throws {
 		let h = "<div><p>Hello<p>there<p>world</div>"
 		let doc: Document = try SwiftSoup.parse(h)
-		XCTAssertEqual("Hello there world", try doc.select("div > *").text())
+		XCTAssertEqual("Hello there world", try doc.select(cssQuery: "div > *").text())
 	}
 
 	func testHasText()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p></div><div><p></p></div>")
-		let divs: Elements = try doc.select("div")
+		let divs: Elements = try doc.select(cssQuery: "div")
 		XCTAssertTrue(divs.hasText())
-		XCTAssertFalse(try doc.select("div + div").hasText())
+		XCTAssertFalse(try doc.select(cssQuery: "div + div").hasText())
 	}
 
 	func testHtml()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p></div><div><p>There</p></div>")
-		let divs: Elements = try doc.select("div")
+		let divs: Elements = try doc.select(cssQuery: "div")
 		XCTAssertEqual("<p>Hello</p>\n<p>There</p>", try divs.html())
 	}
 
 	func testOuterHtml()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p></div><div><p>There</p></div>")
-		let divs: Elements = try doc.select("div")
+		let divs: Elements = try doc.select(cssQuery: "div")
 		XCTAssertEqual("<div><p>Hello</p></div><div><p>There</p></div>", try TextUtil.stripNewlines(divs.outerHtml()))
 	}
 
 	func testSetHtml()throws {
 		let doc: Document = try SwiftSoup.parse("<p>One</p><p>Two</p><p>Three</p>")
-		let ps: Elements = try doc.select("p")
+		let ps: Elements = try doc.select(cssQuery: "p")
 
 		try ps.prepend("<b>Bold</b>").append("<i>Ital</i>")
 		try XCTAssertEqual("<p><b>Bold</b>Two<i>Ital</i></p>", TextUtil.stripNewlines(ps.get(1).outerHtml()))
@@ -146,7 +146,7 @@ class ElementsTest: XCTestCase {
 
 	func testVal()throws {
 		let doc: Document = try SwiftSoup.parse("<input value='one' /><textarea>two</textarea>")
-		let els: Elements = try doc.select("input, textarea")
+		let els: Elements = try doc.select(cssQuery: "input, textarea")
 		XCTAssertEqual(2, els.size())
 		try XCTAssertEqual("one", els.val())
 		try XCTAssertEqual("two", els.last()?.val())
@@ -159,48 +159,48 @@ class ElementsTest: XCTestCase {
 
 	func testBefore()throws {
 		let doc: Document = try SwiftSoup.parse("<p>This <a>is</a> <a>SwiftSoup</a>.</p>")
-		try doc.select("a").before("<span>foo</span>")
+		try doc.select(cssQuery: "a").before("<span>foo</span>")
 		XCTAssertEqual("<p>This <span>foo</span><a>is</a> <span>foo</span><a>SwiftSoup</a>.</p>", try TextUtil.stripNewlines(doc.body()!.html()))
 	}
 
 	func testAfter()throws {
 		let doc: Document = try SwiftSoup.parse("<p>This <a>is</a> <a>SwiftSoup</a>.</p>")
-		try doc.select("a").after("<span>foo</span>")
+		try doc.select(cssQuery: "a").after("<span>foo</span>")
 		XCTAssertEqual("<p>This <a>is</a><span>foo</span> <a>SwiftSoup</a><span>foo</span>.</p>", try TextUtil.stripNewlines(doc.body()!.html()))
 	}
 
 	func testWrap()throws {
 		let h = "<p><b>This</b> is <b>SwiftSoup</b></p>"
 		let doc: Document = try SwiftSoup.parse(h)
-		try doc.select("b").wrap("<i></i>")
+		try doc.select(cssQuery: "b").wrap("<i></i>")
 		XCTAssertEqual("<p><i><b>This</b></i> is <i><b>SwiftSoup</b></i></p>", try doc.body()?.html())
 	}
 
 	func testWrapDiv()throws {
 		let h = "<p><b>This</b> is <b>SwiftSoup</b>.</p> <p>How do you like it?</p>"
 		let doc: Document = try SwiftSoup.parse(h)
-		try doc.select("p").wrap("<div></div>")
+		try doc.select(cssQuery: "p").wrap("<div></div>")
 		XCTAssertEqual("<div><p><b>This</b> is <b>SwiftSoup</b>.</p></div> <div><p>How do you like it?</p></div>", try TextUtil.stripNewlines(doc.body()!.html()))
 	}
 
 	func testUnwrap()throws {
 		let h = "<div><font>One</font> <font><a href=\"/\">Two</a></font></div"
 		let doc: Document = try SwiftSoup.parse(h)
-		try doc.select("font").unwrap()
+		try doc.select(cssQuery: "font").unwrap()
 		XCTAssertEqual("<div>One <a href=\"/\">Two</a></div>", try TextUtil.stripNewlines(doc.body()!.html()))
 	}
 
 	func testUnwrapP()throws {
 		let h = "<p><a>One</a> Two</p> Three <i>Four</i> <p>Fix <i>Six</i></p>"
 		let doc: Document = try SwiftSoup.parse(h)
-		try doc.select("p").unwrap()
+		try doc.select(cssQuery: "p").unwrap()
 		XCTAssertEqual("<a>One</a> Two Three <i>Four</i> Fix <i>Six</i>", try TextUtil.stripNewlines(doc.body()!.html()))
 	}
 
 	func testUnwrapKeepsSpace()throws {
 		let h = "<p>One <span>two</span> <span>three</span> four</p>"
 		let doc: Document = try SwiftSoup.parse(h)
-		try doc.select("span").unwrap()
+		try doc.select(cssQuery: "span").unwrap()
 		XCTAssertEqual("<p>One two three four</p>", try doc.body()?.html())
 	}
 
@@ -208,7 +208,7 @@ class ElementsTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello <b>there</b></p> <p>now!</p></div>")
 		doc.outputSettings().prettyPrint(pretty: false)
 
-		try doc.select("p").empty()
+		try doc.select(cssQuery: "p").empty()
 		XCTAssertEqual("<div><p></p> <p></p></div>", try doc.body()?.html())
 	}
 
@@ -216,28 +216,28 @@ class ElementsTest: XCTestCase {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello <b>there</b></p> SwiftSoup <p>now!</p></div>")
 		doc.outputSettings().prettyPrint(pretty: false)
 
-		try doc.select("p").remove()
+		try doc.select(cssQuery: "p").remove()
 		XCTAssertEqual("<div> SwiftSoup </div>", try doc.body()?.html())
 	}
 
 	func testEq()throws {
 		let h = "<p>Hello<p>there<p>world"
 		let doc: Document = try SwiftSoup.parse(h)
-		XCTAssertEqual("there", try doc.select("p").eq(1).text())
-		XCTAssertEqual("there", try doc.select("p").get(1).text())
+		XCTAssertEqual("there", try doc.select(cssQuery: "p").eq(1).text())
+		XCTAssertEqual("there", try doc.select(cssQuery: "p").get(1).getText())
 	}
 
 	func testIs()throws {
 		let h = "<p>Hello<p title=foo>there<p>world"
 		let doc: Document = try SwiftSoup.parse(h)
-		let ps: Elements = try doc.select("p")
+		let ps: Elements = try doc.select(cssQuery: "p")
 		try XCTAssertTrue(ps.iS("[title=foo]"))
 		try XCTAssertFalse(ps.iS("[title=bar]"))
 	}
 
 	func testParents()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p></div><p>There</p>")
-		let parents: Elements = try doc.select("p").parents()
+		let parents: Elements = try doc.select(cssQuery: "p").parents()
 
 		XCTAssertEqual(3, parents.size())
 		XCTAssertEqual("div", parents.get(0).tagName())
@@ -248,18 +248,18 @@ class ElementsTest: XCTestCase {
 	func testNot()throws {
 		let doc: Document = try SwiftSoup.parse("<div id=1><p>One</p></div> <div id=2><p><span>Two</span></p></div>")
 
-		let div1: Elements = try doc.select("div").not(":has(p > span)")
+		let div1: Elements = try doc.select(cssQuery: "div").selectNot(cssQuery: ":has(p > span)")
 		XCTAssertEqual(1, div1.size())
 		XCTAssertEqual("1", div1.first()?.id())
 
-		let div2: Elements = try doc.select("div").not("#1")
+		let div2: Elements = try doc.select(cssQuery: "div").selectNot(cssQuery: "#1")
 		XCTAssertEqual(1, div2.size())
 		XCTAssertEqual("2", div2.first()?.id())
 	}
 
 	func testTagNameSet()throws {
 		let doc: Document = try SwiftSoup.parse("<p>Hello <i>there</i> <i>now</i></p>")
-		try doc.select("i").tagName("em")
+		try doc.select(cssQuery: "i").tagName("em")
 
 		XCTAssertEqual("<p>Hello <em>there</em> <em>now</em></p>", try doc.body()?.html())
 	}
@@ -280,13 +280,13 @@ class ElementsTest: XCTestCase {
 				accum.append("</" + node.nodeName() + ">")
 			}
 		}
-		try doc.select("div").traverse(nv(accum))
+		try doc.select(cssQuery: "div").traverse(nv(accum))
 		XCTAssertEqual("<div><p><#text></#text></p></div><div><#text></#text></div>", accum.toString())
 	}
 
 	func testForms()throws {
 		let doc: Document = try SwiftSoup.parse("<form id=1><input name=q></form><div /><form id=2><input name=f></form>")
-		let els: Elements = try doc.select("*")
+		let els: Elements = try doc.select(cssQuery: "*")
 		XCTAssertEqual(9, els.size())
 
 		let forms: Array<FormElement> = els.forms()
@@ -306,13 +306,13 @@ class ElementsTest: XCTestCase {
     
     func testEachText()throws {
         let doc: Document = try SwiftSoup.parse("<div><p>1<p>2<p>3<p>4<p>5<p>6</div><div><p>7<p>8<p>9<p>10<p>11<p>12<p></p></div>")
-        let divText: Array<String> = try doc.select("div").eachText();
+        let divText: Array<String> = try doc.select(cssQuery: "div").eachText();
         XCTAssertEqual(2, divText.count);
         XCTAssertEqual("1 2 3 4 5 6", divText[0]);
         XCTAssertEqual("7 8 9 10 11 12", divText[1]);
         
-        let pText: Array<String> = try doc.select("p").eachText();
-        let ps: Elements = try doc.select("p");
+        let pText: Array<String> = try doc.select(cssQuery: "p").eachText();
+        let ps: Elements = try doc.select(cssQuery: "p");
         XCTAssertEqual(13, ps.size());
         XCTAssertEqual(12, pText.count); // not 13, as last doesn't have text
         XCTAssertEqual("1", pText[0]);

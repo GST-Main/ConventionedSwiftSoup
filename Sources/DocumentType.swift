@@ -28,14 +28,14 @@ public class DocumentType: Node {
      * @param baseUri the doctype's base URI
      */
     public init(_ name: String, _ publicId: String, _ systemId: String, _ baseUri: String) {
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
         do {
-            try attr(DocumentType.NAME, name)
-            try attr(DocumentType.PUBLIC_ID, publicId)
+            try setAttribute(key: DocumentType.NAME, value: name)
+            try setAttribute(key: DocumentType.PUBLIC_ID, value: publicId)
             if (has(DocumentType.PUBLIC_ID)) {
-                try attr(DocumentType.PUB_SYS_KEY, DocumentType.PUBLIC_KEY)
+                try setAttribute(key: DocumentType.PUB_SYS_KEY, value: DocumentType.PUBLIC_KEY)
             }
-            try attr(DocumentType.SYSTEM_ID, systemId)
+            try setAttribute(key: DocumentType.SYSTEM_ID, value: systemId)
         } catch {}
     }
 
@@ -47,18 +47,18 @@ public class DocumentType: Node {
      * @param baseUri the doctype's base URI
      */
     public init(_ name: String, _ pubSysKey: String?, _ publicId: String, _ systemId: String, _ baseUri: String) {
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
         do {
-            try attr(DocumentType.NAME, name)
+            try setAttribute(key: DocumentType.NAME, value: name)
             if(pubSysKey != nil) {
-                try attr(DocumentType.PUB_SYS_KEY, pubSysKey!)
+                try setAttribute(key: DocumentType.PUB_SYS_KEY, value: pubSysKey!)
             }
-            try attr(DocumentType.PUBLIC_ID, publicId)
-            try attr(DocumentType.SYSTEM_ID, systemId)
+            try setAttribute(key: DocumentType.PUBLIC_ID, value: publicId)
+            try setAttribute(key: DocumentType.SYSTEM_ID, value: systemId)
         } catch {}
     }
 
-    public override func nodeName() -> String {
+    public override var nodeName: String {
         return "#doctype"
     }
 
@@ -70,29 +70,27 @@ public class DocumentType: Node {
             accum.append("<!DOCTYPE")
         }
         if (has(DocumentType.NAME)) {
-            do {
-                accum.append(" ").append(try attr(DocumentType.NAME))
-            } catch {}
-
+            if let attribute = getAttribute(key: DocumentType.NAME) {
+                accum.append(" ").append(attribute)
+            }
         }
 
         if (has(DocumentType.PUB_SYS_KEY)) {
-            do {
-                try accum.append(" ").append(attr(DocumentType.PUB_SYS_KEY))
-            } catch {}
+            if let attribute = getAttribute(key: DocumentType.PUB_SYS_KEY) {
+                accum.append(" ").append(attribute)
+            }
         }
 
         if (has(DocumentType.PUBLIC_ID)) {
-            do {
-                try accum.append(" \"").append(attr(DocumentType.PUBLIC_ID)).append("\"")
-            } catch {}
-
+            if let attribute = getAttribute(key: DocumentType.PUBLIC_ID) {
+                accum.append(" \"").append(attribute).append("\"")
+            }
         }
+        
         if (has(DocumentType.SYSTEM_ID)) {
-            do {
-                accum.append(" \"").append(try attr(DocumentType.SYSTEM_ID)).append("\"")
-            } catch {}
-
+            if let attribute = getAttribute(key: DocumentType.SYSTEM_ID) {
+                accum.append(" \"").append(attribute).append("\"")
+            }
         }
         accum.append(">")
     }
@@ -101,16 +99,18 @@ public class DocumentType: Node {
     }
 
     private func has(_ attribute: String) -> Bool {
-        do {
-            return !StringUtil.isBlank(try attr(attribute))
-        } catch {return false}
+        if let attribute = getAttribute(key: attribute) {
+            return !StringUtil.isBlank(attribute)
+        } else {
+            return false
+        }
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
 		let clone = DocumentType(attributes!.get(key: DocumentType.NAME),
 		                         attributes!.get(key: DocumentType.PUBLIC_ID),
 		                         attributes!.get(key: DocumentType.SYSTEM_ID),
-		                         baseUri!)
+		                         baseURI!)
 		return copy(clone: clone)
 	}
 
@@ -118,7 +118,7 @@ public class DocumentType: Node {
 		let clone = DocumentType(attributes!.get(key: DocumentType.NAME),
 		                         attributes!.get(key: DocumentType.PUBLIC_ID),
 		                         attributes!.get(key: DocumentType.SYSTEM_ID),
-		                         baseUri!)
+		                         baseURI!)
 		return copy(clone: clone, parent: parent)
 	}
 

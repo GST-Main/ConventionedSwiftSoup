@@ -13,9 +13,9 @@ open class Document: Element {
         case noQuirks, quirks, limitedQuirks
     }
 
-    private var _outputSettings: OutputSettings  = OutputSettings()
+    public var outputSettings = OutputSettings()
     private var _quirksMode: Document.QuirksMode = QuirksMode.noQuirks
-    private let _location: String
+    public let location: String
     private var updateMetaCharset: Bool = false
 
     /**
@@ -24,9 +24,9 @@ open class Document: Element {
      @see SwiftSoup#parse
      @see #createShell
      */
-    public init(_ baseUri: String) {
-        self._location = baseUri
-        super.init(try! Tag.valueOf("#root", ParseSettings.htmlDefault), baseUri)
+    public init(baseURI: String) {
+        self.location = baseURI
+        super.init(tag: try! Tag.valueOf("#root", ParseSettings.htmlDefault), baseURI: baseURI)
     }
 
     /**
@@ -34,37 +34,28 @@ open class Document: Element {
      @param baseUri baseUri of document
      @return document with html, head, and body elements.
      */
-    static public func createShell(_ baseUri: String) -> Document {
-        let doc: Document = Document(baseUri)
-        let html: Element = try! doc.appendElement("html")
-        try! html.appendElement("head")
-        try! html.appendElement("body")
+    static public func createShell(baseURI: String) -> Document {
+        let doc: Document = Document(baseURI: baseURI)
+        let html: Element = try! doc.appendElement(tagName: "html")
+        try! html.appendElement(tagName: "head")
+        try! html.appendElement(tagName: "body")
 
         return doc
-    }
-
-    /**
-     * Get the URL this Document was parsed from. If the starting URL is a redirect,
-     * this will return the final URL from which the document was served from.
-     * @return location
-     */
-    public func location() -> String {
-    return _location
     }
 
     /**
      Accessor to the document's {@code head} element.
      @return {@code head}
      */
-    public func head() -> Element? {
-        return findFirstElementByTagName("head", self)
+    public var head: Element? {
+        findFirstElementByTagName("head", self)
     }
 
     /**
      Accessor to the document's {@code body} element.
      @return {@code body}
      */
-    public func body() -> Element? {
+    public var body: Element? {
         return findFirstElementByTagName("body", self)
     }
 
@@ -72,10 +63,13 @@ open class Document: Element {
      Get the string contents of the document's {@code title} element.
      @return Trimmed title, or empty string if none set.
      */
-    public func title()throws->String {
+    public var title: String? {
         // title is a preserve whitespace tag (for document output), but normalised here
-        let titleEl: Element? = try getElementsByTag("title").first()
-        return titleEl != nil ? try StringUtil.normaliseWhitespace(titleEl!.text()).trim() : ""
+        if let titleElement = getElementsByTag("title")?.first {
+            return StringUtil.normaliseWhitespace(titleElement.getText()).trim()
+        } else {
+            return nil
+        }
     }
 
     /**
@@ -83,12 +77,11 @@ open class Document: Element {
      not present
      @param title string to set as title
      */
-    public func title(_ title: String)throws {
-        let titleEl: Element? = try getElementsByTag("title").first()
-        if (titleEl == nil) { // add to head
-            try head()?.appendElement("title").text(title)
+    public func setTitle(_ title: String) {
+        if let titleElement = getElementsByTag("title")?.first {
+            titleElement.setText(title)
         } else {
-            try titleEl?.text(title)
+            try! head?.appendElement(tagName: "title").setText(title)
         }
     }
 
@@ -97,8 +90,8 @@ open class Document: Element {
      @param tagName element tag name (e.g. {@code a})
      @return new element
      */
-    public func createElement(_ tagName: String)throws->Element {
-        return try Element(Tag.valueOf(tagName, ParseSettings.preserveCase), self.getBaseUri())
+    public func createElement(withTagName tagName: String) throws -> Element {
+        return try Element(tag: Tag.valueOf(tagName, ParseSettings.preserveCase), baseURI: self.baseURI!)
     }
 
     /**
@@ -107,28 +100,30 @@ open class Document: Element {
      @return this document after normalisation
      */
     @discardableResult
-    public func normalise()throws->Document {
-        var htmlE: Element? = findFirstElementByTagName("html", self)
-        if (htmlE == nil) {
-            htmlE = try appendElement("html")
+    public func normalise() throws -> Document {
+        var htmlElement = findFirstElementByTagName("html", self)
+        if htmlElement == nil {
+            htmlElement = try! appendElement(tagName: "html")
         }
-        let htmlEl: Element = htmlE!
+        guard let htmlElement else {
+            fatalError("htmlElement can't be `nil`")
+        }
 
-        if (head() == nil) {
-            try htmlEl.prependElement("head")
+        if head == nil {
+            try! htmlElement.prependElement(tagName: "head")
         }
-        if (body() == nil) {
-            try htmlEl.appendElement("body")
+        if body == nil {
+            try! htmlElement.appendElement(tagName: "body")
         }
 
         // pull text nodes out of root, html, and head els, and push into body. non-text nodes are already taken care
         // of. do in inverse order to maintain text order.
-        try normaliseTextNodes(head()!)
-        try normaliseTextNodes(htmlEl)
+        try normaliseTextNodes(head!)
+        try normaliseTextNodes(htmlElement)
         try normaliseTextNodes(self)
 
-        try normaliseStructure("head", htmlEl)
-        try normaliseStructure("body", htmlEl)
+        try normaliseStructure("head", htmlElement)
+        try normaliseStructure("body", htmlElement)
 
         try ensureMetaCharsetElement()
 
@@ -136,12 +131,12 @@ open class Document: Element {
     }
 
     // does not recurse.
-    private func normaliseTextNodes(_ element: Element)throws {
-        var toMove: Array<Node> =  Array<Node>()
+    private func normaliseTextNodes(_ element: Element) throws {
+        var toMove: [Node] = []
         for node: Node in element.childNodes {
             if let tn = (node as? TextNode) {
                 if (!tn.isBlank()) {
-                toMove.append(tn)
+                    toMove.append(tn)
                 }
             }
         }
@@ -149,38 +144,40 @@ open class Document: Element {
         for i in (0..<toMove.count).reversed() {
             let node: Node = toMove[i]
             try element.removeChild(node)
-            try body()?.prependChild(TextNode(" ", ""))
-            try body()?.prependChild(node)
+            body?.prependChild(TextNode(" ", ""))
+            body?.prependChild(node)
         }
     }
 
     // merge multiple <head> or <body> contents into one, delete the remainder, and ensure they are owned by <html>
-    private func normaliseStructure(_ tag: String, _ htmlEl: Element)throws {
-        let elements: Elements = try self.getElementsByTag(tag)
-        let master: Element? = elements.first() // will always be available as created above if not existent
-        if (elements.size() > 1) { // dupes, move contents to master
+    private func normaliseStructure(_ tag: String, _ htmlEl: Element) throws {
+        guard let elements: Elements = self.getElementsByTag(tag) else {
+            throw SwiftSoupError(message: "Cannot get elements") // FIXME: fixme
+        }
+        let master: Element? = elements.first // will always be available as created above if not existent
+        if (elements.count > 1) { // dupes, move contents to master
             var toMove: Array<Node> = Array<Node>()
-            for i in 1..<elements.size() {
-                let dupe: Node = elements.get(i)
+            for i in 1..<elements.count {
+                let dupe: Node = elements.get(index: i)!
                 for node: Node in dupe.childNodes {
                     toMove.append(node)
                 }
-                try dupe.remove()
+                dupe.remove()
             }
 
             for dupe: Node in toMove {
-                try master?.appendChild(dupe)
+                master?.appendChild(dupe)
             }
         }
         // ensure parented by <html>
-        if (!(master != nil && master!.parent() != nil && master!.parent()!.equals(htmlEl))) {
-            try htmlEl.appendChild(master!) // includes remove()
+        if (!(master != nil && master!.parent != nil && master!.parent!.equals(htmlEl))) {
+            htmlEl.appendChild(master!) // includes remove()
         }
     }
 
     // fast method to get first by tag name, used for html, head, body finders
     private func findFirstElementByTagName(_ tag: String, _ node: Node) -> Element? {
-        if (node.nodeName()==tag) {
+        if (node.nodeName == tag) {
             return node as? Element
         } else {
             for child: Node in node.childNodes {
@@ -193,8 +190,8 @@ open class Document: Element {
         return nil
     }
 
-    open override func outerHtml()throws->String {
-        return try super.html() // no outer wrapper tag
+    open override var outerHTML: String? {
+        return super.html // no outer wrapper tag
     }
 
     /**
@@ -203,13 +200,13 @@ open class Document: Element {
      @return this document
      */
     @discardableResult
-    public override func text(_ text: String)throws->Element {
-        try body()?.text(text) // overridden to not nuke doc structure
+    public override func setText(_ text: String) -> Element {
+        body?.setText(text) // overridden to not nuke doc structure
         return self
     }
 
-    open override func nodeName() -> String {
-    return "#document"
+    open override var nodeName: String {
+        return "#document"
     }
 
     /**
@@ -236,9 +233,9 @@ open class Document: Element {
      * @see #updateMetaCharsetElement(boolean)
      * @see OutputSettings#charset(java.nio.charset.Charset)
      */
-    public func charset(_ charset: String.Encoding)throws {
+    public func charset(_ charset: String.Encoding) throws {
         updateMetaCharsetElement(true)
-        _outputSettings.charset(charset)
+        outputSettings.charset(charset)
         try ensureMetaCharsetElement()
     }
 
@@ -250,8 +247,8 @@ open class Document: Element {
      *
      * @see OutputSettings#charset()
      */
-    public func charset()->String.Encoding {
-        return _outputSettings.charset()
+    public var charset: String.Encoding {
+        outputSettings.charset()
     }
 
     /**
@@ -302,26 +299,26 @@ open class Document: Element {
      * <li><b>Xml:</b> <i>&lt;?xml version="1.0" encoding="CHARSET"&gt;</i></li>
      * </ul>
      */
-    private func ensureMetaCharsetElement()throws {
+    private func ensureMetaCharsetElement() throws {
         if (updateMetaCharset) {
-            let syntax: OutputSettings.Syntax = outputSettings().syntax()
+            let syntax: OutputSettings.Syntax = outputSettings.syntax()
 
             if (syntax == OutputSettings.Syntax.html) {
-                let metaCharset: Element? = try select("meta[charset]").first()
+                let metaCharset: Element? = select(cssQuery: "meta[charset]").first
 
                 if (metaCharset != nil) {
-                    try metaCharset?.attr("charset", charset().displayName())
+                    try metaCharset?.setAttribute(key: "charset", value: charset.displayName())
                 } else {
-                    let head: Element? = self.head()
+                    let head: Element? = self.head
 
                     if (head != nil) {
-                        try head?.appendElement("meta").attr("charset", charset().displayName())
+                        try head?.appendElement(tagName: "meta").setAttribute(key: "charset", value: charset.displayName())
                     }
                 }
 
                 // Remove obsolete elements
-				let s = try select("meta[name=charset]")
-				try s.remove()
+				let s = select(cssQuery: "meta[name=charset]")
+                s.forEach{ $0.remove() }
 
             } else if (syntax == OutputSettings.Syntax.xml) {
                 let node: Node = getChildNodes()[0]
@@ -329,50 +326,31 @@ open class Document: Element {
                 if let decl = (node as? XmlDeclaration) {
 
                     if (decl.name()=="xml") {
-                        try decl.attr("encoding", charset().displayName())
+                        try decl.setAttribute(key: "encoding", value: charset.displayName())
 
-                        _ = try  decl.attr("version")
-                        try decl.attr("version", "1.0")
+                        _ = decl.getAttribute(key: "version")
+                        try decl.setAttribute(key: "version", value: "1.0")
                     } else {
-                        try Validate.notNull(obj: baseUri)
-                        let decl = XmlDeclaration("xml", baseUri!, false)
-                        try decl.attr("version", "1.0")
-                        try decl.attr("encoding", charset().displayName())
+                        try Validate.notNull(obj: baseURI)
+                        let decl = XmlDeclaration("xml", baseURI!, false)
+                        try decl.setAttribute(key: "version", value: "1.0")
+                        try decl.setAttribute(key: "encoding", value: charset.displayName())
 
-                        try prependChild(decl)
+                        prependChild(decl)
                     }
                 } else {
-                    try Validate.notNull(obj: baseUri)
-                    let decl = XmlDeclaration("xml", baseUri!, false)
-                    try decl.attr("version", "1.0")
-                    try decl.attr("encoding", charset().displayName())
+                    try Validate.notNull(obj: baseURI)
+                    let decl = XmlDeclaration("xml", baseURI!, false)
+                    try decl.setAttribute(key: "version", value: "1.0")
+                    try decl.setAttribute(key: "encoding", value: charset.displayName())
 
-                    try prependChild(decl)
+                    prependChild(decl)
                 }
             }
         }
     }
 
-    /**
-     * Get the document's current output settings.
-     * @return the document's current output settings.
-     */
-    public func outputSettings() -> OutputSettings {
-    return _outputSettings
-    }
-
-    /**
-     * Set the document's output settings.
-     * @param outputSettings new output settings.
-     * @return this document, for chaining.
-     */
-    @discardableResult
-    public func outputSettings(_ outputSettings: OutputSettings) -> Document {
-        self._outputSettings = outputSettings
-        return self
-    }
-
-    public func quirksMode()->Document.QuirksMode {
+    public func quirksMode() -> Document.QuirksMode {
         return _quirksMode
     }
 
@@ -383,18 +361,18 @@ open class Document: Element {
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Document(_location)
+		let clone = Document(baseURI: location)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Document(_location)
+		let clone = Document(baseURI: location)
 		return copy(clone: clone, parent: parent)
 	}
 
 	public override func copy(clone: Node, parent: Node?) -> Node {
 		let clone = clone as! Document
-		clone._outputSettings = _outputSettings.copy() as! OutputSettings
+		clone.outputSettings = outputSettings.copy() as! OutputSettings
 		clone._quirksMode = _quirksMode
 		clone.updateMetaCharset = updateMetaCharset
 		return super.copy(clone: clone, parent: parent)

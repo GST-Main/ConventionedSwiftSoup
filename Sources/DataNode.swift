@@ -20,14 +20,14 @@ open class DataNode: Node {
      @param baseUri base URI
      */
     public init(_ data: String, _ baseUri: String) {
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
         do {
             try attributes?.put(DataNode.DATA_KEY, data)
         } catch {}
 
     }
 
-    open override func nodeName() -> String {
+    open override var nodeName: String {
         return "#data"
     }
 
@@ -70,12 +70,12 @@ open class DataNode: Node {
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = DataNode(attributes!.get(key: DataNode.DATA_KEY), baseUri!)
+		let clone = DataNode(attributes!.get(key: DataNode.DATA_KEY), baseURI!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = DataNode(attributes!.get(key: DataNode.DATA_KEY), baseUri!)
+		let clone = DataNode(attributes!.get(key: DataNode.DATA_KEY), baseURI!)
 		return copy(clone: clone, parent: parent)
 	}
 

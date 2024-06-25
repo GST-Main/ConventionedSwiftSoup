@@ -31,7 +31,7 @@ public class XmlTreeBuilder: TreeBuilder {
     override public func initialiseParse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings) {
 		super.initialiseParse(input, baseUri, errors, settings)
         stack.append(doc) // place the document onto the stack. differs from HtmlTreeBuilder (not on stack)
-        doc.outputSettings().syntax(syntax: OutputSettings.Syntax.xml)
+        doc.outputSettings.syntax(syntax: OutputSettings.Syntax.xml)
     }
 
     override public func process(_ token: Token)throws->Bool {
@@ -61,14 +61,14 @@ public class XmlTreeBuilder: TreeBuilder {
     }
 
     private func insertNode(_ node: Node)throws {
-        try currentElement()?.appendChild(node)
+        currentElement()?.appendChild(node)
     }
 
     @discardableResult
     func insert(_ startTag: Token.StartTag)throws->Element {
         let tag: Tag = try Tag.valueOf(startTag.name(), settings)
         // todo: wonder if for xml parsing, should treat all tags as unknown? because it's not html.
-        let el: Element = try Element(tag, baseUri, settings.normalizeAttributes(startTag._attributes))
+        let el: Element = try Element(tag: tag, baseURI: baseUri, attributes: settings.normalizeAttributes(startTag._attributes))
         try insertNode(el)
         if (startTag.isSelfClosing()) {
             tokeniser.acknowledgeSelfClosingFlag()
@@ -89,9 +89,10 @@ public class XmlTreeBuilder: TreeBuilder {
             // so we do a bit of a hack and parse the data as an element to pull the attributes out
             let data: String = comment.getData()
             if (data.count > 1 && (data.startsWith("!") || data.startsWith("?"))) {
-                let doc: Document = try SwiftSoup.parse("<" + data.substring(1, data.count - 2) + ">", baseUri, Parser.xmlParser())
-                let el: Element = doc.child(0)
-                insert = XmlDeclaration(settings.normalizeTag(el.tagName()), comment.getBaseUri(), data.startsWith("!"))
+                let parser = Parser.xmlParser()
+                let doc: Document = try parser.parseHTML("<" + data.substring(1, data.count - 2) + ">", baseURI: baseUri)
+                let el: Element = doc.getChild(at: 0)!
+                insert = XmlDeclaration(settings.normalizeTag(el.tagName), comment.baseURI!, data.startsWith("!"))
                 insert.getAttributes()?.addAll(incoming: el.getAttributes())
             }
         }
@@ -120,7 +121,7 @@ public class XmlTreeBuilder: TreeBuilder {
 
         for pos in (0..<stack.count).reversed() {
             let next: Element = stack[pos]
-            if (next.nodeName().equals(elName)) {
+            if (next.nodeName.equals(elName)) {
                 firstFound = next
                 break
             }

@@ -9,7 +9,7 @@
 import Foundation
 
 open class Element: Node {
-	var _tag: Tag
+	public internal(set) var tag: Tag
 
     private static let classString = "class"
     private static let emptyString = ""
@@ -28,9 +28,9 @@ open class Element: Node {
      * @see #appendChild(Node)
      * @see #appendElement(String)
      */
-    public init(_ tag: Tag, _ baseUri: String, _ attributes: Attributes) {
-        self._tag = tag
-        super.init(baseUri, attributes)
+    public init(tag: Tag, baseURI: String, attributes: Attributes) {
+        self.tag = tag
+        super.init(baseURI: baseURI, attributes: attributes)
     }
     /**
      * Create a new Element from a tag and a base URI.
@@ -40,24 +40,26 @@ open class Element: Node {
      *            string, but not null.
      * @see Tag#valueOf(String, ParseSettings)
      */
-    public init(_ tag: Tag, _ baseUri: String) {
-        self._tag = tag
-        super.init(baseUri, Attributes())
+    public init(tag: Tag, baseURI: String) {
+        self.tag = tag
+        super.init(baseURI: baseURI, attributes: Attributes())
     }
 
-    open override func nodeName() -> String {
-        return _tag.getName()
+    open override var nodeName: String {
+        return tag.getName()
     }
+    
     /**
      * Get the name of the tag for this element. E.g. {@code div}
      *
      * @return the tag name
      */
-    open func tagName() -> String {
-        return _tag.getName()
+    open var tagName: String {
+        return tag.getName()
     }
-    open func tagNameNormal() -> String {
-        return _tag.getNameNormal()
+    // TODO: Document
+    open var tagNameNormal: String {
+        return tag.getNameNormal()
     }
 
     /**
@@ -68,19 +70,12 @@ open class Element: Node {
      * @return this element, for chaining
      */
     @discardableResult
-    public func tagName(_ tagName: String)throws->Element {
-        try Validate.notEmpty(string: tagName, msg: "Tag name must not be empty.")
-        _tag = try Tag.valueOf(tagName, ParseSettings.preserveCase) // preserve the requested tag case
+    public func setTagName(_ tagName: String) throws -> Element {
+        if tagName.isEmpty {
+            throw SwiftSoupError.emptyTagName
+        }
+        tag = try Tag.valueOf(tagName, ParseSettings.preserveCase) // preserve the requested tag case
         return self
-    }
-
-    /**
-     * Get the Tag for this element.
-     *
-     * @return the tag object
-     */
-    open func tag() -> Tag {
-        return _tag
     }
 
     /**
@@ -89,8 +84,8 @@ open class Element: Node {
      *
      * @return true if block, false if not (and thus inline)
      */
-    open func isBlock() -> Bool {
-        return _tag.isBlock()
+    open var isBlock: Bool {
+        return tag.isBlock()
     }
 
     /**
@@ -98,8 +93,8 @@ open class Element: Node {
      *
      * @return The id attribute, if present, or an empty string if not.
      */
-    open func id() -> String {
-        guard let attributes = attributes else {return Element.emptyString}
+    open var id: String {
+        guard let attributes = attributes else { return Element.emptyString }
         do {
             return try attributes.getIgnoreCase(key: Element.idString)
         } catch {}
@@ -113,8 +108,8 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    open override func attr(_ attributeKey: String, _ attributeValue: String)throws->Element {
-        try super.attr(attributeKey, attributeValue)
+    open override func setAttribute(key: String, value: String) throws -> Element {
+        try super.setAttribute(key: key, value: value)
         return self
     }
 
@@ -129,8 +124,8 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    open func attr(_ attributeKey: String, _ attributeValue: Bool)throws->Element {
-        try attributes?.put(attributeKey, attributeValue)
+    open func setAttribute(key: String, value: Bool) throws -> Element {
+        try attributes?.put(key, value)
         return self
     }
 
@@ -147,11 +142,11 @@ open class Element: Node {
      * You can find elements that have data attributes using the {@code [^data-]} attribute key prefix selector.
      * @return a map of {@code key=value} custom data attributes.
      */
-    open func dataset()->Dictionary<String, String> {
-        return attributes!.dataset()
+    open var attributesAsDictionary: Dictionary<String, String> {
+        attributes!.dataset()
     }
 
-    open override func parent() -> Element? {
+    open override var parent:Element? {
         return parentNode as? Element
     }
 
@@ -159,16 +154,16 @@ open class Element: Node {
      * Get this element's parent and ancestors, up to the document root.
      * @return this element's stack of parents, closest first.
      */
-    open func parents() -> Elements {
-        let parents: Elements = Elements()
-        Element.accumulateParents(self, parents)
-        return parents
+    open var ancestors: Elements {
+        let ancestors: Elements = Elements()
+        Element.accumulateParents(self, ancestors)
+        return ancestors
     }
 
     private static func accumulateParents(_ el: Element, _ parents: Elements) {
-        let parent: Element? = el.parent()
-        if (parent != nil && !(parent!.tagName() == Element.rootString)) {
-            parents.add(parent!)
+        let parent: Element? = el.parent
+        if (parent != nil && !(parent!.tagName == Element.rootString)) {
+            parents.append(parent!)
             accumulateParents(parent!, parents)
         }
     }
@@ -184,8 +179,8 @@ open class Element: Node {
      * @return the child element, if it exists, otherwise throws an {@code IndexOutOfBoundsException}
      * @see #childNode(int)
      */
-    open func child(_ index: Int) -> Element {
-        return children().get(index)
+    open func getChild(at index: Int) -> Element? {
+        return children.get(index: index)
     }
 
     /**
@@ -197,15 +192,15 @@ open class Element: Node {
      * empty list.
      * @see #childNodes()
      */
-    open func children() -> Elements {
+    open var children: Elements {
         // create on the fly rather than maintaining two lists. if gets slow, memoize, and mark dirty on change
-        var elements = Array<Element>()
-        for node in childNodes {
-            if let n = node as? Element {
-                elements.append(n)
-            }
-        }
+        let elements = childNodes.compactMap { $0 as? Element }
         return Elements(elements)
+    }
+    
+    // TODO: Document
+    open var firstChild: Element? {
+        getChild(at: 0)
     }
 
     /**
@@ -219,19 +214,13 @@ open class Element: Node {
      * <ul>
      *     <li>{@code p.text()} = {@code "One Two Three Four"}</li>
      *     <li>{@code p.ownText()} = {@code "One Three Four"}</li>
-     *     <li>{@code p.children()} = {@code Elements[<span>, <br>]}</li>
+     *     <li>{@code p.children} = {@code Elements[<span>, <br>]}</li>
      *     <li>{@code p.childNodes()} = {@code List<Node>["One ", <span>, " Three ", <br>, " Four"]}</li>
      *     <li>{@code p.textNodes()} = {@code List<TextNode>["One ", " Three ", " Four"]}</li>
      * </ul>
      */
-    open func textNodes()->Array<TextNode> {
-        var textNodes =  Array<TextNode>()
-        for node in childNodes {
-            if let n = node as? TextNode {
-                textNodes.append(n)
-            }
-        }
-        return textNodes
+    open var textNodes: [TextNode] {
+        return childNodes.compactMap { $0 as? TextNode }
     }
 
     /**
@@ -243,14 +232,8 @@ open class Element: Node {
      * empty list.
      * @see #data()
      */
-    open func dataNodes()->Array<DataNode> {
-        var dataNodes = Array<DataNode>()
-        for node in childNodes {
-            if let n = node as? DataNode {
-                dataNodes.append(n)
-            }
-        }
-        return dataNodes
+    open var dataNodes: [DataNode] {
+        return childNodes.compactMap{ $0 as? DataNode }
     }
 
     /**
@@ -273,8 +256,12 @@ open class Element: Node {
      * @see CssSelector
      * @throws CssSelector.SelectorParseException (unchecked) on an invalid CSS query.
      */
-    public func select(_ cssQuery: String)throws->Elements {
-        return try CssSelector.select(cssQuery, self)
+    public func select(cssQuery: String) -> Elements {
+        do {
+            return try CssSelector.select(cssQuery, self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -282,8 +269,12 @@ open class Element: Node {
      * @param cssQuery a {@link CssSelector} CSS query
      * @return if this element matches the query
      */
-    public func iS(_ cssQuery: String)throws->Bool {
-        return try iS(QueryParser.parse(cssQuery))
+    public func isMatchedWith(cssQuery: String) -> Bool {
+        do {
+            return try self.isMatchedWith(evaluator: QueryParser.parse(cssQuery))
+        } catch {
+            return false
+        }
     }
 
     /**
@@ -291,11 +282,15 @@ open class Element: Node {
      * @param cssQuery a {@link CssSelector} CSS query
      * @return if this element matches the query
      */
-    public func iS(_ evaluator: Evaluator)throws->Bool {
+    public func isMatchedWith(evaluator: Evaluator) -> Bool {
         guard let od = self.ownerDocument() else {
             return false
         }
-        return try evaluator.matches(od, self)
+        do {
+            return try evaluator.matches(od, self)
+        } catch {
+            return false
+        }
     }
 
     /**
@@ -305,12 +300,11 @@ open class Element: Node {
      * @return this element, so that you can add more child nodes or elements.
      */
     @discardableResult
-    public func appendChild(_ child: Node)throws->Element {
-        // was - Node#addChildren(child). short-circuits an array create and a loop.
-        try reparentChild(child)
+    public func appendChild(_ child: Node) -> Element {
+        reparentChild(child)
         ensureChildNodes()
         childNodes.append(child)
-        child.setSiblingIndex(childNodes.count - 1)
+        child.siblingIndex = childNodes.count - 1
         return self
     }
 
@@ -321,8 +315,8 @@ open class Element: Node {
      * @return this element, so that you can add more child nodes or elements.
      */
     @discardableResult
-    public func prependChild(_ child: Node)throws->Element {
-        try addChildren(0, child)
+    public func prependChild(_ child: Node) -> Element {
+        insertChildren(child, at: 0)
         return self
     }
 
@@ -336,14 +330,17 @@ open class Element: Node {
      * @return this element, for chaining.
      */
     @discardableResult
-    public func insertChildren(_ index: Int, _ children: Array<Node>)throws->Element {
-        //Validate.notNull(children, "Children collection to be inserted must not be null.")
+    public func insertChildren(_ children: [Node], at index: Int) throws -> Element {
         var index = index
-        let currentSize: Int = childNodeSize()
-        if (index < 0) { index += currentSize + 1} // roll around
-        try Validate.isTrue(val: index >= 0 && index <= currentSize, msg: "Insert position out of bounds.")
+        let currentSize = childNodeSize()
+        if index < 0 {
+            index += currentSize + 1
+        } // roll around
+        guard index >= 0 && index <= currentSize else {
+            throw SwiftSoupError.indexOutOfBounds
+        }
 
-        try addChildren(index, children)
+        super.insertChildren(children, at: index)
         return self
     }
 
@@ -355,9 +352,9 @@ open class Element: Node {
      *  {@code parent.appendElement("h1").attr("id", "header").text("Welcome")}
      */
     @discardableResult
-    public func appendElement(_ tagName: String)throws->Element {
-        let child: Element = Element(try Tag.valueOf(tagName), getBaseUri())
-        try appendChild(child)
+    public func appendElement(tagName: String) throws -> Element {
+        let child = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
+        appendChild(child)
         return child
     }
 
@@ -369,9 +366,9 @@ open class Element: Node {
      *  {@code parent.prependElement("h1").attr("id", "header").text("Welcome")}
      */
     @discardableResult
-    public func prependElement(_ tagName: String)throws->Element {
-        let child: Element = Element(try Tag.valueOf(tagName), getBaseUri())
-        try prependChild(child)
+    public func prependElement(tagName: String) throws -> Element {
+        let child: Element = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
+        prependChild(child)
         return child
     }
 
@@ -382,9 +379,9 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func appendText(_ text: String)throws->Element {
-        let node: TextNode = TextNode(text, getBaseUri())
-        try appendChild(node)
+    public func appendText(_ text: String) -> Element {
+        let node: TextNode = TextNode(text, baseURI!)
+        appendChild(node)
         return self
     }
 
@@ -395,9 +392,9 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func prependText(_ text: String)throws->Element {
-        let node: TextNode = TextNode(text, getBaseUri())
-        try prependChild(node)
+    public func prependText(_ text: String) -> Element {
+        let node: TextNode = TextNode(text, baseURI!)
+        prependChild(node)
         return self
     }
 
@@ -408,9 +405,9 @@ open class Element: Node {
      * @see #html(String)
      */
     @discardableResult
-    public func append(_ html: String)throws->Element {
-        let nodes: Array<Node> = try Parser.parseFragment(html, self, getBaseUri())
-        try addChildren(nodes)
+    public func appendHTML(_ html: String) throws -> Element {
+        let nodes: [Node] = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
+        appendChildren(nodes)
         return self
     }
 
@@ -421,9 +418,9 @@ open class Element: Node {
      * @see #html(String)
      */
     @discardableResult
-    public func prepend(_ html: String)throws->Element {
-        let nodes: Array<Node> = try Parser.parseFragment(html, self, getBaseUri())
-        try addChildren(0, nodes)
+    public func prependHTML(_ html: String) throws -> Element {
+        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
+        super.insertChildren(nodes, at: 0)
         return self
     }
 
@@ -435,8 +432,8 @@ open class Element: Node {
      * @see #after(String)
      */
     @discardableResult
-    open override func before(_ html: String)throws->Element {
-        return try super.before(html) as! Element
+    open override func insertHTMLAsPreviousSibling(_ html: String) throws -> Element {
+        return try super.insertHTMLAsPreviousSibling(html) as! Element
     }
 
     /**
@@ -446,8 +443,8 @@ open class Element: Node {
      * @see #after(Node)
      */
     @discardableResult
-    open override func before(_ node: Node)throws->Element {
-        return try super.before(node) as! Element
+    open override func insertNodeAsPreviousSibling(_ node: Node) throws -> Element {
+        return try super.insertNodeAsPreviousSibling(node) as! Element
     }
 
     /**
@@ -458,8 +455,8 @@ open class Element: Node {
      * @see #before(String)
      */
     @discardableResult
-    open override func after(_ html: String)throws->Element {
-        return try super.after(html) as! Element
+    open override func insertHTMLAsNextSibling(_ html: String) throws -> Element {
+        return try super.insertHTMLAsNextSibling(html) as! Element
     }
 
     /**
@@ -468,8 +465,8 @@ open class Element: Node {
      * @return this element, for chaining
      * @see #before(Node)
      */
-    open override func after(_ node: Node)throws->Element {
-        return try super.after(node) as! Element
+    open override func insertNodeAsNextSibling(_ node: Node) throws -> Element {
+        return try super.insertNodeAsNextSibling(node) as! Element
     }
 
     /**
@@ -477,7 +474,7 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func empty() -> Element {
+    public func removeAll() -> Element {
         childNodes.removeAll()
         return self
     }
@@ -489,8 +486,8 @@ open class Element: Node {
      * @return this element, for chaining.
      */
     @discardableResult
-    open override func wrap(_ html: String)throws->Element {
-        return try super.wrap(html) as! Element
+    open override func wrap(html: String) throws -> Element {
+        return try super.wrap(html: html) as! Element
     }
 
     /**
@@ -503,33 +500,33 @@ open class Element: Node {
      *
      * @return the CSS Path that can be used to retrieve the element in a selector.
      */
-    public func cssSelector()throws->String {
-        let elementId = id()
+    public var cssSelector: String {
+        let elementId = id
         if (elementId.count > 0) {
             return "#" + elementId
         }
 
         // Translate HTML namespace ns:tag to CSS namespace syntax ns|tag
-        let tagName: String = self.tagName().replacingOccurrences(of: ":", with: "|")
+        let tagName: String = self.tagName.replacingOccurrences(of: ":", with: "|")
         var selector: String = tagName
-        let cl = try classNames()
+        let cl = classNames
         let classes: String = cl.joined(separator: ".")
         if (classes.count > 0) {
             selector.append(".")
             selector.append(classes)
         }
 
-        if (parent() == nil || ((parent() as? Document) != nil)) // don't add Document to selector, as will always have a html node
+        if (parent == nil || ((parent as? Document) != nil)) // don't add Document to selector, as will always have a html node
         {
             return selector
         }
 
         selector.insert(contentsOf: " > ", at: selector.startIndex)
-        if (try parent()!.select(selector).array().count > 1) {
-            selector.append(":nth-child(\(try elementSiblingIndex() + 1))")
+        if (parent!.select(cssQuery: selector).count > 1) {
+            selector.append(":nth-child(\(elementSiblingIndex + 1))")
         }
 
-        return try parent()!.cssSelector() + (selector)
+        return parent!.cssSelector + (selector)
     }
 
     /**
@@ -537,19 +534,14 @@ open class Element: Node {
      * of itself, so will not be included in the returned list.
      * @return sibling elements
      */
-    public func siblingElements() -> Elements {
+    public var siblingElements: Elements {
         if (parentNode == nil) {return Elements()}
 
-        let elements: Array<Element>? = parent()?.children().array()
-        let siblings: Elements = Elements()
-        if let elements = elements {
-            for el: Element in elements {
-                if (el != self) {
-                    siblings.add(el)
-                }
-            }
+        if let elements = parent?.children {
+            return elements.copy() as! Elements
+        } else {
+            return Elements()
         }
-        return siblings
     }
 
     /**
@@ -561,18 +553,16 @@ open class Element: Node {
      * @return the next element, or null if there is no next element
      * @see #previousElementSibling()
      */
-    public func nextElementSibling()throws->Element? {
-        if (parentNode == nil) {return nil}
-        let siblings: Array<Element>? = parent()?.children().array()
-        let index: Int? = try Element.indexInList(self, siblings)
-        try Validate.notNull(obj: index)
-        if let siblings = siblings {
-            if (siblings.count > index!+1) {
-                return siblings[index!+1]
-            } else {
-                return nil}
+    public var nextSiblingElement: Element? {
+        guard let parent = parent else {
+            return nil
         }
-        return nil
+        let siblings = parent.children
+        guard let index = siblings.firstIndex(of: self) else {
+            return nil
+        }
+        
+        return siblings.get(index: index + 1)
     }
 
     /**
@@ -580,26 +570,24 @@ open class Element: Node {
      * @return the previous element, or null if there is no previous element
      * @see #nextElementSibling()
      */
-    public func previousElementSibling()throws->Element? {
-        if (parentNode == nil) {return nil}
-        let siblings: Array<Element>? = parent()?.children().array()
-        let index: Int? = try Element.indexInList(self, siblings)
-        try Validate.notNull(obj: index)
-        if (index! > 0) {
-            return siblings?[index!-1]
-        } else {
+    public var previousSiblingElement: Element? {
+        guard let parent = parent else {
             return nil
         }
+        let siblings = parent.children
+        guard let index = siblings.firstIndex(of: self) else {
+            return nil
+        }
+
+        return siblings.get(index: index - 1)
     }
 
     /**
      * Gets the first element sibling of this element.
      * @return the first sibling that is an element (aka the parent's first element child)
      */
-    public func firstElementSibling() -> Element? {
-        // todo: should firstSibling() exclude this?
-        let siblings: Array<Element>? = parent()?.children().array()
-        return (siblings != nil && siblings!.count > 1) ? siblings![0] : nil
+    public var firstSiblingElement: Element? {
+        return parent?.children.first
     }
 
     /*
@@ -607,46 +595,32 @@ open class Element: Node {
      * sibling, returns 0.
      * @return position in element sibling list
      */
-    public func elementSiblingIndex()throws->Int {
-        if (parent() == nil) {return 0}
-        let x = try Element.indexInList(self, parent()?.children().array())
-        return x == nil ? 0 : x!
+    public var elementSiblingIndex: Int {
+        guard let parent = parent else {
+            return 0
+        }
+        return parent.children.firstIndex(of: self)!
     }
 
     /**
      * Gets the last element sibling of this element
      * @return the last sibling that is an element (aka the parent's last element child)
      */
-    public func lastElementSibling() -> Element? {
-        let siblings: Array<Element>? = parent()?.children().array()
-        return (siblings != nil && siblings!.count > 1) ? siblings![siblings!.count - 1] : nil
+    public var lastSiblingElement: Element? {
+        return parent?.children.last
     }
 
-    private static func indexInList(_ search: Element, _ elements: Array<Element>?)throws->Int? {
-        try Validate.notNull(obj: elements)
-        if let elements = elements {
-            for i in  0..<elements.count {
-                let element: Element = elements[i]
-                if (element == search) {
-                    return i
-                }
-            }
-        }
-        return nil
-    }
-
-    // DOM type methods
-
+    // MARK: `getElemntsBy...` Methods
     /**
      * Finds elements, including and recursively under this element, with the specified tag name.
      * @param tagName The tag name to search for (case insensitively).
      * @return a matching unmodifiable list of elements. Will be empty if this element and none of its children match.
      */
-    public func getElementsByTag(_ tagName: String)throws->Elements {
-        try Validate.notEmpty(string: tagName)
+    public func getElementsByTag(_ tagName: String) -> Elements? {
+        guard !tagName.isEmpty else { return nil }
         let tagName = tagName.lowercased().trim()
 
-        return try Collector.collect(Evaluator.Tag(tagName), self)
+        return try? Collector.collect(Evaluator.Tag(tagName), self)
     }
 
     /**
@@ -658,12 +632,14 @@ open class Element: Node {
      * @param id The ID to search for.
      * @return The first matching element by ID, starting with this element, or null if none found.
      */
-    public func getElementById(_ id: String)throws->Element? {
-        try Validate.notEmpty(string: id)
+    public func getElementById(_ id: String) -> Element? {
+        guard !id.isEmpty else { return nil }
 
-        let elements: Elements = try Collector.collect(Evaluator.Id(id), self)
-        if (elements.array().count > 0) {
-            return elements.get(0)
+        guard let elements: Elements = try? Collector.collect(Evaluator.Id(id), self) else {
+            return nil
+        }
+        if (elements.count > 0) {
+            return elements.get(index: 0)
         } else {
             return nil
         }
@@ -680,10 +656,9 @@ open class Element: Node {
      * @see #hasClass(String)
      * @see #classNames()
      */
-    public func getElementsByClass(_ className: String)throws->Elements {
-        try Validate.notEmpty(string: className)
-
-        return try Collector.collect(Evaluator.Class(className), self)
+    public func getElementsByClass(_ className: String) -> Elements {
+        let result = try? Collector.collect(Evaluator.Class(className), self)
+        return result ?? Elements()
     }
 
     /**
@@ -692,11 +667,12 @@ open class Element: Node {
      * @param key name of the attribute, e.g. {@code href}
      * @return elements that have this attribute, empty if none
      */
-    public func getElementsByAttribute(_ key: String)throws->Elements {
-        try Validate.notEmpty(string: key)
+    public func getElementsByAttribute(key: String) -> Elements {
+        guard !key.isEmpty else { return Elements() }
         let key = key.trim()
 
-        return try Collector.collect(Evaluator.Attribute(key), self)
+        let result = try? Collector.collect(Evaluator.Attribute(key), self)
+        return result ?? Elements()
     }
 
     /**
@@ -705,11 +681,12 @@ open class Element: Node {
      * @param keyPrefix name prefix of the attribute e.g. {@code data-}
      * @return elements that have attribute names that start with with the prefix, empty if none.
      */
-    public func getElementsByAttributeStarting(_ keyPrefix: String)throws->Elements {
-        try Validate.notEmpty(string: keyPrefix)
+    public func getElementsByAttribute(keyPrefix: String) -> Elements {
+        guard !keyPrefix.isEmpty else { return Elements() }
         let keyPrefix = keyPrefix.trim()
 
-        return try Collector.collect(Evaluator.AttributeStarting(keyPrefix), self)
+        let result = try? Collector.collect(Evaluator.AttributeStarting(keyPrefix), self)
+        return result ?? Elements()
     }
 
     /**
@@ -719,8 +696,12 @@ open class Element: Node {
      * @param value value of the attribute
      * @return elements that have this attribute with this value, empty if none
      */
-    public func getElementsByAttributeValue(_ key: String, _ value: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValue(key, value), self)
+    public func getElementsByAttribute(key: String, value: String) -> Elements {
+        guard !key.isEmpty else { return Elements() }
+        let key = key.trim()
+
+        let result = try? Collector.collect(Evaluator.AttributeWithValue(key, value), self)
+        return result ?? Elements()
     }
 
     /**
@@ -730,8 +711,12 @@ open class Element: Node {
      * @param value value of the attribute
      * @return elements that do not have a matching attribute
      */
-    public func getElementsByAttributeValueNot(_ key: String, _ value: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueNot(key, value), self)
+    public func getElementsByAttributeNotMatching(key: String, value: String) -> Elements {
+        guard !key.isEmpty else { return Elements() }
+        let key = key.trim()
+
+        let result = try? Collector.collect(Evaluator.AttributeWithValueNot(key, value), self)
+        return result ?? Elements()
     }
 
     /**
@@ -741,8 +726,12 @@ open class Element: Node {
      * @param valuePrefix start of attribute value
      * @return elements that have attributes that start with the value prefix
      */
-    public func getElementsByAttributeValueStarting(_ key: String, _ valuePrefix: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueStarting(key, valuePrefix), self)
+    public func getElementsByAttribute(key: String, valueStartingWith valuePrefix: String) -> Elements {
+        guard !key.isEmpty else { return Elements() }
+        let key = key.trim()
+        
+        let result = try? Collector.collect(Evaluator.AttributeWithValueStarting(key, valuePrefix), self)
+        return result ?? Elements()
     }
 
     /**
@@ -752,8 +741,12 @@ open class Element: Node {
      * @param valueSuffix end of the attribute value
      * @return elements that have attributes that end with the value suffix
      */
-    public func getElementsByAttributeValueEnding(_ key: String, _ valueSuffix: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueEnding(key, valueSuffix), self)
+    public func getElementsByAttribute(key: String, valueEndingWith valueSuffix: String) -> Elements {
+        guard !key.isEmpty else { return Elements() }
+        let key = key.trim()
+        
+        let result = try? Collector.collect(Evaluator.AttributeWithValueEnding(key, valueSuffix), self)
+        return result ?? Elements()
     }
 
     /**
@@ -763,8 +756,12 @@ open class Element: Node {
      * @param match substring of value to search for
      * @return elements that have attributes containing this text
      */
-    public func getElementsByAttributeValueContaining(_ key: String, _ match: String)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueContaining(key, match), self)
+    public func getElementsByAttribute(key: String, valueMathcingWith match: String) -> Elements {
+        guard !key.isEmpty else { return Elements() }
+        let key = key.trim()
+        
+        let result = try? Collector.collect(Evaluator.AttributeWithValueContaining(key, match), self)
+        return result ?? Elements()
     }
 
     /**
@@ -773,9 +770,12 @@ open class Element: Node {
      * @param pattern compiled regular expression to match against attribute values
      * @return elements that have attributes matching this regular expression
      */
-    public func getElementsByAttributeValueMatching(_ key: String, _ pattern: Pattern)throws->Elements {
-        return try Collector.collect(Evaluator.AttributeWithValueMatching(key, pattern), self)
+    public func getElementsByAttribute(key: String, valueMathcingWith pattern: Pattern) -> Elements {
+        guard !key.isEmpty else { return Elements() }
+        let key = key.trim()
 
+        let result = try? Collector.collect(Evaluator.AttributeWithValueMatching(key, pattern), self)
+        return result ?? Elements()
     }
 
     /**
@@ -784,24 +784,33 @@ open class Element: Node {
      * @param regex regular expression to match against attribute values. You can use <a href="http://java.sun.com/docs/books/tutorial/essential/regex/pattern.html#embedded">embedded flags</a> (such as (?i) and (?m) to control regex options.
      * @return elements that have attributes matching this regular expression
      */
-    public func getElementsByAttributeValueMatching(_ key: String, _ regex: String)throws->Elements {
+    public func getElementsByAttribute(key: String, valueRegex regex: String) -> Elements {
+        guard !key.isEmpty else { return Elements() }
+        let key = key.trim()
+
         var pattern: Pattern
         do {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Pattern syntax error: \(regex)")
+            return Elements()
         }
-        return try getElementsByAttributeValueMatching(key, pattern)
+        return getElementsByAttribute(key: key, valueMathcingWith: pattern)
     }
+    
+    // TODO: SwiftRegex
 
     /**
      * Find elements whose sibling index is less than the supplied index.
      * @param index 0-based index
      * @return elements less than index
      */
-    public func getElementsByIndexLessThan(_ index: Int)throws->Elements {
-        return try Collector.collect(Evaluator.IndexLessThan(index), self)
+    public func getElementsByIndex(lessThan index: Int) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.IndexLessThan(index), self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -809,8 +818,12 @@ open class Element: Node {
      * @param index 0-based index
      * @return elements greater than index
      */
-    public func getElementsByIndexGreaterThan(_ index: Int)throws->Elements {
-        return try Collector.collect(Evaluator.IndexGreaterThan(index), self)
+    public func getElementsByIndex(greaterThan index: Int) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.IndexGreaterThan(index), self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -818,8 +831,12 @@ open class Element: Node {
      * @param index 0-based index
      * @return elements equal to index
      */
-    public func getElementsByIndexEquals(_ index: Int)throws->Elements {
-        return try Collector.collect(Evaluator.IndexEquals(index), self)
+    public func getElementsByIndex(equals index: Int) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.IndexEquals(index), self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -829,8 +846,12 @@ open class Element: Node {
      * @return elements that contain the string, case insensitive.
      * @see Element#text()
      */
-    public func getElementsContainingText(_ searchText: String)throws->Elements {
-        return try Collector.collect(Evaluator.ContainsText(searchText), self)
+    public func getElementsContainingText(_ searchText: String) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.ContainsText(searchText), self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -840,8 +861,12 @@ open class Element: Node {
      * @return elements that contain the string, case insensitive.
      * @see Element#ownText()
      */
-    public func getElementsContainingOwnText(_ searchText: String)throws->Elements {
-        return try Collector.collect(Evaluator.ContainsOwnText(searchText), self)
+    public func getElementsContainingOwnText(_ searchText: String) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.ContainsOwnText(searchText), self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -850,8 +875,12 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#text()
      */
-    public func getElementsMatchingText(_ pattern: Pattern)throws->Elements {
-        return try Collector.collect(Evaluator.Matches(pattern), self)
+    public func getElementsMatchingText(_ pattern: Pattern) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.Matches(pattern), self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -860,15 +889,15 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#text()
      */
-    public func getElementsMatchingText(_ regex: String)throws->Elements {
+    public func getElementsMatchingText(_ regex: String) -> Elements {
         let pattern: Pattern
         do {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Pattern syntax error: \(regex)")
+            return Elements()
         }
-        return try getElementsMatchingText(pattern)
+        return getElementsMatchingText(pattern)
     }
 
     /**
@@ -877,8 +906,12 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#ownText()
      */
-    public func getElementsMatchingOwnText(_ pattern: Pattern)throws->Elements {
-        return try Collector.collect(Evaluator.MatchesOwn(pattern), self)
+    public func getElementsMatchingOwnText(_ pattern: Pattern) -> Elements {
+        do {
+            return try Collector.collect(Evaluator.MatchesOwn(pattern), self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -887,15 +920,15 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#ownText()
      */
-    public func getElementsMatchingOwnText(_ regex: String)throws->Elements {
+    public func getElementsMatchingOwnText(_ regex: String) -> Elements {
         let pattern: Pattern
         do {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            throw Exception.Error(type: ExceptionType.IllegalArgumentException, Message: "Pattern syntax error: \(regex)")
+            return Elements()
         }
-        return try getElementsMatchingOwnText(pattern)
+        return getElementsMatchingOwnText(pattern)
     }
 
     /**
@@ -903,8 +936,12 @@ open class Element: Node {
      *
      * @return all elements
      */
-    public func getAllElements()throws->Elements {
-        return try Collector.collect(Evaluator.AllElements(), self)
+    public var allElements: Elements {
+        do {
+            return try Collector.collect(Evaluator.AllElements(), self)
+        } catch {
+            return Elements()
+        }
     }
 
     /**
@@ -932,7 +969,7 @@ open class Element: Node {
                 }
             } else if let element = (node as? Element) {
                 if !accum.isEmpty &&
-                    (element.isBlock() || element._tag.getName() == "br") &&
+                    (element.isBlock || element.tag.getName() == "br") &&
                     !TextNode.lastCharIsWhitespace(accum) {
                     accum.append(" ")
                 }
@@ -942,14 +979,21 @@ open class Element: Node {
         public func tail(_ node: Node, _ depth: Int) {
         }
     }
-    public func text(trimAndNormaliseWhitespace: Bool = true)throws->String {
+    
+    // TODO: Document
+    public func getText(trimAndNormaliseWhitespace: Bool = true) -> String {
         let accum: StringBuilder = StringBuilder()
-        try NodeTraversor(textNodeVisitor(accum, trimAndNormaliseWhitespace: trimAndNormaliseWhitespace)).traverse(self)
+        try? NodeTraversor(textNodeVisitor(accum, trimAndNormaliseWhitespace: trimAndNormaliseWhitespace)).traverse(self)
         let text = accum.toString()
         if trimAndNormaliseWhitespace {
             return text.trim()
         }
         return text
+    }
+    
+    // TODO: Document
+    public var text: String {
+        getText()
     }
 
     /**
@@ -963,10 +1007,10 @@ open class Element: Node {
      * @see #text()
      * @see #textNodes()
      */
-    public func ownText() -> String {
-        let sb: StringBuilder = StringBuilder()
-        ownText(sb)
-        return sb.toString().trim()
+    public var ownText: String {
+        let stringBuilder: StringBuilder = StringBuilder()
+        ownText(stringBuilder)
+        return stringBuilder.toString().trim()
     }
 
     private func ownText(_ accum: StringBuilder) {
@@ -990,7 +1034,7 @@ open class Element: Node {
     }
 
     private static func appendWhitespaceIfBr(_ element: Element, _ accum: StringBuilder) {
-        if (element._tag.getName() == "br" && !TextNode.lastCharIsWhitespace(accum)) {
+        if (element.tag.getName() == "br" && !TextNode.lastCharIsWhitespace(accum)) {
             accum.append(" ")
         }
     }
@@ -998,7 +1042,7 @@ open class Element: Node {
     static func preserveWhitespace(_ node: Node?) -> Bool {
         // looks only at this element and one level up, to prevent recursion & needless stack searches
         if let element = (node as? Element) {
-            return element._tag.preserveWhitespace() || element.parent() != nil && element.parent()!._tag.preserveWhitespace()
+            return element.tag.preserveWhitespace() || element.parent != nil && element.parent!.tag.preserveWhitespace()
         }
         return false
     }
@@ -1009,10 +1053,10 @@ open class Element: Node {
      * @return this element
      */
     @discardableResult
-    public func text(_ text: String)throws->Element {
-        empty()
-        let textNode: TextNode = TextNode(text, baseUri)
-        try appendChild(textNode)
+    public func setText(_ text: String) -> Element {
+        removeAll()
+        let textNode: TextNode = TextNode(text, baseURI)
+        appendChild(textNode)
         return self
     }
 
@@ -1020,14 +1064,14 @@ open class Element: Node {
      Test if this element has any text content (that is not just whitespace).
      @return true if element has non-blank text content.
      */
-    public func hasText() -> Bool {
-        for child: Node in childNodes {
-            if let textNode = (child as? TextNode) {
-                if (!textNode.isBlank()) {
+    public var hasText: Bool {
+        for childNode in childNodes {
+            if let textNode = childNode as? TextNode {
+                if !textNode.isBlank() {
                     return true
                 }
-            } else if let el = (child as? Element) {
-                if (el.hasText()) {
+            } else if let element = childNode as? Element {
+                if element.hasText {
                     return true
                 }
             }
@@ -1041,18 +1085,18 @@ open class Element: Node {
      *
      * @see #dataNodes()
      */
-    public func data() -> String {
-        let sb: StringBuilder = StringBuilder()
+    public var data: String {
+        let stringBuilder: StringBuilder = StringBuilder()
 
         for childNode: Node in childNodes {
             if let data = (childNode as? DataNode) {
-                sb.append(data.getWholeData())
+                stringBuilder.append(data.getWholeData())
             } else if let element = (childNode as? Element) {
-                let elementData: String = element.data()
-                sb.append(elementData)
+                let elementData: String = element.data
+                stringBuilder.append(elementData)
             }
         }
-        return sb.toString()
+        return stringBuilder.toString()
     }
 
     /**
@@ -1060,8 +1104,8 @@ open class Element: Node {
      * separated. (E.g. on <code>&lt;div class="header gray"&gt;</code> returns, "<code>header gray</code>")
      * @return The literal class attribute, or <b>empty string</b> if no class attribute set.
      */
-    public func className()throws->String {
-        return try attr(Element.classString).trim()
+    public var className: String? {
+        return getAttribute(key: Element.classString)?.trim()
     }
 
     /**
@@ -1070,10 +1114,11 @@ open class Element: Node {
      * the backing {@code class} attribute; use the {@link #classNames(java.util.Set)} method to persist them.
      * @return set of classnames, empty if no class attribute
      */
-	public func classNames()throws->OrderedSet<String> {
-		let fitted = try className().replaceAll(of: Element.classSplit, with: " ", options: .caseInsensitive)
+    public var classNames: OrderedSet<String> {
+        guard let className else { return [] }
+		let fitted = className.replaceAll(of: Element.classSplit, with: " ", options: .caseInsensitive)
 		let names: [String] = fitted.components(separatedBy: " ")
-		let classNames: OrderedSet<String> = OrderedSet(sequence: names)
+		let classNames = OrderedSet(sequence: names)
 		classNames.remove(Element.emptyString) // if classNames() was empty, would include an empty class
 		return classNames
 	}
@@ -1084,8 +1129,8 @@ open class Element: Node {
      @return this element, for chaining
      */
     @discardableResult
-    public func classNames(_ classNames: OrderedSet<String>)throws->Element {
-        try attributes?.put(Element.classString, StringUtil.join(classNames, sep: " "))
+    public func setClass(names: OrderedSet<String>) -> Element {
+        try! attributes?.put(Element.classString, StringUtil.join(classNames, sep: " "))
         return self
     }
 
@@ -1095,7 +1140,7 @@ open class Element: Node {
      * @return true if it does, false if not
      */
     // performance sensitive
-    public func hasClass(_ className: String) -> Bool {
+    public func hasClass(named className: String) -> Bool {
         let classAtt: String? = attributes?.get(key: Element.classString)
         let len: Int = (classAtt != nil) ? classAtt!.count : 0
         let wantLen: Int = className.count
@@ -1148,10 +1193,11 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-	public func addClass(_ className: String)throws->Element {
-		let classes: OrderedSet<String> = try classNames()
+	public func addClass(named className: String) -> Element {
+		let classes = classNames
 		classes.append(className)
-		try classNames(classes)
+		setClass(names: classes)
+        
 		return self
 	}
 
@@ -1161,10 +1207,11 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-    public func removeClass(_ className: String)throws->Element {
-        let classes: OrderedSet<String> = try classNames()
+    public func removeClass(named className: String) -> Element {
+        let classes = classNames
 		classes.remove(className)
-        try classNames(classes)
+        setClass(names: classes)
+        
         return self
     }
 
@@ -1174,13 +1221,14 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-    public func toggleClass(_ className: String)throws->Element {
-        let classes: OrderedSet<String> = try classNames()
-        if (classes.contains(className)) {classes.remove(className)
+    public func toggleClass(named className: String) -> Element {
+        let classes = classNames
+        if classes.contains(className) {
+            classes.remove(className)
         } else {
             classes.append(className)
         }
-        try classNames(classes)
+        setClass(names: classes)
 
         return self
     }
@@ -1189,11 +1237,11 @@ open class Element: Node {
      * Get the value of a form element (input, textarea, etc).
      * @return the value of the form element, or empty string if not set.
      */
-    public func val()throws->String {
-        if (tagName()=="textarea") {
-            return try text()
+    public var value: String? {
+        if tagName == "textarea" {
+            return text
         } else {
-            return try attr("value")
+            return getAttribute(key: "value")
         }
     }
 
@@ -1203,29 +1251,29 @@ open class Element: Node {
      * @return this element (for chaining)
      */
     @discardableResult
-    public func val(_ value: String)throws->Element {
-        if (tagName() == "textarea") {
-            try text(value)
+    public func setValue(_ value: String) -> Element {
+        if tagName == "textarea" {
+            setText(value)
         } else {
-            try attr("value", value)
+            try! setAttribute(key: "value", value: value)
         }
         return self
     }
 
-    override func outerHtmlHead(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings)throws {
-        if (out.prettyPrint() && (_tag.formatAsBlock() || (parent() != nil && parent()!.tag().formatAsBlock()) || out.outline())) {
+    override func outerHtmlHead(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings) throws {
+        if (out.prettyPrint() && (tag.formatAsBlock() || (parent != nil && parent!.tag.formatAsBlock()) || out.outline())) {
             if !accum.isEmpty {
                 indent(accum, depth, out)
             }
         }
         accum
             .append("<")
-            .append(tagName())
+            .append(tagName)
         try attributes?.html(accum: accum, out: out)
 
         // selfclosing includes unknown tags, isEmpty defines tags that are always empty
-        if (childNodes.isEmpty && _tag.isSelfClosing()) {
-            if (out.syntax() == OutputSettings.Syntax.html && _tag.isEmpty()) {
+        if (childNodes.isEmpty && tag.isSelfClosing()) {
+            if (out.syntax() == OutputSettings.Syntax.html && tag.isEmpty()) {
                 accum.append(" />") // <img /> for "always empty" tags. selfclosing is ignored but retained for xml/xhtml compatibility
             } else {
                 accum.append(" />") // <img /> in xml
@@ -1236,13 +1284,13 @@ open class Element: Node {
     }
 
     override func outerHtmlTail(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings) {
-        if (!(childNodes.isEmpty && _tag.isSelfClosing())) {
+        if (!(childNodes.isEmpty && tag.isSelfClosing())) {
             if (out.prettyPrint() && (!childNodes.isEmpty && (
-                _tag.formatAsBlock() || (out.outline() && (childNodes.count>1 || (childNodes.count==1 && !(((childNodes[0] as? TextNode) != nil)))))
+                tag.formatAsBlock() || (out.outline() && (childNodes.count>1 || (childNodes.count==1 && !(((childNodes[0] as? TextNode) != nil)))))
                 ))) {
                 indent(accum, depth, out)
             }
-            accum.append("</").append(tagName()).append(">")
+            accum.append("</").append(tagName).append(">")
         }
     }
 
@@ -1253,13 +1301,17 @@ open class Element: Node {
      * @return String of HTML.
      * @see #outerHtml()
      */
-    public func html()throws->String {
+    public var html: String? {
         let accum: StringBuilder = StringBuilder()
-        try html2(accum)
+        do {
+            try html2(accum)
+        } catch {
+            return nil
+        }
         return getOutputSettings().prettyPrint() ? accum.toString().trim() : accum.toString()
     }
 
-    private func html2(_ accum: StringBuilder)throws {
+    private func html2(_ accum: StringBuilder) throws {
         for node in childNodes {
             try node.outerHtml(accum)
         }
@@ -1268,7 +1320,7 @@ open class Element: Node {
     /**
      * {@inheritDoc}
      */
-    open override func html(_ appendable: StringBuilder)throws->StringBuilder {
+    open override func html(_ appendable: StringBuilder) throws -> StringBuilder {
         for node in childNodes {
             try node.outerHtml(appendable)
         }
@@ -1282,19 +1334,19 @@ open class Element: Node {
 	* @see #append(String)
 	*/
     @discardableResult
-	public func html(_ html: String)throws->Element {
-		empty()
-		try append(html)
+	public func setHTML(_ html: String) throws -> Element {
+		removeAll()
+		try appendHTML(html)
 		return self
 	}
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Element(_tag, baseUri!, attributes!)
+		let clone = Element(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Element(_tag, baseUri!, attributes!)
+		let clone = Element(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone, parent: parent)
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {
@@ -1306,11 +1358,11 @@ open class Element: Node {
             return false
         }
         
-        return lhs._tag == rhs._tag
+        return lhs.tag == rhs.tag
     }
 	
     override public func hash(into hasher: inout Hasher) {
         super.hash(into: &hasher)
-        hasher.combine(_tag)
+        hasher.combine(tag)
     }
 }

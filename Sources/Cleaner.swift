@@ -32,11 +32,11 @@ open class Cleaner {
     /// - Parameter dirtyDocument: Untrusted base document to clean.
     /// - Returns: A cleaned document.
 	public func clean(_ dirtyDocument: Document) throws -> Document {
-		let clean = Document.createShell(dirtyDocument.getBaseUri())
-        if let headWhitelist, let dirtHead = dirtyDocument.head(), let cleanHead = clean.head() { // frameset documents won't have a head. the clean doc will have empty head.
+		let clean = Document.createShell(baseURI: dirtyDocument.baseURI!)
+        if let headWhitelist, let dirtHead = dirtyDocument.head, let cleanHead = clean.head { // frameset documents won't have a head. the clean doc will have empty head.
             try copySafeNodes(dirtHead, cleanHead, whitelist: headWhitelist)
         }
-        if let dirtBody = dirtyDocument.body(), let cleanBody = clean.body() { // frameset documents won't have a body. the clean doc will have empty body.
+        if let dirtBody = dirtyDocument.body, let cleanBody = clean.body { // frameset documents won't have a body. the clean doc will have empty body.
             try copySafeNodes(dirtBody, cleanBody, whitelist: bodyWhitelist)
         }
 		return clean
@@ -51,8 +51,8 @@ open class Cleaner {
     /// - Parameter dirtyDocument: document to test
     /// - Returns: true if no tags or attributes need to be removed; false if they do
 	public func isValid(_ dirtyDocument: Document) throws -> Bool {
-        let clean = Document.createShell(dirtyDocument.getBaseUri())
-        let numDiscarded = try copySafeNodes(dirtyDocument.body()!, clean.body()!, whitelist: bodyWhitelist)
+        let clean = Document.createShell(baseURI: dirtyDocument.baseURI!)
+        let numDiscarded = try copySafeNodes(dirtyDocument.body!, clean.body!, whitelist: bodyWhitelist)
         return numDiscarded == 0
 	}
 
@@ -81,10 +81,10 @@ extension Cleaner {
 
 		public func head(_ source: Node, _ depth: Int) throws {
 			if let sourceEl = source as? Element {
-				if whitelist.isSafeTag(sourceEl.tagName()) { // safe, clone and copy safe attrs
+				if whitelist.isSafeTag(sourceEl.tagName) { // safe, clone and copy safe attrs
 					let meta = try createSafeElement(sourceEl)
 					let destChild = meta.el
-					try destination?.appendChild(destChild)
+                    destination?.appendChild(destChild)
 
 					numDiscarded += meta.numAttribsDiscarded
 					destination = destChild
@@ -92,12 +92,12 @@ extension Cleaner {
 					numDiscarded += 1
 				}
 			} else if let sourceText = source as? TextNode {
-				let destText = TextNode(sourceText.getWholeText(), source.getBaseUri())
-				try destination?.appendChild(destText)
+				let destText = TextNode(sourceText.getWholeText(), source.baseURI!)
+                destination?.appendChild(destText)
 			} else if let sourceData = source as? DataNode {
-				if sourceData.parent() != nil && whitelist.isSafeTag(sourceData.parent()!.nodeName()) {
-					let destData =  DataNode(sourceData.getWholeData(), source.getBaseUri())
-					try destination?.appendChild(destData)
+				if sourceData.parent != nil && whitelist.isSafeTag(sourceData.parent!.nodeName) {
+					let destData =  DataNode(sourceData.getWholeData(), source.baseURI!)
+                    destination?.appendChild(destData)
                 } else {
                     numDiscarded += 1
                 }
@@ -108,21 +108,21 @@ extension Cleaner {
 
 		public func tail(_ source: Node, _ depth: Int) throws {
 			if let x = source as? Element {
-				if whitelist.isSafeTag(x.nodeName()) {
+				if whitelist.isSafeTag(x.nodeName) {
 					// would have descended, so pop destination stack
-					destination = destination?.parent()
+					destination = destination?.parent
 				}
 			}
 		}
 
         private func createSafeElement(_ sourceEl: Element) throws -> ElementMeta {
-            let sourceTag = sourceEl.tagName()
+            let sourceTag = sourceEl.tagName
             let destAttrs = Attributes()
             var numDiscarded = 0
 
             if let sourceAttrs = sourceEl.getAttributes() {
                 for sourceAttr in sourceAttrs {
-                    if try whitelist.isSafeAttribute(sourceTag, sourceEl, sourceAttr) {
+                    if whitelist.isSafeAttribute(sourceTag, sourceEl, sourceAttr) {
                         destAttrs.put(attribute: sourceAttr)
                     } else {
                         numDiscarded += 1
@@ -132,7 +132,7 @@ extension Cleaner {
             let enforcedAttrs = try whitelist.getEnforcedAttributes(sourceTag)
             destAttrs.addAll(incoming: enforcedAttrs)
 
-            let dest = try Element(Tag.valueOf(sourceTag), sourceEl.getBaseUri(), destAttrs)
+            let dest = try Element(tag: Tag.valueOf(sourceTag), baseURI: sourceEl.baseURI!, attributes: destAttrs)
             return ElementMeta(dest, numDiscarded)
         }
 	}

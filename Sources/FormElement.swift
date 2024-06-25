@@ -22,8 +22,8 @@ public class FormElement: Element {
      * @param baseUri    the base URI
      * @param attributes initial attributes
      */
-    public override init(_ tag: Tag, _ baseUri: String, _ attributes: Attributes) {
-        super.init(tag, baseUri, attributes)
+    public override init(tag: Tag, baseURI baseUri: String, attributes: Attributes) {
+        super.init(tag: tag, baseURI: baseUri, attributes: attributes)
     }
 
     /**
@@ -41,7 +41,7 @@ public class FormElement: Element {
      */
     @discardableResult
     public func addElement(_ element: Element) -> FormElement {
-        _elements.add(element)
+        _elements.append(element)
         return self
     }
 
@@ -54,7 +54,7 @@ public class FormElement: Element {
      * document's base URI when parsing.
      */
 //    public func submit()throws->Connection {
-//        let action: String = hasAttr("action") ? try absUrl("action") : try baseUri()
+//        let action: String = hasAttribute("action") ? try absUrl("action") : try baseUri()
 //        Validate.notEmpty(action, "Could not determine a form action URL for submit. Ensure you set a base URI when parsing.")
 //        Connection.Method method = attr("method").toUpperCase().equals("POST") ?
 //            Connection.Method.POST : Connection.Method.GET
@@ -76,7 +76,7 @@ public class FormElement: Element {
 //        // iterate the form control elements and accumulate their values
 //        for (Element el: elements) {
 //            if (!el.tag().isFormSubmittable()) continue; // contents are form listable, superset of submitable
-//            if (el.hasAttr("disabled")) continue; // skip disabled form inputs
+//            if (el.hasAttribute("disabled")) continue; // skip disabled form inputs
 //            String name = el.attr("name");
 //            if (name.length() == 0) continue;
 //            String type = el.attr("type");
@@ -95,7 +95,7 @@ public class FormElement: Element {
 //                }
 //            } else if ("checkbox".equalsIgnoreCase(type) || "radio".equalsIgnoreCase(type)) {
 //                // only add checkbox or radio if they have the checked attribute
-//                if (el.hasAttr("checked")) {
+//                if (el.hasAttribute("checked")) {
 //                    final String val = el.val().length() >  0 ? el.val() : "on";
 //                    data.add(HttpConnection.KeyVal.create(name, val));
 //                }
@@ -107,18 +107,18 @@ public class FormElement: Element {
 //    }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = FormElement(_tag, baseUri!, attributes!)
+		let clone = FormElement(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = FormElement(_tag, baseUri!, attributes!)
+		let clone = FormElement(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone, parent: parent)
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {
 		let clone = clone as! FormElement
-		for att in _elements.array() {
-			clone._elements.add(att)
+		for att in _elements {
+			clone._elements.append(att)
 		}
 		return super.copy(clone: clone, parent: parent)
 	}

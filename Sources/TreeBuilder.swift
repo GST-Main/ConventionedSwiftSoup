@@ -24,7 +24,7 @@ public class TreeBuilder {
     public func defaultSettings() -> ParseSettings {preconditionFailure("This method must be overridden")}
 
     public init() {
-        doc =  Document("")
+        doc =  Document(baseURI: "")
         reader = CharacterReader("")
         tokeniser = Tokeniser(reader, nil)
         stack = Array<Element>()
@@ -34,7 +34,7 @@ public class TreeBuilder {
     }
 
     public func initialiseParse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings) {
-        doc = Document(baseUri)
+        doc = Document(baseURI: baseUri)
         self.settings = settings
         reader = CharacterReader(input)
         self.errors = errors

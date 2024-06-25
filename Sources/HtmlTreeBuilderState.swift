@@ -80,7 +80,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 let doctype: DocumentType = DocumentType(
                 tb.settings.normalizeTag(d.getName()), d.getPubSysKey(), d.getPublicIdentifier(), d.getSystemIdentifier(), tb.getBaseUri())
                     //tb.settings.normalizeTag(d.getName()), d.getPublicIdentifier(), d.getSystemIdentifier(), tb.getBaseUri())
-                try tb.getDocument().appendChild(doctype)
+                tb.getDocument().appendChild(doctype)
                 if (d.isForceQuirks()) {
                     tb.getDocument().quirksMode(Document.QuirksMode.quirks)
                 }
@@ -168,7 +168,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 } else if TagSets.baseEtc.contains(name) {
                     let el: Element = try tb.insertEmpty(start)
                     // SwiftSoup special: update base the frist time it is seen
-                    if (name.equals("base") && el.hasAttr("href")) {
+                    if (name.equals("base") && el.hasAttribute(withKey: "href")) {
                         try tb.maybeSetBaseUri(el)
                     }
                 } else if (name.equals("meta")) {
@@ -292,9 +292,9 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 let stack: Array<Element> = tb.getStack()
                 for pos in (0..<stack.count).reversed() {
                     let node: Element = stack[pos]
-                    if (name != nil && node.nodeName().equals(name!)) {
+                    if (name != nil && node.nodeName.equals(name!)) {
                         tb.generateImpliedEndTags(name)
-                        if (!name!.equals((tb.currentElement()?.nodeName())!)) {
+                        if (!name!.equals((tb.currentElement()?.nodeName)!)) {
                             tb.error(self)
                         }
                         tb.popStackToClose(name!)
@@ -367,11 +367,11 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         let stack: Array<Element> = tb.getStack()
                         for i in (0..<stack.count).reversed() {
                             let el: Element = stack[i]
-                            if (el.nodeName().equals("li")) {
+                            if (el.nodeName.equals("li")) {
                                 try tb.processEndTag("li")
                                 break
                             }
-                            if (tb.isSpecial(el) && !Constants.InBodyStartLiBreakers.contains(el.nodeName())) {
+                            if (tb.isSpecial(el) && !Constants.InBodyStartLiBreakers.contains(el.nodeName)) {
                                 break
                             }
                         }
@@ -384,7 +384,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         // merge attributes onto real html
                         let html: Element = tb.getStack()[0]
                         for attribute in startTag.getAttributes() {
-                            if (!html.hasAttr(attribute.getKey())) {
+                            if (!html.hasAttribute(withKey: attribute.getKey())) {
                                 html.getAttributes()?.put(attribute: attribute)
                             }
                         }
@@ -393,14 +393,14 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     } else if (name.equals("body")) {
                         tb.error(self)
                         let stack: Array<Element> = tb.getStack()
-                        if (stack.count == 1 || (stack.count > 2 && !stack[1].nodeName().equals("body"))) {
+                        if (stack.count == 1 || (stack.count > 2 && !stack[1].nodeName.equals("body"))) {
                             // only in fragment case
                             return false // ignore
                         } else {
                             tb.framesetOk(false)
                             let body: Element = stack[1]
                             for attribute: Attribute in startTag.getAttributes() {
-                                if (!body.hasAttr(attribute.getKey())) {
+                                if (!body.hasAttribute(withKey: attribute.getKey())) {
                                     body.getAttributes()?.put(attribute: attribute)
                                 }
                             }
@@ -408,15 +408,15 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     } else if (name.equals("frameset")) {
                         tb.error(self)
                         var stack: Array<Element> = tb.getStack()
-                        if (stack.count == 1 || (stack.count > 2 && !stack[1].nodeName().equals("body"))) {
+                        if (stack.count == 1 || (stack.count > 2 && !stack[1].nodeName.equals("body"))) {
                             // only in fragment case
                             return false // ignore
                         } else if (!tb.framesetOk()) {
                             return false // ignore frameset
                         } else {
                             let second: Element = stack[1]
-                            if (second.parent() != nil) {
-                                try second.remove()
+                            if (second.parent != nil) {
+                                second.remove()
                             }
                             // pop up to html element
                             while (stack.count > 1) {
@@ -429,7 +429,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         if (try tb.inButtonScope("p")) {
                             try tb.processEndTag("p")
                         }
-                        if (tb.currentElement() != nil && Constants.Headings.contains(tb.currentElement()!.nodeName())) {
+                        if (tb.currentElement() != nil && Constants.Headings.contains(tb.currentElement()!.nodeName)) {
                             tb.error(self)
                             tb.pop()
                         }
@@ -455,11 +455,11 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         let stack: Array<Element> = tb.getStack()
                         for i in (1..<stack.count).reversed() {
                             let el: Element = stack[i]
-                            if Constants.DdDt.contains(el.nodeName()) {
-                                try tb.processEndTag(el.nodeName())
+                            if Constants.DdDt.contains(el.nodeName) {
+                                try tb.processEndTag(el.nodeName)
                                 break
                             }
-                            if (tb.isSpecial(el) && !Constants.InBodyStartLiBreakers.contains(el.nodeName())) {
+                            if (tb.isSpecial(el) && !Constants.InBodyStartLiBreakers.contains(el.nodeName)) {
                                 break
                             }
                         }
@@ -512,8 +512,12 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     } else if (name.equals("input")) {
                         try tb.reconstructFormattingElements()
                         let el: Element = try tb.insertEmpty(startTag)
-                        if (try !el.attr("type").equalsIgnoreCase(string: "hidden")) {
-                            tb.framesetOk(false)
+                        if let attribute = el.getAttribute(key: "type") {
+                            if (!attribute.equalsIgnoreCase(string: "hidden")) {
+                                tb.framesetOk(false)
+                            }
+                        } else {
+                            fatalError("FIXME") // FIXME: Throw error
                         }
                     } else if Constants.InBodyStartMedia.contains(name) {
                         try tb.insertEmpty(startTag)
@@ -540,7 +544,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         try tb.processStartTag("form")
                         if (startTag._attributes.hasKey(key: "action")) {
                             if let form: Element = tb.getFormElement() {
-                                try form.attr("action", startTag._attributes.get(key: "action"))
+                                try form.setAttribute(key: "action", value: startTag._attributes.get(key: "action"))
                             }
                         }
                         try tb.processStartTag("hr")
@@ -596,7 +600,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             tb.transition(.InSelect)
                         }
                     } else if Constants.InBodyStartOptions.contains(name) {
-                        if (tb.currentElement() != nil && tb.currentElement()!.nodeName().equals("option")) {
+                        if (tb.currentElement() != nil && tb.currentElement()!.nodeName.equals("option")) {
                             try tb.processEndTag("option")
                         }
                         try tb.reconstructFormattingElements()
@@ -604,7 +608,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     } else if Constants.InBodyStartRuby.contains(name) {
                         if (try tb.inScope("ruby")) {
                             tb.generateImpliedEndTags()
-                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName().equals("ruby")) {
+                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName.equals("ruby")) {
                                 tb.error(self)
                                 tb.popStackToBefore("ruby") // i.e. close up to but not include name
                             }
@@ -646,7 +650,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                 tb.error(self)
                                 tb.removeFromActiveFormattingElements(formatEl!)
                                 return true
-                            } else if (try !tb.inScope(formatEl!.nodeName())) {
+                            } else if (try !tb.inScope(formatEl!.nodeName)) {
                                 tb.error(self)
                                 return false
                             } else if (tb.currentElement() != formatEl!) {
@@ -672,7 +676,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                 }
                             }
                             if (furthestBlock == nil) {
-                                tb.popStackToClose(formatEl!.nodeName())
+                                tb.popStackToClose(formatEl!.nodeName)
                                 tb.removeFromActiveFormattingElements(formatEl)
                                 return true
                             }
@@ -693,7 +697,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                     break
                                 }
 
-                                let replacement: Element = try Element(Tag.valueOf(node!.nodeName(), ParseSettings.preserveCase), tb.getBaseUri())
+                                let replacement: Element = try Element(tag: Tag.valueOf(node!.nodeName, ParseSettings.preserveCase), baseURI: tb.getBaseUri())
                                 // case will follow the original node (so honours ParseSettings)
                                 try tb.replaceActiveFormattingElement(node!, replacement)
                                 try tb.replaceOnStack(node!, replacement)
@@ -703,33 +707,33 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                     // todo: move the aforementioned bookmark to be immediately after the node in the list of active formatting elements.
                                     // not getting how self bookmark both straddles the element above, but is inbetween here...
                                 }
-                                if (lastNode!.parent() != nil) {
-                                    try lastNode?.remove()
+                                if (lastNode!.parent != nil) {
+                                    lastNode?.remove()
                                 }
-                                try node!.appendChild(lastNode!)
+                                node!.appendChild(lastNode!)
 
                                 lastNode = node
                             }
 
-                            if Constants.InBodyEndTableFosters.contains(commonAncestor!.nodeName()) {
-                                if (lastNode!.parent() != nil) {
-                                    try lastNode!.remove()
+                            if Constants.InBodyEndTableFosters.contains(commonAncestor!.nodeName) {
+                                if (lastNode!.parent != nil) {
+                                    lastNode!.remove()
                                 }
                                 try tb.insertInFosterParent(lastNode!)
                             } else {
-                                if (lastNode!.parent() != nil) {
-                                    try lastNode!.remove()
+                                if (lastNode!.parent != nil) {
+                                    lastNode!.remove()
                                 }
-                                try commonAncestor!.appendChild(lastNode!)
+                                commonAncestor!.appendChild(lastNode!)
                             }
 
-                            let adopter: Element = Element(formatEl!.tag(), tb.getBaseUri())
+                            let adopter: Element = Element(tag: formatEl!.tag, baseURI: tb.getBaseUri())
                             adopter.getAttributes()?.addAll(incoming: formatEl!.getAttributes())
                             let childNodes: [Node] = furthestBlock!.getChildNodes()
                             for childNode: Node in childNodes {
-                                try adopter.appendChild(childNode) // append will reparent. thus the clone to avoid concurrent mod.
+                                adopter.appendChild(childNode) // append will reparent. thus the clone to avoid concurrent mod.
                             }
-                            try furthestBlock?.appendChild(adopter)
+                            furthestBlock?.appendChild(adopter)
                             tb.removeFromActiveFormattingElements(formatEl)
                             // todo: insert the element into the list of active formatting elements at the position of the aforementioned bookmark.
                             tb.removeFromStack(formatEl!)
@@ -742,7 +746,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             return false
                         } else {
                             tb.generateImpliedEndTags()
-                            if (!tb.currentElement()!.nodeName().equals(name)) {
+                            if (!tb.currentElement()!.nodeName.equals(name)) {
                                 tb.error(self)
                             }
                             tb.popStackToClose(name)
@@ -756,7 +760,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             return false
                         } else {
                             tb.generateImpliedEndTags(name)
-                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName().equals(name)) {
+                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName.equals(name)) {
                                 tb.error(self)
                             }
                             tb.popStackToClose(name)
@@ -782,7 +786,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             return false
                         } else {
                             tb.generateImpliedEndTags()
-                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName().equals(name)) {
+                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName.equals(name)) {
                                 tb.error(self)
                             }
                             // remove currentForm from stack. will shift anything under up.
@@ -795,7 +799,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             return try tb.process(endTag)
                         } else {
                             tb.generateImpliedEndTags(name)
-                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName().equals(name)) {
+                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName.equals(name)) {
                                 tb.error(self)
                             }
                             tb.popStackToClose(name)
@@ -806,7 +810,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             return false
                         } else {
                             tb.generateImpliedEndTags(name)
-                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName().equals(name)) {
+                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName.equals(name)) {
                                 tb.error(self)
                             }
                             tb.popStackToClose(name)
@@ -817,7 +821,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             return false
                         } else {
                             tb.generateImpliedEndTags(name)
-                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName().equals(name)) {
+                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName.equals(name)) {
                                 tb.error(self)
                             }
                             tb.popStackToClose(Constants.Headings)
@@ -832,7 +836,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                 return false
                             }
                             tb.generateImpliedEndTags()
-                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName().equals(name)) {
+                            if (tb.currentElement() != nil && !tb.currentElement()!.nodeName.equals(name)) {
                                 tb.error(self)
                             }
                             tb.popStackToClose(name)
@@ -875,7 +879,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
             func anythingElse(_ t: Token, _ tb: HtmlTreeBuilder)throws->Bool {
                 tb.error(self)
                 var processed: Bool
-                if let cur = tb.currentElement(), TagSets.table.contains(cur.nodeName()) {
+                if let cur = tb.currentElement(), TagSets.table.contains(cur.nodeName) {
                     tb.setFosterInserts(true)
                     processed = try tb.process(t, .InBody)
                     tb.setFosterInserts(false)
@@ -965,7 +969,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 }
                 return true // todo: as above todo
             } else if (t.isEOF()) {
-                if (tb.currentElement() != nil && tb.currentElement()!.nodeName().equals("html")) {
+                if (tb.currentElement() != nil && tb.currentElement()!.nodeName.equals("html")) {
                     tb.error(self)
                 }
                 return true // stops parsing
@@ -991,7 +995,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         if (!HtmlTreeBuilderState.isWhitespace(character)) {
                             // InTable anything else section:
                             tb.error(self)
-                            if tb.currentElement() != nil && TagSets.table.contains(tb.currentElement()!.nodeName()) {
+                            if tb.currentElement() != nil && TagSets.table.contains(tb.currentElement()!.nodeName) {
                                 tb.setFosterInserts(true)
                                 try tb.process(Token.Char().data(character), .InBody)
                                 tb.setFosterInserts(false)
@@ -1017,7 +1021,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     return false
                 } else {
                     tb.generateImpliedEndTags()
-                    if (!tb.currentElement()!.nodeName().equals("caption")) {
+                    if (!tb.currentElement()!.nodeName.equals("caption")) {
                         tb.error(self)
                     }
                     tb.popStackToClose("caption")
@@ -1080,7 +1084,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 let endTag: Token.EndTag = t.asEndTag()
                 let name = endTag.normalName()
                 if ("colgroup".equals(name)) {
-                    if ("html".equals(tb.currentElement()?.nodeName())) { // frag case
+                    if ("html".equals(tb.currentElement()?.nodeName)) { // frag case
                         tb.error(self)
                         return false
                     } else {
@@ -1092,7 +1096,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 }
                 break
             case .EOF:
-                if ("html".equals(tb.currentElement()?.nodeName())) {
+                if ("html".equals(tb.currentElement()?.nodeName)) {
                     return true // stop parsing; frag case
                 } else {
                     return try anythingElse(t, tb)
@@ -1110,7 +1114,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     return false
                 }
                 tb.clearStackToTableBodyContext()
-                try tb.processEndTag(tb.currentElement()!.nodeName()) // tbody, tfoot, thead
+                try tb.processEndTag(tb.currentElement()!.nodeName) // tbody, tfoot, thead
                 return try tb.process(t)
             }
 
@@ -1244,7 +1248,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         return false
                     }
                     tb.generateImpliedEndTags()
-                    if (!name.equals(tb.currentElement()?.nodeName())) {
+                    if (!name.equals(tb.currentElement()?.nodeName)) {
                         tb.error(self)
                     }
                     tb.popStackToClose(name)
@@ -1306,9 +1310,9 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     try tb.processEndTag("option")
                     try tb.insert(start)
                 } else if ("optgroup".equals(name)) {
-                    if ("option".equals(tb.currentElement()?.nodeName())) {
+                    if ("option".equals(tb.currentElement()?.nodeName)) {
                         try tb.processEndTag("option")
-                    } else if ("optgroup".equals(tb.currentElement()?.nodeName())) {
+                    } else if ("optgroup".equals(tb.currentElement()?.nodeName)) {
                         try tb.processEndTag("optgroup")
                     }
                     try tb.insert(start)
@@ -1332,16 +1336,16 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 let end: Token.EndTag = t.asEndTag()
                 let name = end.normalName()
                 if ("optgroup".equals(name)) {
-                    if ("option".equals(tb.currentElement()?.nodeName()) && tb.currentElement() != nil && tb.aboveOnStack(tb.currentElement()!) != nil && "optgroup".equals(tb.aboveOnStack(tb.currentElement()!)?.nodeName())) {
+                    if ("option".equals(tb.currentElement()?.nodeName) && tb.currentElement() != nil && tb.aboveOnStack(tb.currentElement()!) != nil && "optgroup".equals(tb.aboveOnStack(tb.currentElement()!)?.nodeName)) {
                         try tb.processEndTag("option")
                     }
-                    if ("optgroup".equals(tb.currentElement()?.nodeName())) {
+                    if ("optgroup".equals(tb.currentElement()?.nodeName)) {
                         tb.pop()
                     } else {
                         tb.error(self)
                     }
                 } else if ("option".equals(name)) {
-                    if ("option".equals(tb.currentElement()?.nodeName())) {
+                    if ("option".equals(tb.currentElement()?.nodeName)) {
                         tb.pop()
                     } else {
                         tb.error(self)
@@ -1359,7 +1363,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 }
                 break
             case .EOF:
-                if (!"html".equals(tb.currentElement()?.nodeName())) {
+                if (!"html".equals(tb.currentElement()?.nodeName)) {
                     tb.error(self)
                 }
                 break
@@ -1433,17 +1437,17 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         return false
                     }
                 } else if t.endTagNormalName() == "frameset" {
-                    if ("html".equals(tb.currentElement()?.nodeName())) { // frag
+                    if ("html".equals(tb.currentElement()?.nodeName)) { // frag
                         tb.error(self)
                         return false
                     } else {
                         tb.pop()
-                        if (!tb.isFragmentParsing() && !"frameset".equals(tb.currentElement()?.nodeName())) {
+                        if (!tb.isFragmentParsing() && !"frameset".equals(tb.currentElement()?.nodeName)) {
                             tb.transition(.AfterFrameset)
                         }
                     }
                 } else if (t.isEOF()) {
-                    if (!"html".equals(tb.currentElement()?.nodeName())) {
+                    if (!"html".equals(tb.currentElement()?.nodeName)) {
                         tb.error(self)
                         return true
                     }

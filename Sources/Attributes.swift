@@ -97,18 +97,25 @@ open class Attributes: NSCopying {
      Remove an attribute by key. <b>Case sensitive.</b>
      @param key attribute key to remove
      */
-    open func remove(key: String)throws {
-        try Validate.notEmpty(string: key)
+    open func remove(key: String) throws {
+        if key.isEmpty {
+            throw SwiftSoupError.emptyAttributeKey
+        }
+        
         if let ix = attributes.firstIndex(where: { $0.getKey() == key }) {
-            attributes.remove(at: ix)        }
+            attributes.remove(at: ix)
+        }
     }
 
     /**
      Remove an attribute by key. <b>Case insensitive.</b>
      @param key attribute key to remove
      */
-    open func removeIgnoreCase(key: String ) throws {
-        try Validate.notEmpty(string: key)
+    open func removeIgnoreCase(key: String) throws {
+        if key.isEmpty {
+            throw SwiftSoupError.emptyAttributeKey
+        }
+        
         if let ix = attributes.firstIndex(where: { $0.getKey().caseInsensitiveCompare(key) == .orderedSame}) {
             attributes.remove(at: ix)
         }
@@ -179,7 +186,7 @@ open class Attributes: NSCopying {
      */
     open func html()throws -> String {
         let accum = StringBuilder()
-        try html(accum: accum, out: Document("").outputSettings()) // output settings a bit funky, but this html() seldom used
+        try html(accum: accum, out: Document(baseURI: "").outputSettings) // output settings a bit funky, but this html() seldom used
         return accum.toString()
     }
 

@@ -11,11 +11,11 @@ import Foundation
 open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
-    private static let EMPTY_NODES: Array<Node>  = Array<Node>()
+    private static let EMPTY_NODES = Array<Node>()
     weak var parentNode: Node?
-    var childNodes: Array <Node>
+    var childNodes: [Node]
     var attributes: Attributes?
-    var baseUri: String?
+    public internal(set) var baseURI: String?
 
 	/**
 	* Get the list index of this node in its node sibling list. I.e. if this is the first node
@@ -23,22 +23,22 @@ open class Node: Equatable, Hashable {
 	* @return position in node sibling list
 	* @see Element#elementSiblingIndex()
 	*/
-    public private(set) var siblingIndex: Int = 0
+    public var siblingIndex: Int = 0
 
     /**
      Create a new Node.
      @param baseUri base URI
      @param attributes attributes (not null, but may be empty)
      */
-    public init(_ baseUri: String, _ attributes: Attributes) {
+    public init(baseURI: String, attributes: Attributes) {
         self.childNodes = Node.EMPTY_NODES
-        self.baseUri = baseUri.trim()
+        self.baseURI = baseURI.trim()
         self.attributes = attributes
     }
 
-    public init(_ baseUri: String) {
+    public init(baseURI baseUri: String) {
         childNodes = Node.EMPTY_NODES
-        self.baseUri = baseUri.trim()
+        self.baseURI = baseUri.trim()
         self.attributes = Attributes()
     }
 
@@ -48,14 +48,14 @@ open class Node: Equatable, Hashable {
     public init() {
         self.childNodes = Node.EMPTY_NODES
         self.attributes = nil
-        self.baseUri = nil
+        self.baseURI = nil
     }
 
     /**
      Get the node name of this node. Use for debugging purposes and not logic switching (for that, use instanceof).
      @return node name
      */
-    public func nodeName() -> String {
+    public var nodeName: String {
         preconditionFailure("This method must be overridden")
     }
 
@@ -74,13 +74,17 @@ open class Node: Equatable, Hashable {
      * @see #hasAttr(String)
      * @see #absUrl(String)
      */
-    open func attr(_ attributeKey: String)throws ->String {
-        let val: String = try attributes!.getIgnoreCase(key: attributeKey)
-        if (val.count > 0) {
-            return val
-        } else if (attributeKey.lowercased().startsWith(Node.abs)) {
-            return try absUrl(attributeKey.substring(Node.abs.count))
-        } else {return Node.empty}
+    open func getAttribute(key: String) -> String? {
+        guard let value = try? attributes!.getIgnoreCase(key: key) else {
+            return nil
+        }
+        if value.count > 0 {
+            return value
+        } else if (key.lowercased().startsWith(Node.abs)) {
+            return nil
+        } else {
+            return Node.empty
+        }
     }
 
     /**
@@ -98,7 +102,7 @@ open class Node: Equatable, Hashable {
      * @return this (for chaining)
      */
     @discardableResult
-    open func attr(_ attributeKey: String, _ attributeValue: String)throws->Node {
+    open func setAttribute(key attributeKey: String, value attributeValue: String) throws -> Node {
         try attributes?.put(attributeKey, attributeValue)
         return self
     }
@@ -108,23 +112,18 @@ open class Node: Equatable, Hashable {
      * @param attributeKey The attribute key to check.
      * @return true if the attribute exists, false if not.
      */
-    open func hasAttr(_ attributeKey: String) -> Bool {
+    open func hasAttribute(withKey key: String) -> Bool {
 		guard let attributes = attributes else {
 			return false
 		}
-        if (attributeKey.startsWith(Node.abs)) {
-            let key: String = attributeKey.substring(Node.abs.count)
-            do {
-                let abs = try absUrl(key)
-                if (attributes.hasKeyIgnoreCase(key: key) &&  !Node.empty.equals(abs)) {
-                    return true
-                }
-            } catch {
-                return false
+        if key.startsWith(Node.abs) {
+            let key: String = key.substring(Node.abs.count)
+            let abs = absoluteURLPath(ofAttribute: key)
+            if let abs, !abs.isEmpty, attributes.hasKeyIgnoreCase(key: key) {
+                return true
             }
-
         }
-        return attributes.hasKeyIgnoreCase(key: attributeKey)
+        return attributes.hasKeyIgnoreCase(key: key)
     }
 
     /**
@@ -133,38 +132,31 @@ open class Node: Equatable, Hashable {
      * @return this (for chaining)
      */
     @discardableResult
-    open func removeAttr(_ attributeKey: String)throws->Node {
-        try attributes?.removeIgnoreCase(key: attributeKey)
+    open func removeAttribute(withKey key: String) throws -> Node {
+        try attributes?.removeIgnoreCase(key: key)
         return self
-    }
-
-    /**
-     Get the base URI of this node.
-     @return base URI
-     */
-    open func getBaseUri() -> String {
-        return baseUri!
     }
 
     /**
      Update the base URI of this node and all of its descendants.
      @param baseUri base URI to set
      */
-    open func setBaseUri(_ baseUri: String)throws {
+    open func setBaseURI(_ baseURI: String) {
+        try! traverse(nodeVisitor(baseURI)) // Never throws
+        
         class nodeVisitor: NodeVisitor {
-            private let baseUri: String
-            init(_ baseUri: String) {
-                self.baseUri = baseUri
+            private let baseURI: String
+            init(_ baseURI: String) {
+                self.baseURI = baseURI
             }
 
-            func head(_ node: Node, _ depth: Int)throws {
-                node.baseUri = baseUri
+            func head(_ node: Node, _ depth: Int) throws {
+                node.baseURI = baseURI
             }
 
-            func tail(_ node: Node, _ depth: Int)throws {
+            func tail(_ node: Node, _ depth: Int) throws {
             }
         }
-        try traverse(nodeVisitor(baseUri))
     }
 
     /**
@@ -190,14 +182,12 @@ open class Node: Equatable, Hashable {
      * @see #attr
      * @see java.net.URL#URL(java.net.URL, String)
      */
-    open func absUrl(_ attributeKey: String)throws->String {
-        try Validate.notEmpty(string: attributeKey)
-
-        if (!hasAttr(attributeKey)) {
-            return Node.empty // nothing to make absolute with
-        } else {
-            return StringUtil.resolve(baseUri!, relUrl: try attr(attributeKey))
+    open func absoluteURLPath(ofAttribute attributeKey: String) -> String? {
+        guard let baseURI, let uriComponent = getAttribute(key: attributeKey) else {
+            return nil
         }
+        
+        return StringUtil.resolve(baseURI, relUrl: uriComponent)
     }
 
     /**
@@ -214,7 +204,7 @@ open class Node: Equatable, Hashable {
      themselves can be manipulated.
      @return list of children. If no children, returns an empty list.
      */
-    open func getChildNodes()->Array<Node> {
+    open func getChildNodes() -> Array<Node> {
         return childNodes
     }
 
@@ -223,7 +213,7 @@ open class Node: Equatable, Hashable {
      * nodes
      * @return a deep copy of this node's children
      */
-    open func childNodesCopy()->Array<Node> {
+    open func childNodesCopy() -> Array<Node> {
 		var children: Array<Node> = Array<Node>()
 		for node: Node in childNodes {
 			children.append(node.copy() as! Node)
@@ -247,15 +237,7 @@ open class Node: Equatable, Hashable {
      Gets this node's parent node.
      @return parent node or null if no parent.
      */
-    open func parent() -> Node? {
-        return parentNode
-    }
-
-    /**
-     Gets this node's parent node. Node overridable by extending classes, so useful if you really just need the Node type.
-     @return parent node or null if no parent.
-     */
-    final func getParentNode() -> Node? {
+    open var parent: Node? {
         return parentNode
     }
 
@@ -264,20 +246,21 @@ open class Node: Equatable, Hashable {
      * @return the Document associated with this Node, or null if there is no such Document.
      */
     open func ownerDocument() -> Document? {
-        if let this =  self as? Document {
+        if let this = self as? Document {
             return this
-        } else if (parentNode == nil) {
-            return nil
+        } else if let parentNode {
+            return parentNode.ownerDocument()
         } else {
-            return parentNode!.ownerDocument()
+            return nil
         }
     }
 
     /**
      * Remove (delete) this node from the DOM tree. If this node has children, they are also removed.
      */
-    open func remove()throws {
-        try parentNode?.removeChild(self)
+    open func remove() {
+        // Assume users never try to remove root node
+        try! parentNode?.removeChild(self)
     }
 
     /**
@@ -287,8 +270,8 @@ open class Node: Equatable, Hashable {
      * @see #after(String)
      */
     @discardableResult
-    open func before(_ html: String)throws->Node {
-        try addSiblingHtml(siblingIndex, html)
+    open func insertHTMLAsPreviousSibling(_ html: String) throws -> Node {
+        try insertSiblingHTML(html, at: siblingIndex)
         return self
     }
 
@@ -299,11 +282,12 @@ open class Node: Equatable, Hashable {
      * @see #after(Node)
      */
     @discardableResult
-    open func before(_ node: Node)throws ->Node {
-        try Validate.notNull(obj: node)
-        try Validate.notNull(obj: parentNode)
+    open func insertNodeAsPreviousSibling(_ node: Node) throws -> Node {
+        guard let parentNode else {
+            throw SwiftSoupError.noParentNode
+        }
 
-        try parentNode?.addChildren(siblingIndex, node)
+        parentNode.insertChildren(node, at: siblingIndex)
         return self
     }
 
@@ -314,8 +298,8 @@ open class Node: Equatable, Hashable {
      * @see #before(String)
      */
     @discardableResult
-    open func after(_ html: String)throws ->Node {
-        try addSiblingHtml(siblingIndex + 1, html)
+    open func insertHTMLAsNextSibling(_ html: String) throws -> Node {
+        try insertSiblingHTML(html, at: siblingIndex + 1)
         return self
     }
 
@@ -326,57 +310,23 @@ open class Node: Equatable, Hashable {
      * @see #before(Node)
      */
     @discardableResult
-    open func after(_ node: Node)throws->Node {
-        try Validate.notNull(obj: node)
-        try Validate.notNull(obj: parentNode)
+    open func insertNodeAsNextSibling(_ node: Node) throws -> Node {
+        guard let parentNode else {
+            throw SwiftSoupError.noParentNode
+        }
 
-        try parentNode?.addChildren(siblingIndex+1, node)
+        parentNode.insertChildren(node, at: siblingIndex + 1)
         return self
     }
 
-    private func addSiblingHtml(_ index: Int, _ html: String)throws {
-        try Validate.notNull(obj: parentNode)
+    open func insertSiblingHTML(_ html: String, at index: Int) throws {
+        guard let parentNode else {
+            throw SwiftSoupError.noParentNode
+        }
 
-        let context: Element? = parent() as? Element
-
-        let nodes: Array<Node> = try Parser.parseFragment(html, context, getBaseUri())
-        try parentNode?.addChildren(index, nodes)
-    }
-
-    /**
-     * Insert the specified HTML into the DOM after this node (i.e. as a following sibling).
-     * @param html HTML to add after this node
-     * @return this node, for chaining
-     * @see #before(String)
-     */
-    @discardableResult
-    open func after(html: String)throws->Node {
-        try addSiblingHtml(siblingIndex + 1, html)
-        return self
-    }
-
-    /**
-     * Insert the specified node into the DOM after this node (i.e. as a following sibling).
-     * @param node to add after this node
-     * @return this node, for chaining
-     * @see #before(Node)
-     */
-    @discardableResult
-    open func after(node: Node)throws->Node {
-        try Validate.notNull(obj: node)
-        try Validate.notNull(obj: parentNode)
-
-        try parentNode?.addChildren(siblingIndex + 1, node)
-        return self
-    }
-
-    open func addSiblingHtml(index: Int, _ html: String)throws {
-        try Validate.notNull(obj: html)
-        try Validate.notNull(obj: parentNode)
-
-        let context: Element? = parent() as? Element
-        let nodes: Array<Node> = try Parser.parseFragment(html, context, getBaseUri())
-        try parentNode?.addChildren(index, nodes)
+        let context: Element? = parent as? Element
+        let nodes: [Node] = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
+        parentNode.insertChildren(nodes, at: index)
     }
 
     /**
@@ -385,30 +335,31 @@ open class Node: Equatable, Hashable {
      @return this node, for chaining.
      */
     @discardableResult
-    open func wrap(_ html: String)throws->Node? {
-        try Validate.notEmpty(string: html)
-
-        let context: Element? = parent() as? Element
-        var wrapChildren: Array<Node> = try Parser.parseFragment(html, context, getBaseUri())
-        let wrapNode: Node? = wrapChildren.count > 0 ? wrapChildren[0] : nil
-        if (wrapNode == nil || !(((wrapNode as? Element) != nil))) { // nothing to wrap with; noop
-            return nil
+    open func wrap(html: String) throws -> Node {
+        guard !html.isEmpty else {
+            throw SwiftSoupError.emptyHTML
         }
 
-        let wrap: Element = wrapNode as! Element
-        let deepest: Element = getDeepChild(el: wrap)
-        try parentNode?.replaceChild(self, wrap)
-		wrapChildren = wrapChildren.filter { $0 != wrap}
-        try deepest.addChildren(self)
+        let context = parent as? Element
+        var wrapChildren = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
+        guard wrapChildren.count > 0, let wrap = wrapChildren[0] as? Element else {
+            throw SwiftSoupError.noHTMLElementsToWrap
+        }
+
+        let deepest: Element = getDeepChild(element: wrap)
+        try parentNode?.replaceChildNode(self, with: wrap)
+		wrapChildren = wrapChildren.filter { $0 != wrap }
+        deepest.appendChildren(self)
 
         // remainder (unbalanced wrap, like <div></div><p></p> -- The <p> is remainder
-        if (wrapChildren.count > 0) {
+        if wrapChildren.count > 0 {
             for i in  0..<wrapChildren.count {
                 let remainder: Node = wrapChildren[i]
                 try remainder.parentNode?.removeChild(remainder)
-                try wrap.appendChild(remainder)
+                wrap.appendChild(remainder)
             }
         }
+        
         return self
     }
 
@@ -428,22 +379,26 @@ open class Node: Equatable, Hashable {
      * @see #wrap(String)
      */
     @discardableResult
-    open func unwrap()throws ->Node? {
-        try Validate.notNull(obj: parentNode)
-
-        let firstChild: Node? = childNodes.count > 0 ? childNodes[0] : nil
-        try parentNode?.addChildren(siblingIndex, self.childNodesAsArray())
-        try self.remove()
+    open func unwrap() throws -> Node {
+        guard let parentNode else {
+            throw SwiftSoupError.noParentNode
+        }
+        guard let firstChild = childNodes.first else {
+            throw SwiftSoupError.noChildrenToUnwrap
+        }
+        
+        parentNode.insertChildren(self.childNodesAsArray(), at: siblingIndex)
+        self.remove()
 
         return firstChild
     }
 
-    private func getDeepChild(el: Element) -> Element {
-        let children = el.children()
-        if (children.size() > 0) {
-            return getDeepChild(el: children.get(0))
+    private func getDeepChild(element: Element) -> Element {
+        let children = element.children
+        if (children.count > 0) {
+            return getDeepChild(element: children.get(index: 0)!)
         } else {
-            return el
+            return element
         }
     }
 
@@ -451,86 +406,95 @@ open class Node: Equatable, Hashable {
      * Replace this node in the DOM with the supplied node.
      * @param in the node that will will replace the existing node.
      */
-    public func replaceWith(_ input: Node)throws {
-        try Validate.notNull(obj: input)
-        try Validate.notNull(obj: parentNode)
-        try parentNode?.replaceChild(self, input)
-    }
-
-    public func setParentNode(_ parentNode: Node)throws {
-        if (self.parentNode != nil) {
-        try self.parentNode?.removeChild(self)
+    public func replace(with newNode: Node) {
+        // Do nothing if self is root node
+        if let parentNode {
+            try! parentNode.replaceChildNode(self, with: newNode)
         }
-        self.parentNode = parentNode
     }
 
-    public func replaceChild(_ out: Node, _ input: Node)throws {
-        try Validate.isTrue(val: out.parentNode === self)
-        try Validate.notNull(obj: input)
-        if (input.parentNode != nil) {
-            try input.parentNode?.removeChild(input)
+    public func setParentNode(_ newParentNode: Node) {
+        if let parentNode {
+            try! parentNode.removeChild(self)
+        }
+        self.parentNode = newParentNode
+    }
+
+    public func replaceChildNode(_ childNode: Node, with newNode: Node) throws {
+        guard childNode.parentNode === self else {
+            throw SwiftSoupError.notChildNode
         }
 
-        let index: Int = out.siblingIndex
-        childNodes[index] = input
-        input.parentNode = self
-        input.setSiblingIndex(index)
-        out.parentNode = nil
+        if let parentNode = newNode.parentNode {
+            try parentNode.removeChild(newNode)
+        }
+
+        let index: Int = childNode.siblingIndex
+        childNodes[index] = newNode
+        newNode.parentNode = self
+        newNode.siblingIndex = index
+        childNode.parentNode = nil
     }
 
-    public func removeChild(_ out: Node)throws {
-        try Validate.isTrue(val: out.parentNode === self)
-        let index: Int = out.siblingIndex
+    public func removeChild(_ node: Node) throws {
+        guard node.parentNode === self else {
+            throw SwiftSoupError.notChildNode
+        }
+
+        let index: Int = node.siblingIndex
         childNodes.remove(at: index)
         reindexChildren(index)
-        out.parentNode = nil
+        node.parentNode = nil
     }
 
-    public func addChildren(_ children: Node...)throws {
+    public func appendChildren(_ children: Node...) {
         //most used. short circuit addChildren(int), which hits reindex children and array copy
-        try addChildren(children)
+        appendChildren(children)
     }
 
-    public func addChildren(_ children: [Node])throws {
+    public func appendChildren(_ children: [Node]) {
         //most used. short circuit addChildren(int), which hits reindex children and array copy
         for child in children {
-            try reparentChild(child)
+            reparentChild(child)
             ensureChildNodes()
             childNodes.append(child)
-            child.setSiblingIndex(childNodes.count-1)
+            child.siblingIndex = childNodes.count - 1
         }
     }
 
-    public func addChildren(_ index: Int, _ children: Node...)throws {
-        try addChildren(index, children)
+    public func insertChildren(_ children: Node..., at index: Int) {
+        insertChildren(children, at: index)
     }
 
-    public func addChildren(_ index: Int, _ children: [Node])throws {
+    public func insertChildren(_ children: [Node], at index: Int) {
         ensureChildNodes()
-        for i in (0..<children.count).reversed() {
+        for i in children.indices.reversed() {
             let input: Node = children[i]
-            try reparentChild(input)
+            reparentChild(input)
             childNodes.insert(input, at: index)
             reindexChildren(index)
         }
     }
 
     public func ensureChildNodes() {
-//        if (childNodes === Node.EMPTY_NODES) {
-//            childNodes = Array<Node>()
-//        }
+        // What is this for?
+        if childNodes == Node.EMPTY_NODES {
+            childNodes = Array<Node>()
+        }
     }
 
-    public func reparentChild(_ child: Node)throws {
-        if (child.parentNode != nil) {
-            try child.parentNode?.removeChild(child)
+    /// 
+    public func reparentChild(_ childNode: Node) {
+        if let parentNode = childNode.parentNode {
+            try! parentNode.removeChild(childNode)
         }
-        try child.setParentNode(self)
+        
+        childNode.setParentNode(self)
     }
 
     private func reindexChildren(_ start: Int) {
         for i in start..<childNodes.count {
-            childNodes[i].setSiblingIndex(i)
+            childNodes[i].siblingIndex = i
         }
     }
 
@@ -539,15 +503,13 @@ open class Node: Equatable, Hashable {
      include this node (a node is not a sibling of itself).
      @return node siblings. If the node has no parent, returns an empty list.
      */
-    open func siblingNodes()->Array<Node> {
-        if (parentNode == nil) {
-            return Array<Node>()
-        }
+    open var siblingNodes: [Node] {
+        guard let parentNode else { return [] }
 
-        let nodes: Array<Node> = parentNode!.childNodes
-        var siblings: Array<Node> = Array<Node>()
+        let nodes: [Node] = parentNode.childNodes
+        var siblings: [Node] = []
         for node in nodes {
-            if (node !== self) {
+            if node !== self {
                 siblings.append(node)
             }
         }
@@ -559,13 +521,13 @@ open class Node: Equatable, Hashable {
      Get this node's next sibling.
      @return next sibling, or null if this is the last sibling
      */
-    open func nextSibling() -> Node? {
-        guard let siblings: Array<Node> =  parentNode?.childNodes else {
+    open var nextSibling: Node? {
+        guard let siblings = parentNode?.childNodes else {
             return nil
         }
 
-        let index: Int = siblingIndex+1
-        if (siblings.count > index) {
+        let index = siblingIndex + 1
+        if siblings.count > index {
             return siblings[index]
         } else {
             return nil
@@ -576,20 +538,16 @@ open class Node: Equatable, Hashable {
      Get this node's previous sibling.
      @return the previous sibling, or null if this is the first sibling
      */
-    open func previousSibling() -> Node? {
-        if (parentNode == nil) {
-            return nil // root
+    open var previousSibling: Node? {
+        guard let parentNode else {
+            return nil
         }
 
-        if (siblingIndex > 0) {
-            return parentNode?.childNodes[siblingIndex-1]
+        if siblingIndex > 0 {
+            return parentNode.childNodes[siblingIndex - 1]
         } else {
             return nil
         }
-    }
-
-    public func setSiblingIndex(_ siblingIndex: Int) {
-        self.siblingIndex = siblingIndex
     }
 
     /**
@@ -598,7 +556,7 @@ open class Node: Equatable, Hashable {
      * @return this node, for chaining
      */
     @discardableResult
-    open func traverse(_ nodeVisitor: NodeVisitor)throws->Node {
+    open func traverse(_ nodeVisitor: NodeVisitor) throws -> Node {
         let traversor: NodeTraversor = NodeTraversor(nodeVisitor)
         try traversor.traverse(self)
         return self
@@ -608,19 +566,23 @@ open class Node: Equatable, Hashable {
      Get the outer HTML of this node.
      @return HTML
      */
-    open func outerHtml()throws->String {
+    open var outerHTML: String? {
         let accum: StringBuilder = StringBuilder(128)
-        try outerHtml(accum)
+        do {
+            try outerHtml(accum)
+        } catch {
+            return nil
+        }
         return accum.toString()
     }
 
-    public func outerHtml(_ accum: StringBuilder)throws {
+    public func outerHtml(_ accum: StringBuilder) throws {
         try NodeTraversor(OuterHtmlVisitor(accum, getOutputSettings())).traverse(self)
     }
 
     // if this node has no document (or parent), retrieve the default output settings
     func getOutputSettings() -> OutputSettings {
-        return ownerDocument() != nil ? ownerDocument()!.outputSettings() : (Document(Node.empty)).outputSettings()
+        return ownerDocument() != nil ? ownerDocument()!.outputSettings : (Document(baseURI: Node.empty)).outputSettings
     }
 
     /**
@@ -642,7 +604,7 @@ open class Node: Equatable, Hashable {
      * @param appendable the {@link Appendable} to write to.
      * @return the supplied {@link Appendable}, for chaining.
      */
-    open func html(_ appendable: StringBuilder)throws -> StringBuilder {
+    open func html(_ appendable: StringBuilder) throws -> StringBuilder {
         try outerHtml(appendable)
         return appendable
     }
@@ -670,14 +632,12 @@ open class Node: Equatable, Hashable {
      * @return true if the content of this node is the same as the other
      */
 
-    open func hasSameValue(_ o: Node)throws->Bool {
-        if (self === o) {return true}
-//        if (type(of:self) != type(of: o))
-//        {
-//            return false
-//        }
+    open func hasSameValue(_ o: Node) -> Bool {
+        if self === o {
+            return true
+        }
 
-        return try self.outerHtml() ==  o.outerHtml()
+        return self.outerHTML == o.outerHTML
     }
 
     /**
@@ -724,7 +684,7 @@ open class Node: Equatable, Hashable {
 		clone.parentNode = parent // can be null, to create an orphan split
 		clone.siblingIndex = parent == nil ? 0 : siblingIndex
 		clone.attributes = attributes != nil ? attributes?.clone() : nil
-		clone.baseUri = baseUri
+		clone.baseURI = baseURI
 		clone.childNodes = Array<Node>()
 
 		for  child in childNodes {
@@ -755,7 +715,7 @@ open class Node: Equatable, Hashable {
             #if os(Linux)
             try node.outerHtmlTail(accum, depth, out)
             #else
-            if (!(node.nodeName() == OuterHtmlVisitor.text)) { // saves a void hit.
+            if (!(node.nodeName == OuterHtmlVisitor.text)) { // saves a void hit.
                 try node.outerHtmlTail(accum, depth, out)
             }
             #endif
@@ -780,29 +740,23 @@ open class Node: Equatable, Hashable {
 	/// your program. Do not save hash values to use during a future execution.
     public func hash(into hasher: inout Hasher) {
         hasher.combine(description)
-        hasher.combine(baseUri)
+        hasher.combine(baseURI)
     }
 }
 
 extension Node: CustomStringConvertible {
 	public var description: String {
-		do {
-			return try outerHtml()
-		} catch {
-
-		}
-		return Node.empty
+        outerHTML ?? ""
 	}
 }
 
 extension Node: CustomDebugStringConvertible {
     private static let space = " "
 	public var debugDescription: String {
-		do {
-            return try String(describing: type(of: self)) + Node.space + outerHtml()
-		} catch {
-
-		}
-		return String(describing: type(of: self))
+        if let outerHTML {
+            return String(describing: type(of: self)) + Node.space + outerHTML
+        } else {
+            return String(describing: type(of: self))
+        }
 	}
 }

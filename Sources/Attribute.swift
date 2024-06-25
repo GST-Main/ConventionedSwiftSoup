@@ -23,7 +23,9 @@ open class Attribute {
     var value: String
 
     public init(key: String, value: String) throws {
-        try Validate.notEmpty(string: key)
+        if key.isEmpty {
+            throw SwiftSoupError.emptyAttributeKey
+        }
         self.key = key.trim()
         self.value = value
     }
@@ -70,7 +72,7 @@ open class Attribute {
      */
     public func html() -> String {
         let accum =  StringBuilder()
-		html(accum: accum, out: (Document("")).outputSettings())
+		html(accum: accum, out: (Document(baseURI: "")).outputSettings)
         return accum.toString()
     }
 
@@ -97,7 +99,7 @@ open class Attribute {
      * @param encodedValue HTML attribute encoded value
      * @return attribute
      */
-    public static func createFromEncoded(unencodedKey: String, encodedValue: String) throws ->Attribute {
+    public static func createFromEncoded(unencodedKey: String, encodedValue: String) throws -> Attribute {
         let value = try Entities.unescape(string: encodedValue, strict: true)
         return try Attribute(key: unencodedKey, value: value)
     }
@@ -128,15 +130,8 @@ open class Attribute {
         return result
     }
 
-    public func clone() -> Attribute {
-        do {
-            return try Attribute(key: key, value: value)
-        } catch Exception.Error( _, let  msg) {
-            print(msg)
-        } catch {
-
-        }
-        return try! Attribute(key: "", value: "")
+    public func clone() -> Attribute? {
+        return try? Attribute(key: key, value: value)
     }
 }
 

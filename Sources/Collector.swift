@@ -48,7 +48,7 @@ private final class Accumulator: NodeVisitor {
         }
         do {
             if try eval.matches(root, el) {
-                elements.add(el)
+                elements.append(el)
             }
         } catch {}
     }

@@ -30,7 +30,7 @@ public class StructuralEvaluator: Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            for e in try element.getAllElements().array() {
+            for e in element.allElements {
                 do {
                     if(e != element) {
                         if ((try evaluator.matches(root, e))) {
@@ -75,7 +75,7 @@ public class StructuralEvaluator: Evaluator {
                 return false
             }
 
-            var parent = element.parent()
+            var parent = element.parent
             while (true) {
                 do {
                     if let p = parent, try evaluator.matches(root, p) {
@@ -86,7 +86,7 @@ public class StructuralEvaluator: Evaluator {
                 if (parent == root) {
                     break
                 }
-                parent = parent?.parent()
+                parent = parent?.parent
             }
             return false
         }
@@ -106,7 +106,7 @@ public class StructuralEvaluator: Evaluator {
                 return false
             }
 
-            if let parent = element.parent() {
+            if let parent = element.parent {
                 do {
                     return try evaluator.matches(root, parent)
                 } catch {}
@@ -130,7 +130,7 @@ public class StructuralEvaluator: Evaluator {
             return false
             }
 
-            var prev = try element.previousElementSibling()
+            var prev = element.previousSiblingElement
 
             while (prev != nil) {
                 do {
@@ -139,7 +139,7 @@ public class StructuralEvaluator: Evaluator {
                 }
                 } catch {}
 
-                prev = try prev!.previousElementSibling()
+                prev = prev!.previousSiblingElement
             }
             return false
         }
@@ -159,7 +159,7 @@ public class StructuralEvaluator: Evaluator {
                 return false
             }
 
-            if let prev = try element.previousElementSibling() {
+            if let prev = element.previousSiblingElement {
                 do {
                     return try evaluator.matches(root, prev)
                 } catch {}
