@@ -79,7 +79,7 @@ open class Document: Element {
      */
     public func setTitle(_ title: String) throws {
         if let titleElement = getElementsByTag("title")?.first {
-            try titleElement.setText(title)
+            titleElement.setText(title)
         } else {
             try head?.appendElement(tagName: "title").setText(title)
         }
@@ -144,8 +144,8 @@ open class Document: Element {
         for i in (0..<toMove.count).reversed() {
             let node: Node = toMove[i]
             try element.removeChild(node)
-            try body?.prependChild(TextNode(" ", ""))
-            try body?.prependChild(node)
+            body?.prependChild(TextNode(" ", ""))
+            body?.prependChild(node)
         }
     }
 
@@ -162,16 +162,16 @@ open class Document: Element {
                 for node: Node in dupe.childNodes {
                     toMove.append(node)
                 }
-                try dupe.remove()
+                dupe.remove()
             }
 
             for dupe: Node in toMove {
-                try master?.appendChild(dupe)
+                master?.appendChild(dupe)
             }
         }
         // ensure parented by <html>
         if (!(master != nil && master!.parent != nil && master!.parent!.equals(htmlEl))) {
-            try htmlEl.appendChild(master!) // includes remove()
+            htmlEl.appendChild(master!) // includes remove()
         }
     }
 
@@ -318,7 +318,7 @@ open class Document: Element {
 
                 // Remove obsolete elements
 				let s = select(cssQuery: "meta[name=charset]")
-                try s.forEach{ try $0.remove() }
+                s.forEach{ $0.remove() }
 
             } else if (syntax == OutputSettings.Syntax.xml) {
                 let node: Node = getChildNodes()[0]
@@ -336,7 +336,7 @@ open class Document: Element {
                         try decl.setAttribute(key: "version", value: "1.0")
                         try decl.setAttribute(key: "encoding", value: charset.displayName())
 
-                        try prependChild(decl)
+                        prependChild(decl)
                     }
                 } else {
                     try Validate.notNull(obj: baseURI)
@@ -344,7 +344,7 @@ open class Document: Element {
                     try decl.setAttribute(key: "version", value: "1.0")
                     try decl.setAttribute(key: "encoding", value: charset.displayName())
 
-                    try prependChild(decl)
+                    prependChild(decl)
                 }
             }
         }

@@ -1222,7 +1222,7 @@ open class Element: Node {
     @discardableResult
     public func setValue(_ value: String) throws -> Element {
         if tagName == "textarea" {
-            try setText(value)
+            setText(value)
         } else {
             try setAttribute(key: "value", value: value)
         }

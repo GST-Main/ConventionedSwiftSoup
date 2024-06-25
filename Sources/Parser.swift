@@ -105,11 +105,11 @@ public class Parser {
             let nodeList: Array<Node> = try _parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI)
             if nodeList.count > 0 {
                 for i in 1..<nodeList.count {
-                    try nodeList[i].remove()
+                    nodeList[i].remove()
                 }
             }
             for node: Node in nodeList {
-                try body.appendChild(node)
+                body.appendChild(node)
             }
         }
         return document

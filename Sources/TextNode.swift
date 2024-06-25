@@ -97,7 +97,7 @@ open class TextNode: Node {
         text(head)
         let tailNode: TextNode = TextNode(tail, self.baseURI!)
         if (parent != nil) {
-            try parent?.insertChildren(tailNode, at: siblingIndex+1)
+            parent?.insertChildren(tailNode, at: siblingIndex+1)
         }
         return tailNode
     }

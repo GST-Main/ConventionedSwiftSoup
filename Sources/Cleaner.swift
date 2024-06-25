@@ -84,7 +84,7 @@ extension Cleaner {
 				if whitelist.isSafeTag(sourceEl.tagName) { // safe, clone and copy safe attrs
 					let meta = try createSafeElement(sourceEl)
 					let destChild = meta.el
-					try destination?.appendChild(destChild)
+                    destination?.appendChild(destChild)
 
 					numDiscarded += meta.numAttribsDiscarded
 					destination = destChild
@@ -93,11 +93,11 @@ extension Cleaner {
 				}
 			} else if let sourceText = source as? TextNode {
 				let destText = TextNode(sourceText.getWholeText(), source.baseURI!)
-				try destination?.appendChild(destText)
+                destination?.appendChild(destText)
 			} else if let sourceData = source as? DataNode {
 				if sourceData.parent != nil && whitelist.isSafeTag(sourceData.parent!.nodeName) {
 					let destData =  DataNode(sourceData.getWholeData(), source.baseURI!)
-					try destination?.appendChild(destData)
+                    destination?.appendChild(destData)
                 } else {
                     numDiscarded += 1
                 }
@@ -122,7 +122,7 @@ extension Cleaner {
 
             if let sourceAttrs = sourceEl.getAttributes() {
                 for sourceAttr in sourceAttrs {
-                    if try whitelist.isSafeAttribute(sourceTag, sourceEl, sourceAttr) {
+                    if whitelist.isSafeAttribute(sourceTag, sourceEl, sourceAttr) {
                         destAttrs.put(attribute: sourceAttr)
                     } else {
                         numDiscarded += 1

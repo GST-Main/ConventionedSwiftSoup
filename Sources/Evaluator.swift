@@ -652,8 +652,8 @@ open class Evaluator {
             self.searchText = searchText.lowercased()
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            return (try element.getText().lowercased().contains(searchText))
+        public override func matches(_ root: Element, _ element: Element) -> Bool {
+            return (element.getText().lowercased().contains(searchText))
         }
 
         public override func toString() -> String {
@@ -690,8 +690,8 @@ open class Evaluator {
             self.pattern = pattern
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let m = try pattern.matcher(in: element.getText())
+        public override func matches(_ root: Element, _ element: Element) -> Bool {
+            let m = pattern.matcher(in: element.getText())
             return m.find()
         }
 

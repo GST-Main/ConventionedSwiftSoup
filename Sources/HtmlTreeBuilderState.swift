@@ -80,7 +80,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                 let doctype: DocumentType = DocumentType(
                 tb.settings.normalizeTag(d.getName()), d.getPubSysKey(), d.getPublicIdentifier(), d.getSystemIdentifier(), tb.getBaseUri())
                     //tb.settings.normalizeTag(d.getName()), d.getPublicIdentifier(), d.getSystemIdentifier(), tb.getBaseUri())
-                try tb.getDocument().appendChild(doctype)
+                tb.getDocument().appendChild(doctype)
                 if (d.isForceQuirks()) {
                     tb.getDocument().quirksMode(Document.QuirksMode.quirks)
                 }
@@ -416,7 +416,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         } else {
                             let second: Element = stack[1]
                             if (second.parent != nil) {
-                                try second.remove()
+                                second.remove()
                             }
                             // pop up to html element
                             while (stack.count > 1) {
@@ -708,32 +708,32 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                     // not getting how self bookmark both straddles the element above, but is inbetween here...
                                 }
                                 if (lastNode!.parent != nil) {
-                                    try lastNode?.remove()
+                                    lastNode?.remove()
                                 }
-                                try node!.appendChild(lastNode!)
+                                node!.appendChild(lastNode!)
 
                                 lastNode = node
                             }
 
                             if Constants.InBodyEndTableFosters.contains(commonAncestor!.nodeName) {
                                 if (lastNode!.parent != nil) {
-                                    try lastNode!.remove()
+                                    lastNode!.remove()
                                 }
                                 try tb.insertInFosterParent(lastNode!)
                             } else {
                                 if (lastNode!.parent != nil) {
-                                    try lastNode!.remove()
+                                    lastNode!.remove()
                                 }
-                                try commonAncestor!.appendChild(lastNode!)
+                                commonAncestor!.appendChild(lastNode!)
                             }
 
                             let adopter: Element = Element(tag: formatEl!.tag, baseURI: tb.getBaseUri())
                             adopter.getAttributes()?.addAll(incoming: formatEl!.getAttributes())
                             let childNodes: [Node] = furthestBlock!.getChildNodes()
                             for childNode: Node in childNodes {
-                                try adopter.appendChild(childNode) // append will reparent. thus the clone to avoid concurrent mod.
+                                adopter.appendChild(childNode) // append will reparent. thus the clone to avoid concurrent mod.
                             }
-                            try furthestBlock?.appendChild(adopter)
+                            furthestBlock?.appendChild(adopter)
                             tb.removeFromActiveFormattingElements(formatEl)
                             // todo: insert the element into the list of active formatting elements at the position of the aforementioned bookmark.
                             tb.removeFromStack(formatEl!)

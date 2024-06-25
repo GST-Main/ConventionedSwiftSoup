@@ -178,7 +178,7 @@ class HtmlTreeBuilder: TreeBuilder {
         if href.count != 0 { // ignore <base target> etc
             baseUri = href
             baseUriSetFromDoc = true
-            try doc.setBaseURI(href) // set on the doc so doc.createElement(Tag) will get updated base, and to update all descendants
+            doc.setBaseURI(href) // set on the doc so doc.createElement(Tag) will get updated base, and to update all descendants
         }
     }
 
@@ -268,17 +268,17 @@ class HtmlTreeBuilder: TreeBuilder {
             try Validate.notNull(obj: characterToken.getData())
             node = TextNode(characterToken.getData()!, baseUri)
         }
-        try currentElement()?.appendChild(node) // doesn't use insertNode, because we don't foster these; and will always have a stack.
+        currentElement()?.appendChild(node) // doesn't use insertNode, because we don't foster these; and will always have a stack.
     }
 
     private func insertNode(_ node: Node)throws {
         // if the stack hasn't been set up yet, elements (doctype, comments) go into the doc
         if (stack.count == 0) {
-            try doc.appendChild(node)
+            doc.appendChild(node)
         } else if (isFosterInserts()) {
             try insertInFosterParent(node)
         } else {
-            try currentElement()?.appendChild(node)
+            currentElement()?.appendChild(node)
         }
 
         // connect form controls to their form element
@@ -775,7 +775,7 @@ class HtmlTreeBuilder: TreeBuilder {
             try Validate.notNull(obj: lastTable) // last table cannot be null by this point.
             try lastTable!.insertNodeAsPreviousSibling(input)
         } else {
-            try fosterParent?.appendChild(input)
+            fosterParent?.appendChild(input)
         }
     }
 }

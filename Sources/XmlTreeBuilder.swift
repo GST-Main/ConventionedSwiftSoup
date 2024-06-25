@@ -61,7 +61,7 @@ public class XmlTreeBuilder: TreeBuilder {
     }
 
     private func insertNode(_ node: Node)throws {
-        try currentElement()?.appendChild(node)
+        currentElement()?.appendChild(node)
     }
 
     @discardableResult
