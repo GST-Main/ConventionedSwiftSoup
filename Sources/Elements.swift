@@ -16,12 +16,12 @@ open class Elements: NSCopying {
 	public init() {
 	}
 	///Initialized with an array
-	public init(_ a: Array<Element>) {
-		_elements = a
-	}
-	///Initialized with an order set
-	public init(_ a: OrderedSet<Element>) {
-		_elements.append(contentsOf: a)
+    public init<S: Sequence>(_ elements: S) where S.Element == Element {
+        if let elements = elements as? Array<Element> {
+            _elements = elements
+        } else {
+            _elements = Array(elements)
+        }
 	}
 
 	/**
@@ -29,9 +29,9 @@ open class Elements: NSCopying {
 	* @return a deep copy
 	*/
 	public func copy(with zone: NSZone? = nil) -> Any {
-		let clone: Elements = Elements()
-		for e: Element in _elements {
-			clone.append(e.copy() as! Element)
+		let clone = Elements()
+		for element in self {
+			clone.append(element.copy() as! Element)
 		}
 		return clone
 	}
@@ -45,14 +45,14 @@ open class Elements: NSCopying {
 	* @see Element#text()
 	*/
 	open func text(trimAndNormaliseWhitespace: Bool = true) -> String {
-		let sb: StringBuilder = StringBuilder()
+		let stringBuilder: StringBuilder = StringBuilder()
 		for element in self {
-			if !sb.isEmpty {
-				sb.append(" ")
+			if !stringBuilder.isEmpty {
+				stringBuilder.append(" ")
 			}
-            sb.append(element.getText(trimAndNormaliseWhitespace: trimAndNormaliseWhitespace))
+            stringBuilder.append(element.getText(trimAndNormaliseWhitespace: trimAndNormaliseWhitespace))
 		}
-		return sb.toString()
+		return stringBuilder.toString()
 	}
     
     /**
@@ -163,7 +163,7 @@ open class Elements: NSCopying {
         do {
             return try CssSelector.select(cssQuery, _elements)
         } catch {
-            return Elements([])
+            return Elements()
         }
 	}
 
@@ -213,8 +213,8 @@ open class Elements: NSCopying {
     @discardableResult
 	open func traverse(_ nodeVisitor: NodeVisitor) throws -> Elements {
 		let traversor: NodeTraversor = NodeTraversor(nodeVisitor)
-		for el: Element in _elements {
-			try traversor.traverse(el)
+		for element in self {
+			try traversor.traverse(element)
 		}
 		return self
 	}
@@ -226,9 +226,9 @@ open class Elements: NSCopying {
 	*/
 	open func forms() -> Array<FormElement> {
 		var forms: Array<FormElement> = Array<FormElement>()
-		for el: Element in _elements {
-			if let el = el as? FormElement {
-				forms.append(el)
+		for element in self {
+			if let element = element as? FormElement {
+				forms.append(element)
 			}
 		}
 		return forms
