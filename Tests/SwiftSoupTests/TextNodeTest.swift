@@ -35,11 +35,11 @@ class TextNodeTest: XCTestCase {
 	}
 
 	func testTextBean()throws {
-		let doc = try SwiftSoup.parse("<p>One <span>two &amp;</span> three &amp;</p>")
-		let p: Element = try doc.select("p").first()!
+		let doc = Parser.parseHTML("<p>One <span>two &amp;</span> three &amp;</p>")!
+		let p: Element = doc.select(cssQuery: "p").first!
 
-		let span: Element = try doc.select("span").first()!
-		XCTAssertEqual("two &", try span.getText())
+		let span: Element = doc.select(cssQuery: "span").first!
+		XCTAssertEqual("two &", span.getText())
 		let spanText: TextNode =  span.childNode(0) as! TextNode
 		XCTAssertEqual("two &", spanText.text())
 
@@ -47,40 +47,40 @@ class TextNodeTest: XCTestCase {
 		XCTAssertEqual(" three &", tn.text())
 
 		tn.text(" POW!")
-		XCTAssertEqual("One <span>two &amp;</span> POW!", TextUtil.stripNewlines(try p.html()))
+		XCTAssertEqual("One <span>two &amp;</span> POW!", TextUtil.stripNewlines(p.html!))
 
 		try _ = tn.setAttribute(key: "text", value: "kablam &")
 		XCTAssertEqual("kablam &", tn.text())
-		XCTAssertEqual("One <span>two &amp;</span>kablam &amp;", try TextUtil.stripNewlines(p.html()))
+		XCTAssertEqual("One <span>two &amp;</span>kablam &amp;", TextUtil.stripNewlines(p.html!))
 	}
 
 	func testSplitText()throws {
-		let doc: Document = try SwiftSoup.parse("<div>Hello there</div>")
-		let div: Element = try doc.select(cssQuery: "div").first()!
+		let doc: Document = Parser.parseHTML("<div>Hello there</div>")!
+		let div: Element = doc.select(cssQuery: "div").first!
 		let tn: TextNode =  div.childNode(0) as! TextNode
 		let tail: TextNode = try tn.splitText(6)
 		XCTAssertEqual("Hello ", tn.getWholeText())
 		XCTAssertEqual("there", tail.getWholeText())
 		tail.text("there!")
-		XCTAssertEqual("Hello there!", try div.getText())
-		XCTAssertTrue(tn.parent() == tail.parent())
+		XCTAssertEqual("Hello there!", div.getText())
+		XCTAssertTrue(tn.parent == tail.parent)
 	}
 
 	func testSplitAnEmbolden()throws {
-		let doc: Document = try SwiftSoup.parse("<div>Hello there</div>")
-		let div: Element = try doc.select(cssQuery: "div").first()!
+		let doc: Document = Parser.parseHTML("<div>Hello there</div>")!
+		let div: Element = doc.select(cssQuery: "div").first!
 		let tn: TextNode = div.childNode(0) as! TextNode
 		let tail: TextNode = try  tn.splitText(6)
 		try tail.wrap(html: "<b></b>")
 
-		XCTAssertEqual("Hello <b>there</b>", TextUtil.stripNewlines(try div.html())) // not great that we get \n<b>there there... must correct
+		XCTAssertEqual("Hello <b>there</b>", TextUtil.stripNewlines(div.html!)) // not great that we get \n<b>there there... must correct
 	}
 
 	func testWithSupplementaryCharacter()throws {
 		#if !os(Linux)
-			let doc: Document = try SwiftSoup.parse(String(Character(UnicodeScalar(135361)!)))
-			let t: TextNode = doc.body()!.textNodes()[0]
-			XCTAssertEqual(String(Character(UnicodeScalar(135361)!)), try t.outerHTML().trim())
+			let doc: Document = Parser.parseHTML(String(Character(UnicodeScalar(135361)!)))!
+			let t: TextNode = doc.body!.textNodes[0]
+			XCTAssertEqual(String(Character(UnicodeScalar(135361)!)), t.outerHTML!.trim())
 		#endif
 	}
 

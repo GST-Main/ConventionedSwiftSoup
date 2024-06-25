@@ -24,10 +24,10 @@ class FormElementTest: XCTestCase {
 		//"button", "fieldset", "input", "keygen", "object", "output", "select", "textarea"
 		let html = "<form id=1><button id=1><fieldset id=2 /><input id=3><keygen id=4><object id=5><output id=6>" +
 		"<select id=7><option></select><textarea id=8><p id=9>"
-		let doc: Document = try SwiftSoup.parse(html)
+		let doc: Document = Parser.parseHTML(html)!
 
-		let form: FormElement = try doc.select(cssQuery: "form").first()! as! FormElement
-		XCTAssertEqual(8, form.elements().size())
+		let form: FormElement = doc.select(cssQuery: "form").first! as! FormElement
+		XCTAssertEqual(8, form.elements().count)
 	}
 
 	//todo:
@@ -39,16 +39,16 @@ class FormElementTest: XCTestCase {
 //			"<input name='ten' value='text' disabled>" +
 //		"</form>";
 //		let doc: Document = try Jsoup.parse(html);
-//		let form: FormElement = try doc.select("form").first() as! FormElement
+//		let form: FormElement = try doc.select("form").first as! FormElement
 //		let data = form.formData();//List<Connection.KeyVal>
 //		
-//		XCTAssertEqual(6, data.size());
-//		XCTAssertEqual("one=two", data.get(0).toString());
-//		XCTAssertEqual("three=four", data.get(1).toString());
-//		XCTAssertEqual("three=five", data.get(2).toString());
-//		XCTAssertEqual("six=seven", data.get(3).toString());
-//		XCTAssertEqual("seven=on", data.get(4).toString()); // set
-//		XCTAssertEqual("eight=on", data.get(5).toString()); // default
+//		XCTAssertEqual(6, data.count);
+//		XCTAssertEqual("one=two", data.get(index: 0)!.toString());
+//		XCTAssertEqual("three=four", data.get(index: 1)!.toString());
+//		XCTAssertEqual("three=five", data.get(index: 2)!.toString());
+//		XCTAssertEqual("six=seven", data.get(index: 3)!.toString());
+//		XCTAssertEqual("seven=on", data.get(index: 4)!.toString()); // set
+//		XCTAssertEqual("eight=on", data.get(index: 5)!.toString()); // default
 //		// nine should not appear, not checked checkbox
 //		// ten should not appear, disabled
 //	}
@@ -59,13 +59,13 @@ class FormElementTest: XCTestCase {
 //	Document doc = Jsoup.parse(html, "http://example.com/");
 //	doc.select("[name=q]").attr("value", "jsoup");
 //	
-//	FormElement form = ((FormElement) doc.select("form").first());
+//	FormElement form = ((FormElement) doc.select("form").first);
 //	Connection con = form.submit();
 //	
 //	assertEquals(Connection.Method.GET, con.request().method());
 //	assertEquals("http://example.com/search", con.request().url().toExternalForm());
 //	List<Connection.KeyVal> dataList = (List<Connection.KeyVal>) con.request().data();
-//	assertEquals("q=jsoup", dataList.get(0).toString());
+//	assertEquals("q=jsoup", dataList.get(index: 0)!.toString());
 //	
 //	doc.select("form").attr("method", "post");
 //	Connection con2 = form.submit();
@@ -76,7 +76,7 @@ class FormElementTest: XCTestCase {
 //	func testActionWithNoValue()throws {
 //	String html = "<form><input name='q'></form>";
 //	Document doc = Jsoup.parse(html, "http://example.com/");
-//	FormElement form = ((FormElement) doc.select("form").first());
+//	FormElement form = ((FormElement) doc.select("form").first);
 //	Connection con = form.submit();
 //	
 //	assertEquals("http://example.com/", con.request().url().toExternalForm());
@@ -86,7 +86,7 @@ class FormElementTest: XCTestCase {
 //	@Test public void actionWithNoBaseUri() {
 //	String html = "<form><input name='q'></form>";
 //	Document doc = Jsoup.parse(html);
-//	FormElement form = ((FormElement) doc.select("form").first());
+//	FormElement form = ((FormElement) doc.select("form").first);
 //	
 //	
 //	boolean threw = false;
@@ -101,38 +101,38 @@ class FormElementTest: XCTestCase {
 //	}
 
 	func testFormsAddedAfterParseAreFormElements()throws {
-		let doc: Document = try SwiftSoup.parse("<body />")
-		try doc.body()?.setHTML("<form action='http://example.com/search'><input name='q' value='search'>")
-		let formEl: Element = try doc.select(cssQuery: "form").first()!
+		let doc: Document = Parser.parseHTML("<body />")!
+		try doc.body?.setHTML("<form action='http://example.com/search'><input name='q' value='search'>")
+		let formEl: Element = doc.select(cssQuery: "form").first!
 		XCTAssertNotNil(formEl as? FormElement)
 
 		let form: FormElement =  formEl as! FormElement
-		XCTAssertEqual(1, form.elements().size())
+		XCTAssertEqual(1, form.elements().count)
 	}
 
 	func testControlsAddedAfterParseAreLinkedWithForms()throws {
-		let doc: Document = try SwiftSoup.parse("<body />")
-		try doc.body()?.setHTML("<form />")
+		let doc: Document = Parser.parseHTML("<body />")!
+		try doc.body?.setHTML("<form />")
 
-		let formEl: Element = try doc.select(cssQuery: "form").first()!
+		let formEl: Element = doc.select(cssQuery: "form").first!
 		try formEl.appendHTML("<input name=foo value=bar>")
 
 		XCTAssertNotNil(formEl as? FormElement)
 		let form: FormElement = formEl as! FormElement
-		XCTAssertEqual(1, form.elements().size())
+		XCTAssertEqual(1, form.elements().count)
 
 		//todo:
 		///List<Connection.KeyVal> data = form.formData();
-		//assertEquals("foo=bar", data.get(0).toString());
+		//assertEquals("foo=bar", data.get(index: 0)!.toString());
 	}
 
 	//todo:
 //	func testUsesOnForCheckboxValueIfNoValueSet()throws {
 //	let doc = try Jsoup.parse("<form><input type=checkbox checked name=foo></form>");
-//	let form = try doc.select("form").first()! as! FormElement
+//	let form = try doc.select("form").first! as! FormElement
 //	List<Connection.KeyVal> data = form.formData();
-//	assertEquals("on", data.get(0).value());
-//	assertEquals("foo", data.get(0).key());
+//	assertEquals("on", data.get(index: 0)!.value());
+//	assertEquals("foo", data.get(index: 0)!.key());
 //	}
 
 	//todo:
@@ -150,12 +150,12 @@ class FormElementTest: XCTestCase {
 //	"</body>\n" +
 //	"</html>";
 //	Document doc = Jsoup.parse(html);
-//	FormElement form = (FormElement) doc.select("form").first();
+//	FormElement form = (FormElement) doc.select("form").first;
 //	List<Connection.KeyVal> data = form.formData();
-//	assertEquals(3, data.size());
-//	assertEquals("user", data.get(0).key());
-//	assertEquals("pass", data.get(1).key());
-//	assertEquals("login", data.get(2).key());
+//	assertEquals(3, data.count);
+//	assertEquals("user", data.get(index: 0)!.key());
+//	assertEquals("pass", data.get(index: 1)!.key());
+//	assertEquals("login", data.get(index: 2)!.key());
 //	}
 
 	static var allTests = {
