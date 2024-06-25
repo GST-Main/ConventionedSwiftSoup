@@ -23,7 +23,7 @@ open class Node: Equatable, Hashable {
 	* @return position in node sibling list
 	* @see Element#elementSiblingIndex()
 	*/
-    public private(set) var siblingIndex: Int = 0
+    public var siblingIndex: Int = 0
 
     /**
      Create a new Node.
@@ -428,7 +428,7 @@ open class Node: Equatable, Hashable {
         let index: Int = childNode.siblingIndex
         childNodes[index] = newNode
         newNode.parentNode = self
-        newNode.setSiblingIndex(index)
+        newNode.siblingIndex = index
         childNode.parentNode = nil
     }
 
@@ -451,7 +451,7 @@ open class Node: Equatable, Hashable {
             try reparentChild(child)
             ensureChildNodes()
             childNodes.append(child)
-            child.setSiblingIndex(childNodes.count-1)
+            child.siblingIndex = childNodes.count - 1
         }
     }
 
@@ -485,7 +485,7 @@ open class Node: Equatable, Hashable {
 
     private func reindexChildren(_ start: Int) {
         for i in start..<childNodes.count {
-            childNodes[i].setSiblingIndex(i)
+            childNodes[i].siblingIndex = i
         }
     }
 
@@ -494,13 +494,13 @@ open class Node: Equatable, Hashable {
      include this node (a node is not a sibling of itself).
      @return node siblings. If the node has no parent, returns an empty list.
      */
-    open func siblingNodes()->Array<Node> {
-        if (parentNode == nil) {
-            return Array<Node>()
+    open var siblingNodes: [Node] {
+        if parentNode == nil {
+            return []
         }
 
-        let nodes: Array<Node> = parentNode!.childNodes
-        var siblings: Array<Node> = Array<Node>()
+        let nodes: [Node] = parentNode!.childNodes
+        var siblings: [Node] = []
         for node in nodes {
             if (node !== self) {
                 siblings.append(node)
@@ -514,13 +514,13 @@ open class Node: Equatable, Hashable {
      Get this node's next sibling.
      @return next sibling, or null if this is the last sibling
      */
-    open func nextSibling() -> Node? {
-        guard let siblings: Array<Node> =  parentNode?.childNodes else {
+    open var nextSibling: Node? {
+        guard let siblings = parentNode?.childNodes else {
             return nil
         }
 
-        let index: Int = siblingIndex+1
-        if (siblings.count > index) {
+        let index = siblingIndex + 1
+        if siblings.count > index {
             return siblings[index]
         } else {
             return nil
@@ -531,20 +531,16 @@ open class Node: Equatable, Hashable {
      Get this node's previous sibling.
      @return the previous sibling, or null if this is the first sibling
      */
-    open func previousSibling() -> Node? {
-        if (parentNode == nil) {
-            return nil // root
+    open var previousSibling: Node? {
+        guard let parentNode else {
+            return nil
         }
 
-        if (siblingIndex > 0) {
-            return parentNode?.childNodes[siblingIndex-1]
+        if siblingIndex > 0 {
+            return parentNode.childNodes[siblingIndex - 1]
         } else {
             return nil
         }
-    }
-
-    public func setSiblingIndex(_ siblingIndex: Int) {
-        self.siblingIndex = siblingIndex
     }
 
     /**

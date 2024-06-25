@@ -301,7 +301,7 @@ open class Element: Node {
         try reparentChild(child)
         ensureChildNodes()
         childNodes.append(child)
-        child.setSiblingIndex(childNodes.count - 1)
+        child.siblingIndex = childNodes.count - 1
         return self
     }
 
