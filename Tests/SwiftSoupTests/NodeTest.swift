@@ -200,7 +200,7 @@ class NodeTest: XCTestCase {
 			let doc: Document = try SwiftSoup.parse("<p>One <span>two</span> three</p>")
 			let p: Element? = try doc.select(cssQuery: "p").first()
 			let insert: Element = try doc.createElement("em").text("foo")
-			try p?.childNode(1).replaceWith(insert)
+			try p?.childNode(1).replace(with: insert)
 
 			XCTAssertEqual("One <em>foo</em> three", try p?.html())
 		} catch {

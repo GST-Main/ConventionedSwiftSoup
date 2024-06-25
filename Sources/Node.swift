@@ -347,8 +347,8 @@ open class Node: Equatable, Hashable {
         }
 
         let wrap: Element = wrapNode as! Element
-        let deepest: Element = getDeepChild(el: wrap)
-        try parentNode?.replaceChild(self, wrap)
+        let deepest: Element = getDeepChild(element: wrap)
+        try parentNode?.replaceChildNode(self, with: wrap)
 		wrapChildren = wrapChildren.filter { $0 != wrap}
         try deepest.addChildren(self)
 
@@ -392,12 +392,12 @@ open class Node: Equatable, Hashable {
         return firstChild
     }
 
-    private func getDeepChild(el: Element) -> Element {
-        let children = el.children
+    private func getDeepChild(element: Element) -> Element {
+        let children = element.children
         if (children.count > 0) {
-            return getDeepChild(el: children.get(index: 0)!)
+            return getDeepChild(element: children.get(index: 0)!)
         } else {
-            return el
+            return element
         }
     }
 
@@ -405,39 +405,39 @@ open class Node: Equatable, Hashable {
      * Replace this node in the DOM with the supplied node.
      * @param in the node that will will replace the existing node.
      */
-    public func replaceWith(_ input: Node)throws {
-        try Validate.notNull(obj: input)
+    public func replace(with newNode: Node) throws {
+        try Validate.notNull(obj: newNode)
         try Validate.notNull(obj: parentNode)
-        try parentNode?.replaceChild(self, input)
+        try parentNode?.replaceChildNode(self, with: newNode)
     }
 
-    public func setParentNode(_ parentNode: Node)throws {
+    public func setParentNode(_ parentNode: Node) throws {
         if (self.parentNode != nil) {
         try self.parentNode?.removeChild(self)
         }
         self.parentNode = parentNode
     }
 
-    public func replaceChild(_ out: Node, _ input: Node)throws {
-        try Validate.isTrue(val: out.parentNode === self)
-        try Validate.notNull(obj: input)
-        if (input.parentNode != nil) {
-            try input.parentNode?.removeChild(input)
+    public func replaceChildNode(_ childNode: Node, with newNode: Node) throws {
+        try Validate.isTrue(val: childNode.parentNode === self)
+        try Validate.notNull(obj: newNode)
+        if (newNode.parentNode != nil) {
+            try newNode.parentNode?.removeChild(newNode)
         }
 
-        let index: Int = out.siblingIndex
-        childNodes[index] = input
-        input.parentNode = self
-        input.setSiblingIndex(index)
-        out.parentNode = nil
+        let index: Int = childNode.siblingIndex
+        childNodes[index] = newNode
+        newNode.parentNode = self
+        newNode.setSiblingIndex(index)
+        childNode.parentNode = nil
     }
 
-    public func removeChild(_ out: Node)throws {
-        try Validate.isTrue(val: out.parentNode === self)
-        let index: Int = out.siblingIndex
+    public func removeChild(_ node: Node) throws {
+        try Validate.isTrue(val: node.parentNode === self)
+        let index: Int = node.siblingIndex
         childNodes.remove(at: index)
         reindexChildren(index)
-        out.parentNode = nil
+        node.parentNode = nil
     }
 
     public func addChildren(_ children: Node...)throws {
