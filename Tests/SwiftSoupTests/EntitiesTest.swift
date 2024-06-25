@@ -142,10 +142,10 @@ class EntitiesTest: XCTestCase {
 		let element: Element = try doc.select(cssQuery: "a").first()!
 
 		doc.outputSettings().escapeMode(Entities.EscapeMode.base)
-		XCTAssertEqual("<a title=\"<p>One</p>\">One</a>", try element.outerHtml())
+		XCTAssertEqual("<a title=\"<p>One</p>\">One</a>", try element.outerHTML())
 
 		doc.outputSettings().escapeMode(Entities.EscapeMode.xhtml)
-		XCTAssertEqual("<a title=\"&lt;p>One&lt;/p>\">One</a>", try  element.outerHtml())
+		XCTAssertEqual("<a title=\"&lt;p>One&lt;/p>\">One</a>", try  element.outerHTML())
 	}
 
 	static var allTests = {

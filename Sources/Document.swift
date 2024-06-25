@@ -195,9 +195,8 @@ open class Document: Element {
         return nil
     }
 
-    open override func outerHtml()throws->String {
-        // FIXME: Error
-        return super.html ?? "" // no outer wrapper tag
+    open override var outerHTML: String? {
+        return super.html // no outer wrapper tag
     }
 
     /**

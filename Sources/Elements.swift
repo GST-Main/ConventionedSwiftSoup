@@ -105,9 +105,9 @@ open class Elements: NSCopying {
 			if !stringBuilder.isEmpty {
 				stringBuilder.append("\n")
 			}
-            do {
-                stringBuilder.append(try element.outerHtml())
-            } catch {
+            if let outerHTML = element.outerHTML {
+                stringBuilder.append(outerHTML)
+            } else {
                 return nil
             }
 		}

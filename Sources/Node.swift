@@ -549,7 +549,7 @@ open class Node: Equatable, Hashable {
      * @return this node, for chaining
      */
     @discardableResult
-    open func traverse(_ nodeVisitor: NodeVisitor)throws->Node {
+    open func traverse(_ nodeVisitor: NodeVisitor) throws -> Node {
         let traversor: NodeTraversor = NodeTraversor(nodeVisitor)
         try traversor.traverse(self)
         return self
@@ -559,9 +559,13 @@ open class Node: Equatable, Hashable {
      Get the outer HTML of this node.
      @return HTML
      */
-    open func outerHtml()throws->String {
+    open var outerHTML: String? {
         let accum: StringBuilder = StringBuilder(128)
-        try outerHtml(accum)
+        do {
+            try outerHtml(accum)
+        } catch {
+            return nil
+        }
         return accum.toString()
     }
 
@@ -621,14 +625,12 @@ open class Node: Equatable, Hashable {
      * @return true if the content of this node is the same as the other
      */
 
-    open func hasSameValue(_ o: Node)throws->Bool {
-        if (self === o) {return true}
-//        if (type(of:self) != type(of: o))
-//        {
-//            return false
-//        }
+    open func hasSameValue(_ o: Node) -> Bool {
+        if self === o {
+            return true
+        }
 
-        return try self.outerHtml() ==  o.outerHtml()
+        return self.outerHTML == o.outerHTML
     }
 
     /**
@@ -737,23 +739,17 @@ open class Node: Equatable, Hashable {
 
 extension Node: CustomStringConvertible {
 	public var description: String {
-		do {
-			return try outerHtml()
-		} catch {
-
-		}
-		return Node.empty
+        outerHTML ?? ""
 	}
 }
 
 extension Node: CustomDebugStringConvertible {
     private static let space = " "
 	public var debugDescription: String {
-		do {
-            return try String(describing: type(of: self)) + Node.space + outerHtml()
-		} catch {
-
-		}
-		return String(describing: type(of: self))
+        if let outerHTML {
+            return String(describing: type(of: self)) + Node.space + outerHTML
+        } else {
+            return String(describing: type(of: self))
+        }
 	}
 }

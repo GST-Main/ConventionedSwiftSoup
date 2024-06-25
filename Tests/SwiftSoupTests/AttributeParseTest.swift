@@ -92,7 +92,7 @@ class AttributeParseTest: XCTestCase {
 		XCTAssertTrue((attributes[1] as? BooleanAttribute) != nil, "'boolean' attribute should be boolean")
 		XCTAssertFalse((attributes[2] as? BooleanAttribute) != nil, "'empty' attribute should not be boolean")
 
-		XCTAssertEqual(html, try el.outerHtml())
+		XCTAssertEqual(html, try el.outerHTML())
 	}
 
 	func testdropsSlashFromAttributeName()throws {

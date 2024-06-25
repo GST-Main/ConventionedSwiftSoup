@@ -385,7 +385,7 @@ class ElementTest: XCTestCase {
 
 		XCTAssertFalse(div.hasAttribute(withKey: "false"))
 
-		XCTAssertEqual("<div true></div>", try div.outerHtml())
+		XCTAssertEqual("<div true></div>", try div.outerHTML())
 	}
 
 	func testAppendRowToTable()throws {
@@ -582,10 +582,10 @@ class ElementTest: XCTestCase {
 	func testpParentlessToString()throws {
 		let doc: Document = try SwiftSoup.parse("<img src='foo'>")
 		let img: Element = try doc.select(cssQuery: "img").first()!
-		XCTAssertEqual("<img src=\"foo\">", try img.outerHtml())
+		XCTAssertEqual("<img src=\"foo\">", try img.outerHTML())
 
 		try img.remove() // lost its parent
-		XCTAssertEqual("<img src=\"foo\">", try img.outerHtml())
+		XCTAssertEqual("<img src=\"foo\">", try img.outerHTML())
 	}
 
 	func testClone()throws {
@@ -600,7 +600,7 @@ class ElementTest: XCTestCase {
 		XCTAssertNotNil(p.parent())
 
 		try clone.appendHTML("<span>Three")
-		XCTAssertEqual("<p><span>Two</span><span>Three</span></p>", try TextUtil.stripNewlines(clone.outerHtml()))
+		XCTAssertEqual("<p><span>Two</span><span>Three</span></p>", try TextUtil.stripNewlines(clone.outerHTML()))
 		XCTAssertEqual("<div><p>One</p><p><span>Two</span></p></div>", try TextUtil.stripNewlines(doc.body()!.html())) // not modified
 
 		try doc.body()?.appendChild(clone) // adopt
@@ -915,7 +915,7 @@ class ElementTest: XCTestCase {
 
 		try body.insertChildren(0, toMove)
 
-		let result: String = try doc.outerHtml().replaceAll(of: "\\s+", with: "")
+		let result: String = try doc.outerHTML().replaceAll(of: "\\s+", with: "")
 		XCTAssertEqual("<body><div3>Check</div3><div4></div4><div1></div1><div2></div2></body>", result)
 	}
 
@@ -947,7 +947,7 @@ class ElementTest: XCTestCase {
             .removeAttribute(withKey: "three")
             .removeAttribute(withKey: "four")
             .removeAttribute(withKey: "five")
-        XCTAssertEqual("<a>Text</a>", try a.outerHtml())
+        XCTAssertEqual("<a>Text</a>", try a.outerHTML())
     }
 
     func testIs()throws {

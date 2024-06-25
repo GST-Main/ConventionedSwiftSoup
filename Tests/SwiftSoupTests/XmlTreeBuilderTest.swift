@@ -156,7 +156,7 @@ class XmlTreeBuilderTest: XCTestCase {
 			"<html>\n" +
 			" <head></head>\n" +
 			" <body></body>\n" +
-			"</html>", document.outerHtml())
+			"</html>", document.outerHTML())
 	}
 
 	func testPreservesCaseByDefault()throws {

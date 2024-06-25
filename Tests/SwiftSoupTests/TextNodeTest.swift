@@ -80,7 +80,7 @@ class TextNodeTest: XCTestCase {
 		#if !os(Linux)
 			let doc: Document = try SwiftSoup.parse(String(Character(UnicodeScalar(135361)!)))
 			let t: TextNode = doc.body()!.textNodes()[0]
-			XCTAssertEqual(String(Character(UnicodeScalar(135361)!)), try t.outerHtml().trim())
+			XCTAssertEqual(String(Character(UnicodeScalar(135361)!)), try t.outerHTML().trim())
 		#endif
 	}
 

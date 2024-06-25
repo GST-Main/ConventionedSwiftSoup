@@ -188,7 +188,7 @@ class HtmlParserTest: XCTestCase {
 		XCTAssertEqual(expect, try el.getText())
 		XCTAssertEqual(expect, try el.val())
 		XCTAssertEqual(expect, try el.html())
-		XCTAssertEqual("<textarea>\n\t" + expect + "\n</textarea>", try el.outerHtml()) // but preserved in round-trip html
+		XCTAssertEqual("<textarea>\n\t" + expect + "\n</textarea>", try el.outerHTML()) // but preserved in round-trip html
 	}
 
 	func testPreservesSpaceInScript()throws {
@@ -198,7 +198,7 @@ class HtmlParserTest: XCTestCase {
 		let el: Element = try doc.select(cssQuery: "script").first()!
 		XCTAssertEqual(expect, el.data())
 		XCTAssertEqual("One\n\tTwo\n\tThree", try el.html())
-		XCTAssertEqual("<script>" + expect + "</script>", try el.outerHtml())
+		XCTAssertEqual("<script>" + expect + "</script>", try el.outerHTML())
 	}
 
 	func testDoesNotCreateImplicitLists()throws {
@@ -332,7 +332,7 @@ class HtmlParserTest: XCTestCase {
 	func testParsesBodyFragment()throws {
 		let h = "<!-- comment --><p><a href='foo'>One</a></p>"
 		let doc: Document = try SwiftSoup.parseBodyFragment(h, "http://example.com")
-		XCTAssertEqual("<body><!-- comment --><p><a href=\"foo\">One</a></p></body>", try TextUtil.stripNewlines(doc.body()!.outerHtml()))
+		XCTAssertEqual("<body><!-- comment --><p><a href=\"foo\">One</a></p></body>", try TextUtil.stripNewlines(doc.body()!.outerHTML()))
 		XCTAssertEqual("http://example.com/foo", try doc.select(cssQuery: "a").first()!.absUrl("href"))
 	}
 

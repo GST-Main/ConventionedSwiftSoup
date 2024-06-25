@@ -333,8 +333,8 @@ class NodeTest: XCTestCase {
 			XCTAssertEqual("Two", try p2.getText())
 			let nodes = p2.siblingNodes()
 			XCTAssertEqual(2, nodes.count)
-			XCTAssertEqual("<p>One</p>", try nodes[0].outerHtml())
-			XCTAssertEqual("<p>Three</p>", try nodes[1].outerHtml())
+			XCTAssertEqual("<p>One</p>", try nodes[0].outerHTML())
+			XCTAssertEqual("<p>Three</p>", try nodes[1].outerHTML())
 		} catch {
 			XCTAssertEqual(1, 2)
 		}
