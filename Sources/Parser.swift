@@ -100,7 +100,7 @@ public class Parser {
         return try? _parseBodyFragment(bodyHTML, baseURI: baseURI)
     }
     public class func _parseBodyFragment(_ bodyHTML: String, baseURI: String = "") throws -> Document {
-        let document = Document.createShell(baseURI)
+        let document = Document.createShell(baseURI: baseURI)
         if let body: Element = document.body {
             let nodeList: Array<Node> = try _parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI)
             if nodeList.count > 0 {

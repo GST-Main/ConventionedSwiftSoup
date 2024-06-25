@@ -78,12 +78,12 @@ class DocumentTest: XCTestCase {
 			let withTitle: Document = try SwiftSoup.parse("<title>First</title><title>Ignore</title><p>Hello</p>")
 
 			XCTAssertEqual("", try noTitle.title())
-			try noTitle.title("Hello")
+			try noTitle.setTitle("Hello")
 			XCTAssertEqual("Hello", try noTitle.title())
 			XCTAssertEqual("Hello", try noTitle.select(cssQuery: "title").first()?.getText())
 
 			XCTAssertEqual("First", try withTitle.title())
-			try withTitle.title("Hello")
+			try withTitle.setTitle("Hello")
 			XCTAssertEqual("Hello", try withTitle.title())
 			XCTAssertEqual("Hello", try withTitle.select(cssQuery: "title").first()?.getText())
 
@@ -129,7 +129,7 @@ class DocumentTest: XCTestCase {
 		let clone: Document = doc.copy() as! Document
 
 		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(clone.html()))
-		try! clone.title("Hello there")
+		try! clone.setTitle("Hello there")
 		try! clone.select(cssQuery: "p").first()!.text("One more").setAttribute(key: "id", value: "1")
 		XCTAssertEqual("<html><head><title>Hello there</title> </head><body><p id=\"1\">One more</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(clone.html()))
 		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(doc.html()))
@@ -272,7 +272,7 @@ class DocumentTest: XCTestCase {
 	}
 
 	func testMetaCharsetUpdateNoCharset()throws {
-		let docNoCharset: Document = Document.createShell("")
+		let docNoCharset: Document = Document.createShell(baseURI: "")
 		docNoCharset.updateMetaCharsetElement(true)
 		try docNoCharset.charset(String.Encoding.utf8)
 
@@ -288,7 +288,7 @@ class DocumentTest: XCTestCase {
 	}
 
 	func testMetaCharsetUpdateDisabled()throws {
-		let docDisabled: Document = Document.createShell("")
+		let docDisabled: Document = Document.createShell(baseURI: "")
 
 		let htmlNoCharset = "<html>\n" +
 			" <head></head>\n" +
@@ -421,14 +421,14 @@ class DocumentTest: XCTestCase {
 	}
 
 	private func createHtmlDocument(_ charset: String) -> Document {
-		let doc: Document = Document.createShell("")
+		let doc: Document = Document.createShell(baseURI: "")
 		try! doc.head()?.appendElement("meta").setAttribute(key: "charset", value: charset)
 		try! doc.head()?.appendElement("meta").setAttribute(key: "name", value: "charset").setAttribute(key: "content", value: charset)
 		return doc
 	}
 
 	func createXmlDocument(_ version: String, _ charset: String, _ addDecl: Bool)throws->Document {
-		let doc: Document = Document("")
+		let doc: Document = Document(baseURI: "")
 		try doc.appendElement("root").text("node")
 		doc.outputSettings().syntax(syntax: OutputSettings.Syntax.xml)
 

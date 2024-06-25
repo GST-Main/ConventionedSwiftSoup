@@ -24,9 +24,9 @@ open class Document: Element {
      @see SwiftSoup#parse
      @see #createShell
      */
-    public init(_ baseUri: String) {
-        self.location = baseUri
-        super.init(try! Tag.valueOf("#root", ParseSettings.htmlDefault), baseUri)
+    public init(baseURI: String) {
+        self.location = baseURI
+        super.init(try! Tag.valueOf("#root", ParseSettings.htmlDefault), baseURI)
     }
 
     /**
@@ -34,8 +34,8 @@ open class Document: Element {
      @param baseUri baseUri of document
      @return document with html, head, and body elements.
      */
-    static public func createShell(_ baseUri: String) -> Document {
-        let doc: Document = Document(baseUri)
+    static public func createShell(baseURI: String) -> Document {
+        let doc: Document = Document(baseURI: baseURI)
         let html: Element = try! doc.appendElement(tagName: "html")
         try! html.appendElement(tagName: "head")
         try! html.appendElement(tagName: "body")
@@ -77,12 +77,11 @@ open class Document: Element {
      not present
      @param title string to set as title
      */
-    public func title(_ title: String) throws {
-        let titleEl: Element? = getElementsByTag("title")?.first
-        if (titleEl == nil) { // add to head
-            try head?.appendElement(tagName: "title").setText(title)
+    public func setTitle(_ title: String) throws {
+        if let titleElement = getElementsByTag("title")?.first {
+            try titleElement.setText(title)
         } else {
-            try titleEl?.setText(title)
+            try head?.appendElement(tagName: "title").setText(title)
         }
     }
 
@@ -91,7 +90,7 @@ open class Document: Element {
      @param tagName element tag name (e.g. {@code a})
      @return new element
      */
-    public func createElement(_ tagName: String)throws->Element {
+    public func createElement(withTagName tagName: String) throws -> Element {
         return try Element(Tag.valueOf(tagName, ParseSettings.preserveCase), self.baseURI!)
     }
 
@@ -101,28 +100,30 @@ open class Document: Element {
      @return this document after normalisation
      */
     @discardableResult
-    public func normalise()throws->Document {
-        var htmlE: Element? = findFirstElementByTagName("html", self)
-        if (htmlE == nil) {
-            htmlE = try appendElement(tagName: "html")
+    public func normalise() throws -> Document {
+        var htmlElement = findFirstElementByTagName("html", self)
+        if htmlElement == nil {
+            htmlElement = try appendElement(tagName: "html")
         }
-        let htmlEl: Element = htmlE!
+        guard let htmlElement else {
+            fatalError("htmlElement can't be `nil`")
+        }
 
-        if (head == nil) {
-            try htmlEl.prependElement(tagName: "head")
+        if head == nil {
+            try htmlElement.prependElement(tagName: "head")
         }
-        if (body == nil) {
-            try htmlEl.appendElement(tagName: "body")
+        if body == nil {
+            try htmlElement.appendElement(tagName: "body")
         }
 
         // pull text nodes out of root, html, and head els, and push into body. non-text nodes are already taken care
         // of. do in inverse order to maintain text order.
         try normaliseTextNodes(head!)
-        try normaliseTextNodes(htmlEl)
+        try normaliseTextNodes(htmlElement)
         try normaliseTextNodes(self)
 
-        try normaliseStructure("head", htmlEl)
-        try normaliseStructure("body", htmlEl)
+        try normaliseStructure("head", htmlElement)
+        try normaliseStructure("body", htmlElement)
 
         try ensureMetaCharsetElement()
 
@@ -130,7 +131,7 @@ open class Document: Element {
     }
 
     // does not recurse.
-    private func normaliseTextNodes(_ element: Element)throws {
+    private func normaliseTextNodes(_ element: Element) throws {
         var toMove: Array<Node> =  Array<Node>()
         for node: Node in element.childNodes {
             if let tn = (node as? TextNode) {
@@ -232,7 +233,7 @@ open class Document: Element {
      * @see #updateMetaCharsetElement(boolean)
      * @see OutputSettings#charset(java.nio.charset.Charset)
      */
-    public func charset(_ charset: String.Encoding)throws {
+    public func charset(_ charset: String.Encoding) throws {
         updateMetaCharsetElement(true)
         outputSettings.charset(charset)
         try ensureMetaCharsetElement()
@@ -298,7 +299,7 @@ open class Document: Element {
      * <li><b>Xml:</b> <i>&lt;?xml version="1.0" encoding="CHARSET"&gt;</i></li>
      * </ul>
      */
-    private func ensureMetaCharsetElement()throws {
+    private func ensureMetaCharsetElement() throws {
         if (updateMetaCharset) {
             let syntax: OutputSettings.Syntax = outputSettings.syntax()
 
@@ -349,7 +350,7 @@ open class Document: Element {
         }
     }
 
-    public func quirksMode()->Document.QuirksMode {
+    public func quirksMode() -> Document.QuirksMode {
         return _quirksMode
     }
 
@@ -360,12 +361,12 @@ open class Document: Element {
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Document(location)
+		let clone = Document(baseURI: location)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Document(location)
+		let clone = Document(baseURI: location)
 		return copy(clone: clone, parent: parent)
 	}
 

@@ -149,7 +149,7 @@ class XmlTreeBuilderTest: XCTestCase {
 	}
 
 	func testCreatesValidProlog()throws {
-		let document = Document.createShell("")
+		let document = Document.createShell(baseURI: "")
 		document.outputSettings().syntax(syntax: OutputSettings.Syntax.xml)
 		try document.charset(String.Encoding.utf8)
 		try XCTAssertEqual("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

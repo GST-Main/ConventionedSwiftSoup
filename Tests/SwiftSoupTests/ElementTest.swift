@@ -901,7 +901,7 @@ class ElementTest: XCTestCase {
 	}
 
 	func testAppendMustCorrectlyMoveChildrenInsideOneParentElement()throws {
-		let doc: Document = Document("")
+		let doc: Document = Document(baseURI: "")
 		let body: Element = try doc.appendElement("body")
 		try body.appendElement("div1")
 		try body.appendElement("div2")

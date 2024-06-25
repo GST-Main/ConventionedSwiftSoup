@@ -179,7 +179,7 @@ open class Attributes: NSCopying {
      */
     open func html()throws -> String {
         let accum = StringBuilder()
-        try html(accum: accum, out: Document("").outputSettings) // output settings a bit funky, but this html() seldom used
+        try html(accum: accum, out: Document(baseURI: "").outputSettings) // output settings a bit funky, but this html() seldom used
         return accum.toString()
     }
 

@@ -567,7 +567,7 @@ open class Node: Equatable, Hashable {
 
     // if this node has no document (or parent), retrieve the default output settings
     func getOutputSettings() -> OutputSettings {
-        return ownerDocument() != nil ? ownerDocument()!.outputSettings : (Document(Node.empty)).outputSettings
+        return ownerDocument() != nil ? ownerDocument()!.outputSettings : (Document(baseURI: Node.empty)).outputSettings
     }
 
     /**

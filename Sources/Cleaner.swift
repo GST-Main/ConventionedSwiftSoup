@@ -32,7 +32,7 @@ open class Cleaner {
     /// - Parameter dirtyDocument: Untrusted base document to clean.
     /// - Returns: A cleaned document.
 	public func clean(_ dirtyDocument: Document) throws -> Document {
-		let clean = Document.createShell(dirtyDocument.baseURI!)
+		let clean = Document.createShell(baseURI: dirtyDocument.baseURI!)
         if let headWhitelist, let dirtHead = dirtyDocument.head, let cleanHead = clean.head { // frameset documents won't have a head. the clean doc will have empty head.
             try copySafeNodes(dirtHead, cleanHead, whitelist: headWhitelist)
         }
@@ -51,7 +51,7 @@ open class Cleaner {
     /// - Parameter dirtyDocument: document to test
     /// - Returns: true if no tags or attributes need to be removed; false if they do
 	public func isValid(_ dirtyDocument: Document) throws -> Bool {
-        let clean = Document.createShell(dirtyDocument.baseURI!)
+        let clean = Document.createShell(baseURI: dirtyDocument.baseURI!)
         let numDiscarded = try copySafeNodes(dirtyDocument.body!, clean.body!, whitelist: bodyWhitelist)
         return numDiscarded == 0
 	}
