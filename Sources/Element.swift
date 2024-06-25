@@ -71,7 +71,9 @@ open class Element: Node {
      */
     @discardableResult
     public func setTagName(_ tagName: String) throws -> Element {
-        try Validate.notEmpty(string: tagName, msg: "Tag name must not be empty.")
+        if tagName.isEmpty {
+            throw IllegalArgumentError.emptyTagName
+        }
         tag = try Tag.valueOf(tagName, ParseSettings.preserveCase) // preserve the requested tag case
         return self
     }
@@ -334,7 +336,9 @@ open class Element: Node {
         if index < 0 {
             index += currentSize + 1
         } // roll around
-        try Validate.isTrue(val: index >= 0 && index <= currentSize, msg: "Insert position out of bounds.")
+        guard index >= 0 && index <= currentSize else {
+            throw IllegalArgumentError.indexOutOfBounds
+        }
 
         super.insertChildren(children, at: index)
         return self
@@ -402,7 +406,7 @@ open class Element: Node {
      */
     @discardableResult
     public func appendHTML(_ html: String) throws -> Element {
-        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
+        let nodes: [Node] = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
         appendChildren(nodes)
         return self
     }
@@ -482,7 +486,7 @@ open class Element: Node {
      * @return this element, for chaining.
      */
     @discardableResult
-    open override func wrap(html: String)throws->Element {
+    open override func wrap(html: String) throws -> Element {
         return try super.wrap(html: html) as! Element
     }
 
@@ -1098,8 +1102,8 @@ open class Element: Node {
      @return this element, for chaining
      */
     @discardableResult
-    public func setClass(names: OrderedSet<String>) throws -> Element {
-        try attributes?.put(Element.classString, StringUtil.join(classNames, sep: " "))
+    public func setClass(names: OrderedSet<String>) -> Element {
+        try! attributes?.put(Element.classString, StringUtil.join(classNames, sep: " "))
         return self
     }
 
@@ -1162,10 +1166,10 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-	public func addClass(named className: String) throws -> Element {
+	public func addClass(named className: String) -> Element {
 		let classes = classNames
 		classes.append(className)
-		try setClass(names: classes)
+		setClass(names: classes)
         
 		return self
 	}
@@ -1176,10 +1180,10 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-    public func removeClass(named className: String) throws -> Element {
+    public func removeClass(named className: String) -> Element {
         let classes = classNames
 		classes.remove(className)
-        try setClass(names: classes)
+        setClass(names: classes)
         
         return self
     }
@@ -1190,14 +1194,14 @@ open class Element: Node {
      @return this element
      */
     @discardableResult
-    public func toggleClass(named className: String) throws -> Element {
+    public func toggleClass(named className: String) -> Element {
         let classes = classNames
         if classes.contains(className) {
             classes.remove(className)
         } else {
             classes.append(className)
         }
-        try setClass(names: classes)
+        setClass(names: classes)
 
         return self
     }
@@ -1220,16 +1224,16 @@ open class Element: Node {
      * @return this element (for chaining)
      */
     @discardableResult
-    public func setValue(_ value: String) throws -> Element {
+    public func setValue(_ value: String) -> Element {
         if tagName == "textarea" {
             setText(value)
         } else {
-            try setAttribute(key: "value", value: value)
+            try! setAttribute(key: "value", value: value)
         }
         return self
     }
 
-    override func outerHtmlHead(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings)throws {
+    override func outerHtmlHead(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings) throws {
         if (out.prettyPrint() && (tag.formatAsBlock() || (parent != nil && parent!.tag.formatAsBlock()) || out.outline())) {
             if !accum.isEmpty {
                 indent(accum, depth, out)
@@ -1280,7 +1284,7 @@ open class Element: Node {
         return getOutputSettings().prettyPrint() ? accum.toString().trim() : accum.toString()
     }
 
-    private func html2(_ accum: StringBuilder)throws {
+    private func html2(_ accum: StringBuilder) throws {
         for node in childNodes {
             try node.outerHtml(accum)
         }

@@ -19,6 +19,7 @@ public struct IllegalArgumentError: SwiftSoupError {
     static let noParentNode = Self(message: "No parent node to insert")
     static let noHTMLElementsToWrap = Self(message: "No HTML elements to wrap")
     static let noChildrenToUnwrap = Self(message: "No children elements to unwrap")
+    static let indexOutOfBounds = Self(message: "Index out of bounds")
 }
 
 public struct SelectorParseError: SwiftSoupError {

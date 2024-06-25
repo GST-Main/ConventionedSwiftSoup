@@ -77,11 +77,11 @@ open class Document: Element {
      not present
      @param title string to set as title
      */
-    public func setTitle(_ title: String) throws {
+    public func setTitle(_ title: String) {
         if let titleElement = getElementsByTag("title")?.first {
             titleElement.setText(title)
         } else {
-            try head?.appendElement(tagName: "title").setText(title)
+            try! head?.appendElement(tagName: "title").setText(title)
         }
     }
 
@@ -103,17 +103,17 @@ open class Document: Element {
     public func normalise() throws -> Document {
         var htmlElement = findFirstElementByTagName("html", self)
         if htmlElement == nil {
-            htmlElement = try appendElement(tagName: "html")
+            htmlElement = try! appendElement(tagName: "html")
         }
         guard let htmlElement else {
             fatalError("htmlElement can't be `nil`")
         }
 
         if head == nil {
-            try htmlElement.prependElement(tagName: "head")
+            try! htmlElement.prependElement(tagName: "head")
         }
         if body == nil {
-            try htmlElement.appendElement(tagName: "body")
+            try! htmlElement.appendElement(tagName: "body")
         }
 
         // pull text nodes out of root, html, and head els, and push into body. non-text nodes are already taken care
@@ -132,11 +132,11 @@ open class Document: Element {
 
     // does not recurse.
     private func normaliseTextNodes(_ element: Element) throws {
-        var toMove: Array<Node> =  Array<Node>()
+        var toMove: [Node] = []
         for node: Node in element.childNodes {
             if let tn = (node as? TextNode) {
                 if (!tn.isBlank()) {
-                toMove.append(tn)
+                    toMove.append(tn)
                 }
             }
         }
