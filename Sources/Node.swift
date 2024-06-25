@@ -336,14 +336,14 @@ open class Node: Equatable, Hashable {
      @return this node, for chaining.
      */
     @discardableResult
-    open func wrap(_ html: String)throws -> Node? {
+    open func wrap(html: String) throws -> Node {
         try Validate.notEmpty(string: html)
 
         let context: Element? = parent as? Element
         var wrapChildren: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         let wrapNode: Node? = wrapChildren.count > 0 ? wrapChildren[0] : nil
         if (wrapNode == nil || !(((wrapNode as? Element) != nil))) { // nothing to wrap with; noop
-            return nil
+            fatalError() // FIXME: fixme throw error
         }
 
         let wrap: Element = wrapNode as! Element
@@ -379,10 +379,13 @@ open class Node: Equatable, Hashable {
      * @see #wrap(String)
      */
     @discardableResult
-    open func unwrap()throws ->Node? {
+    open func unwrap() throws -> Node {
         try Validate.notNull(obj: parentNode)
 
-        let firstChild: Node? = childNodes.count > 0 ? childNodes[0] : nil
+        guard childNodes.count > 0 else {
+            fatalError() // FIXME: throw error
+        }
+        let firstChild: Node = childNodes[0]
         try parentNode?.addChildren(siblingIndex, self.childNodesAsArray())
         try self.remove()
 

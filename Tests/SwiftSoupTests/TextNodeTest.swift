@@ -71,7 +71,7 @@ class TextNodeTest: XCTestCase {
 		let div: Element = try doc.select(cssQuery: "div").first()!
 		let tn: TextNode = div.childNode(0) as! TextNode
 		let tail: TextNode = try  tn.splitText(6)
-		try tail.wrap("<b></b>")
+		try tail.wrap(html: "<b></b>")
 
 		XCTAssertEqual("Hello <b>there</b>", TextUtil.stripNewlines(try div.html())) // not great that we get \n<b>there there... must correct
 	}

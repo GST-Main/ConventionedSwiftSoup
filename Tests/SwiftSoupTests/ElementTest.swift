@@ -497,10 +497,10 @@ class ElementTest: XCTestCase {
 	func testWrap()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p><p>There</p></div>")
 		let p: Element = try doc.select(cssQuery: "p").first()!
-		try p.wrap("<div class='head'></div>")
+		try p.wrap(html: "<div class='head'></div>")
 		XCTAssertEqual("<div><div class=\"head\"><p>Hello</p></div><p>There</p></div>", try TextUtil.stripNewlines(doc.body()!.html()))
 
-		let ret: Element = try p.wrap("<div><div class=foo></div><p>What?</p></div>")
+		let ret: Element = try p.wrap(html: "<div><div class=foo></div><p>What?</p></div>")
 		XCTAssertEqual("<div><div class=\"head\"><div><div class=\"foo\"><p>Hello</p></div><p>What?</p></div></div><p>There</p></div>",
 		             try TextUtil.stripNewlines(doc.body()!.html()))
 
@@ -530,7 +530,7 @@ class ElementTest: XCTestCase {
 	func testWrapWithRemainder()throws {
 		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p></div>")
 		let p: Element = try doc.select(cssQuery: "p").first()!
-		try p.wrap("<div class='head'></div><p>There!</p>")
+		try p.wrap(html: "<div class='head'></div><p>There!</p>")
 		XCTAssertEqual("<div><div class=\"head\"><p>Hello</p><p>There!</p></div></div>", TextUtil.stripNewlines(try doc.body()!.html()))
 	}
 

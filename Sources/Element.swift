@@ -481,8 +481,8 @@ open class Element: Node {
      * @return this element, for chaining.
      */
     @discardableResult
-    open override func wrap(_ html: String)throws->Element {
-        return try super.wrap(html) as! Element
+    open override func wrap(html: String)throws->Element {
+        return try super.wrap(html: html) as! Element
     }
 
     /**
