@@ -330,7 +330,7 @@ open class Element: Node {
      * @return this element, for chaining.
      */
     @discardableResult
-    public func insertChildren(_ children: [Node], at index: Int) throws -> Element {
+    public func insertChildrenElements(_ children: [Node], at index: Int) throws -> Element {
         var index = index
         let currentSize = childNodeSize()
         if index < 0 {
