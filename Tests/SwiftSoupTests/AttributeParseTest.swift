@@ -27,7 +27,7 @@ class AttributeParseTest: XCTestCase {
 		let html: String = "<a id=\"123\" class=\"baz = 'bar'\" style = 'border: 2px'qux zim foo = 12 mux=18 />"
 		// should be: <id=123>, <class=baz = 'bar'>, <qux=>, <zim=>, <foo=12>, <mux.=18>
 
-		let el: Element = try SwiftSoup.parse(html).getElementsByTag("a").get(0)
+		let el: Element = Parser.parseHTML(html)!.getElementsByTag("a").get(index: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(7, attr.size())
 		XCTAssertEqual("123", attr.get(key: "id"))
@@ -41,22 +41,22 @@ class AttributeParseTest: XCTestCase {
 
 	func testhandlesNewLinesAndReturns()throws {
 		let html: String = "<a\r\nfoo='bar\r\nqux'\r\nbar\r\n=\r\ntwo>One</a>"
-		let el: Element = try SwiftSoup.parse(html).select("a").first()!
+		let el: Element = Parser.parseHTML(html)!.select(cssQuery: "a").first!
 		XCTAssertEqual(2, el.getAttributes()?.size())
-		XCTAssertEqual("bar\r\nqux", try el.getAttribute(key: "foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
-		XCTAssertEqual("two", try el.getAttribute(key: "bar"))
+		XCTAssertEqual("bar\r\nqux", el.getAttribute(key: "foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
+		XCTAssertEqual("two", el.getAttribute(key: "bar"))
 	}
 
 	func testparsesEmptyString()throws {
 		let html: String = "<a />"
-		let el: Element = try SwiftSoup.parse(html).getElementsByTag("a").get(0)
+		let el: Element = Parser.parseHTML(html)!.getElementsByTag("a").get(index: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(0, attr.size())
 	}
 
 	func testcanStartWithEq()throws {
 		let html: String = "<a =empty />"
-		let el: Element = try SwiftSoup.parse(html).getElementsByTag("a").get(0)
+		let el: Element = Parser.parseHTML(html)!.getElementsByTag("a").get(index: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(1, attr.size())
 		XCTAssertTrue(attr.hasKey(key: "=empty"))
@@ -65,24 +65,24 @@ class AttributeParseTest: XCTestCase {
 
 	func teststrictAttributeUnescapes()throws {
 		let html: String = "<a id=1 href='?foo=bar&mid&lt=true'>One</a> <a id=2 href='?foo=bar&lt;qux&lg=1'>Two</a>"
-		let els: Elements = try SwiftSoup.parse(html).select("a")
-		XCTAssertEqual("?foo=bar&mid&lt=true", try els.first()!.attr("href"))
-		XCTAssertEqual("?foo=bar<qux&lg=1", try els.last()!.attr("href"))
+		let els: Elements = Parser.parseHTML(html)!.select(cssQuery: "a")
+		XCTAssertEqual("?foo=bar&mid&lt=true", els.first!.getAttribute(key: "href"))
+		XCTAssertEqual("?foo=bar<qux&lg=1", els.last!.getAttribute(key: "href"))
 	}
 
 	func testmoreAttributeUnescapes()throws {
 		let html: String = "<a href='&wr_id=123&mid-size=true&ok=&wr'>Check</a>"
-		let els: Elements = try SwiftSoup.parse(html).select("a")
-		XCTAssertEqual("&wr_id=123&mid-size=true&ok=&wr", try  els.first()!.attr("href"))
+		let els: Elements = Parser.parseHTML(html)!.select(cssQuery: "a")
+		XCTAssertEqual("&wr_id=123&mid-size=true&ok=&wr",  els.first!.getAttribute(key: "href"))
 	}
 
 	func testparsesBooleanAttributes()throws {
 		let html: String = "<a normal=\"123\" boolean empty=\"\"></a>"
-		let el: Element = try SwiftSoup.parse(html).select("a").first()!
+		let el: Element = Parser.parseHTML(html)!.select(cssQuery: "a").first!
 
-		XCTAssertEqual("123", try el.getAttribute(key: "normal"))
-		XCTAssertEqual("", try el.getAttribute(key: "boolean"))
-		XCTAssertEqual("", try el.getAttribute(key: "empty"))
+		XCTAssertEqual("123", el.getAttribute(key: "normal"))
+		XCTAssertEqual("", el.getAttribute(key: "boolean"))
+		XCTAssertEqual("", el.getAttribute(key: "empty"))
 
 		let attributes: Array<Attribute> = el.getAttributes()!.asList()
 		XCTAssertEqual(3, attributes.count, "There should be 3 attribute present")
@@ -92,17 +92,17 @@ class AttributeParseTest: XCTestCase {
 		XCTAssertTrue((attributes[1] as? BooleanAttribute) != nil, "'boolean' attribute should be boolean")
 		XCTAssertFalse((attributes[2] as? BooleanAttribute) != nil, "'empty' attribute should not be boolean")
 
-		XCTAssertEqual(html, try el.outerHTML())
+		XCTAssertEqual(html, el.outerHTML)
 	}
 
 	func testdropsSlashFromAttributeName()throws {
 		let html: String = "<img /onerror='doMyJob'/>"
-		var doc: Document = try SwiftSoup.parse(html)
-		XCTAssertTrue(try doc.select(cssQuery: "img[onerror]").size() != 0, "SelfClosingStartTag ignores last character")
-		XCTAssertEqual("<img onerror=\"doMyJob\">", try doc.body()!.html())
+		var doc: Document = Parser.parseHTML(html)!
+		XCTAssertTrue(doc.select(cssQuery: "img[onerror]").count != 0, "SelfClosingStartTag ignores last character")
+		XCTAssertEqual("<img onerror=\"doMyJob\">", doc.body!.html)
 
-		doc = try SwiftSoup.parse(html, "", Parser.xmlParser())
-		XCTAssertEqual("<img onerror=\"doMyJob\" />", try doc.html())
+        doc = try Parser.xmlParser().parseHTML(html, baseURI: "")
+		XCTAssertEqual("<img onerror=\"doMyJob\" />", doc.html)
 	}
 
 	static var allTests = {
