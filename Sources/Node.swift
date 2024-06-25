@@ -11,9 +11,9 @@ import Foundation
 open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
-    private static let EMPTY_NODES: Array<Node>  = Array<Node>()
+    private static let EMPTY_NODES = Array<Node>()
     weak var parentNode: Node?
-    var childNodes: Array <Node>
+    var childNodes: [Node]
     var attributes: Attributes?
     public internal(set) var baseURI: String?
 
@@ -116,17 +116,12 @@ open class Node: Equatable, Hashable {
 		guard let attributes = attributes else {
 			return false
 		}
-        if (key.startsWith(Node.abs)) {
+        if key.startsWith(Node.abs) {
             let key: String = key.substring(Node.abs.count)
-            do {
-                let abs = absoluteURLPath(ofAttribute: key)
-                if (attributes.hasKeyIgnoreCase(key: key) &&  !Node.empty.equals(abs)) {
-                    return true
-                }
-            } catch {
-                return false
+            let abs = absoluteURLPath(ofAttribute: key)
+            if let abs, !abs.isEmpty, attributes.hasKeyIgnoreCase(key: key) {
+                return true
             }
-
         }
         return attributes.hasKeyIgnoreCase(key: key)
     }
@@ -208,7 +203,7 @@ open class Node: Equatable, Hashable {
      themselves can be manipulated.
      @return list of children. If no children, returns an empty list.
      */
-    open func getChildNodes()->Array<Node> {
+    open func getChildNodes() -> Array<Node> {
         return childNodes
     }
 
@@ -217,7 +212,7 @@ open class Node: Equatable, Hashable {
      * nodes
      * @return a deep copy of this node's children
      */
-    open func childNodesCopy()->Array<Node> {
+    open func childNodesCopy() -> Array<Node> {
 		var children: Array<Node> = Array<Node>()
 		for node: Node in childNodes {
 			children.append(node.copy() as! Node)
@@ -250,12 +245,12 @@ open class Node: Equatable, Hashable {
      * @return the Document associated with this Node, or null if there is no such Document.
      */
     open func ownerDocument() -> Document? {
-        if let this =  self as? Document {
+        if let this = self as? Document {
             return this
-        } else if (parentNode == nil) {
-            return nil
+        } else if let parentNode {
+            return parentNode.ownerDocument()
         } else {
-            return parentNode!.ownerDocument()
+            return nil
         }
     }
 
@@ -339,21 +334,20 @@ open class Node: Equatable, Hashable {
     open func wrap(html: String) throws -> Node {
         try Validate.notEmpty(string: html)
 
-        let context: Element? = parent as? Element
-        var wrapChildren: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
+        let context = parent as? Element
+        var wrapChildren = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         let wrapNode: Node? = wrapChildren.count > 0 ? wrapChildren[0] : nil
-        if (wrapNode == nil || !(((wrapNode as? Element) != nil))) { // nothing to wrap with; noop
+        guard let wrapNode, let wrap = wrapNode as? Element else {
             fatalError() // FIXME: fixme throw error
         }
 
-        let wrap: Element = wrapNode as! Element
         let deepest: Element = getDeepChild(element: wrap)
         try parentNode?.replaceChildNode(self, with: wrap)
 		wrapChildren = wrapChildren.filter { $0 != wrap}
         try deepest.appendChildren(self)
 
         // remainder (unbalanced wrap, like <div></div><p></p> -- The <p> is remainder
-        if (wrapChildren.count > 0) {
+        if wrapChildren.count > 0 {
             for i in  0..<wrapChildren.count {
                 let remainder: Node = wrapChildren[i]
                 try remainder.parentNode?.removeChild(remainder)
@@ -421,8 +415,8 @@ open class Node: Equatable, Hashable {
     public func replaceChildNode(_ childNode: Node, with newNode: Node) throws {
         try Validate.isTrue(val: childNode.parentNode === self)
         try Validate.notNull(obj: newNode)
-        if (newNode.parentNode != nil) {
-            try newNode.parentNode?.removeChild(newNode)
+        if let parentNode = newNode.parentNode {
+            try parentNode.removeChild(newNode)
         }
 
         let index: Int = childNode.siblingIndex
@@ -461,7 +455,7 @@ open class Node: Equatable, Hashable {
 
     public func insertChildren(_ children: [Node], at index: Int) throws {
         ensureChildNodes()
-        for i in (0..<children.count).reversed() {
+        for i in children.indices.reversed() {
             let input: Node = children[i]
             try reparentChild(input)
             childNodes.insert(input, at: index)
@@ -477,8 +471,8 @@ open class Node: Equatable, Hashable {
     }
 
     public func reparentChild(_ childNode: Node) throws {
-        if childNode.parentNode != nil {
-            try childNode.parentNode?.removeChild(childNode)
+        if let parentNode = childNode.parentNode {
+            try parentNode.removeChild(childNode)
         }
         try childNode.setParentNode(self)
     }
@@ -495,14 +489,12 @@ open class Node: Equatable, Hashable {
      @return node siblings. If the node has no parent, returns an empty list.
      */
     open var siblingNodes: [Node] {
-        if parentNode == nil {
-            return []
-        }
+        guard let parentNode else { return [] }
 
-        let nodes: [Node] = parentNode!.childNodes
+        let nodes: [Node] = parentNode.childNodes
         var siblings: [Node] = []
         for node in nodes {
-            if (node !== self) {
+            if node !== self {
                 siblings.append(node)
             }
         }
@@ -569,7 +561,7 @@ open class Node: Equatable, Hashable {
         return accum.toString()
     }
 
-    public func outerHtml(_ accum: StringBuilder)throws {
+    public func outerHtml(_ accum: StringBuilder) throws {
         try NodeTraversor(OuterHtmlVisitor(accum, getOutputSettings())).traverse(self)
     }
 
@@ -597,7 +589,7 @@ open class Node: Equatable, Hashable {
      * @param appendable the {@link Appendable} to write to.
      * @return the supplied {@link Appendable}, for chaining.
      */
-    open func html(_ appendable: StringBuilder)throws -> StringBuilder {
+    open func html(_ appendable: StringBuilder) throws -> StringBuilder {
         try outerHtml(appendable)
         return appendable
     }
