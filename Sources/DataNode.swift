@@ -20,14 +20,14 @@ open class DataNode: Node {
      @param baseUri base URI
      */
     public init(_ data: String, _ baseUri: String) {
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
         do {
             try attributes?.put(DataNode.DATA_KEY, data)
         } catch {}
 
     }
 
-    open override func nodeName() -> String {
+    open override var nodeName: String {
         return "#data"
     }
 

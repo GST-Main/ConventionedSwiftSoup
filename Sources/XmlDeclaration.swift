@@ -24,10 +24,10 @@ public class XmlDeclaration: Node {
     public init(_ name: String, _ baseUri: String, _ isProcessingInstruction: Bool) {
         self._name = name
         self.isProcessingInstruction = isProcessingInstruction
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
     }
 
-    public override func nodeName() -> String {
+    public override var nodeName: String {
         return "#declaration"
     }
 

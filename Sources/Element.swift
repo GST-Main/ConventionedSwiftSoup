@@ -30,7 +30,7 @@ open class Element: Node {
      */
     public init(_ tag: Tag, _ baseUri: String, _ attributes: Attributes) {
         self.tag = tag
-        super.init(baseUri, attributes)
+        super.init(baseURI: baseUri, attributes: attributes)
     }
     /**
      * Create a new Element from a tag and a base URI.
@@ -42,10 +42,10 @@ open class Element: Node {
      */
     public init(_ tag: Tag, _ baseUri: String) {
         self.tag = tag
-        super.init(baseUri, Attributes())
+        super.init(baseURI: baseUri, attributes: Attributes())
     }
 
-    open override func nodeName() -> String {
+    open override var nodeName: String {
         return tag.getName()
     }
     /**

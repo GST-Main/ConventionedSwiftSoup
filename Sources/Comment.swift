@@ -20,13 +20,13 @@ public class Comment: Node {
      @param baseUri base URI
      */
     public init(_ data: String, _ baseUri: String) {
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
         do {
             try attributes?.put(Comment.COMMENT_KEY, data)
         } catch {}
     }
 
-    public override func nodeName() -> String {
+    public override var nodeName: String {
         return "#comment"
     }
 

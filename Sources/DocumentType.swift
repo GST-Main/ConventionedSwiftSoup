@@ -28,7 +28,7 @@ public class DocumentType: Node {
      * @param baseUri the doctype's base URI
      */
     public init(_ name: String, _ publicId: String, _ systemId: String, _ baseUri: String) {
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
         do {
             try setAttribute(key: DocumentType.NAME, value: name)
             try setAttribute(key: DocumentType.PUBLIC_ID, value: publicId)
@@ -47,7 +47,7 @@ public class DocumentType: Node {
      * @param baseUri the doctype's base URI
      */
     public init(_ name: String, _ pubSysKey: String?, _ publicId: String, _ systemId: String, _ baseUri: String) {
-        super.init(baseUri)
+        super.init(baseURI: baseUri)
         do {
             try setAttribute(key: DocumentType.NAME, value: name)
             if(pubSysKey != nil) {
@@ -58,7 +58,7 @@ public class DocumentType: Node {
         } catch {}
     }
 
-    public override func nodeName() -> String {
+    public override var nodeName: String {
         return "#doctype"
     }
 

@@ -121,7 +121,7 @@ public class XmlTreeBuilder: TreeBuilder {
 
         for pos in (0..<stack.count).reversed() {
             let next: Element = stack[pos]
-            if (next.nodeName().equals(elName)) {
+            if (next.nodeName.equals(elName)) {
                 firstFound = next
                 break
             }

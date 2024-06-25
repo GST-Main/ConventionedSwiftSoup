@@ -30,13 +30,13 @@ open class Node: Equatable, Hashable {
      @param baseUri base URI
      @param attributes attributes (not null, but may be empty)
      */
-    public init(_ baseUri: String, _ attributes: Attributes) {
+    public init(baseURI: String, attributes: Attributes) {
         self.childNodes = Node.EMPTY_NODES
-        self.baseURI = baseUri.trim()
+        self.baseURI = baseURI.trim()
         self.attributes = attributes
     }
 
-    public init(_ baseUri: String) {
+    public init(baseURI baseUri: String) {
         childNodes = Node.EMPTY_NODES
         self.baseURI = baseUri.trim()
         self.attributes = Attributes()
@@ -55,7 +55,7 @@ open class Node: Equatable, Hashable {
      Get the node name of this node. Use for debugging purposes and not logic switching (for that, use instanceof).
      @return node name
      */
-    public func nodeName() -> String {
+    public var nodeName: String {
         preconditionFailure("This method must be overridden")
     }
 
@@ -700,7 +700,7 @@ open class Node: Equatable, Hashable {
             #if os(Linux)
             try node.outerHtmlTail(accum, depth, out)
             #else
-            if (!(node.nodeName() == OuterHtmlVisitor.text)) { // saves a void hit.
+            if (!(node.nodeName == OuterHtmlVisitor.text)) { // saves a void hit.
                 try node.outerHtmlTail(accum, depth, out)
             }
             #endif

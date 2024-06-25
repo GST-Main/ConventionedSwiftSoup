@@ -318,7 +318,7 @@ class HtmlTreeBuilder: TreeBuilder {
     func getFromStack(_ elName: String) -> Element? {
         for pos in (0..<stack.count).reversed() {
             let next: Element = stack[pos]
-            if next.nodeName() == elName {
+            if next.nodeName == elName {
                 return next
             }
         }
@@ -341,7 +341,7 @@ class HtmlTreeBuilder: TreeBuilder {
         for pos in (0..<stack.count).reversed() {
             let next: Element = stack[pos]
             stack.remove(at: pos)
-            if (next.nodeName() == elName) {
+            if (next.nodeName == elName) {
                 break
             }
         }
@@ -354,7 +354,7 @@ class HtmlTreeBuilder: TreeBuilder {
 		for pos in (0..<stack.count).reversed() {
 			let next: Element = stack[pos]
 			stack.remove(at: pos)
-            if elNames.contains(next.nodeName()) {
+            if elNames.contains(next.nodeName) {
 				break
 			}
 		}
@@ -363,7 +363,7 @@ class HtmlTreeBuilder: TreeBuilder {
     func popStackToBefore(_ elName: String) {
         for pos in (0..<stack.count).reversed() {
             let next: Element = stack[pos]
-            if (next.nodeName() == elName) {
+            if (next.nodeName == elName) {
                 break
             } else {
                 stack.remove(at: pos)
@@ -389,7 +389,7 @@ class HtmlTreeBuilder: TreeBuilder {
     private func clearStackToContext(_ nodeNames: [String]) {
         for pos in (0..<stack.count).reversed() {
             let next: Element = stack[pos]
-            let nextName = next.nodeName()
+            let nextName = next.nodeName
             if nodeNames.contains(nextName) || nextName == "html" {
                 break
             } else {
@@ -450,7 +450,7 @@ class HtmlTreeBuilder: TreeBuilder {
                 //Validate node
                 node = contextElement!
             }
-            let name: String = node.nodeName()
+            let name: String = node.nodeName
             if ("select".equals(name)) {
                 transition(HtmlTreeBuilderState.InSelect)
                 break // frag
@@ -498,7 +498,7 @@ class HtmlTreeBuilder: TreeBuilder {
     private func inSpecificScope(_ targetNames: [String], _ baseTypes: [String], _ extraTypes: [String]? = nil)throws->Bool {
         for pos in (0..<stack.count).reversed() {
             let el = stack[pos]
-            let elName = el.nodeName()
+            let elName = el.nodeName
             if targetNames.contains(elName) {
                 return true
             }
@@ -537,7 +537,7 @@ class HtmlTreeBuilder: TreeBuilder {
 
     func inSelectScope(_ targetName: String)throws->Bool {
         for pos in (0..<stack.count).reversed() {
-            let elName = stack[pos].nodeName()
+            let elName = stack[pos].nodeName
             if elName == targetName {
                 return true
             }
@@ -599,13 +599,13 @@ class HtmlTreeBuilder: TreeBuilder {
         // Is this correct? I get the sense that something is supposed to happen here
         // even if excludeTag == nil. But the original code doesn't seem to do that. -GS
         //
-        // while ((excludeTag != nil && !currentElement()!.nodeName().equals(excludeTag!)) &&
-        //    StringUtil.inString(currentElement()!.nodeName(), HtmlTreeBuilder.TagSearchEndTags)) {
+        // while ((excludeTag != nil && !currentElement()!.nodeName.equals(excludeTag!)) &&
+        //    StringUtil.inString(currentElement()!.nodeName, HtmlTreeBuilder.TagSearchEndTags)) {
         //        pop()
         // }
         guard let excludeTag = excludeTag else { return }
         while true {
-            let nodeName = currentElement()!.nodeName()
+            let nodeName = currentElement()!.nodeName
             guard nodeName != excludeTag else { return }
             guard TagSets.endTags.contains(nodeName) else { return }
             pop()
@@ -615,7 +615,7 @@ class HtmlTreeBuilder: TreeBuilder {
     func isSpecial(_ el: Element) -> Bool {
         // todo: mathml's mi, mo, mn
         // todo: svg's foreigObject, desc, title
-        let name: String = el.nodeName()
+        let name: String = el.nodeName
         return TagSets.special.contains(name)
     }
 
@@ -659,7 +659,7 @@ class HtmlTreeBuilder: TreeBuilder {
 			return false
 		}
 
-        return a.nodeName().equals(b.nodeName()) &&
+        return a.nodeName.equals(b.nodeName) &&
             // a.namespace().equals(b.namespace()) &&
             a.getAttributes()!.equals(o: b.getAttributes())
         // todo: namespaces
@@ -695,7 +695,7 @@ class HtmlTreeBuilder: TreeBuilder {
 
             // 8. create new element from element, 9 insert into current node, onto stack
             skip = false // can only skip increment from 4.
-            let newEl: Element = try insertStartTag(entry!.nodeName()) // todo: avoid fostering here?
+            let newEl: Element = try insertStartTag(entry!.nodeName) // todo: avoid fostering here?
             // newEl.namespace(entry.namespace()) // todo: namespaces
             newEl.getAttributes()?.addAll(incoming: entry!.getAttributes())
 
@@ -736,7 +736,7 @@ class HtmlTreeBuilder: TreeBuilder {
             let next: Element? = formattingElements[pos]
             if (next == nil) { // scope marker
                 break
-            } else if (next!.nodeName().equals(nodeName)) {
+            } else if (next!.nodeName.equals(nodeName)) {
                 return next
             }
         }

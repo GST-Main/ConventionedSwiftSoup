@@ -177,7 +177,7 @@ open class Document: Element {
 
     // fast method to get first by tag name, used for html, head, body finders
     private func findFirstElementByTagName(_ tag: String, _ node: Node) -> Element? {
-        if (node.nodeName()==tag) {
+        if (node.nodeName == tag) {
             return node as? Element
         } else {
             for child: Node in node.childNodes {
@@ -205,7 +205,7 @@ open class Document: Element {
         return self
     }
 
-    open override func nodeName() -> String {
+    open override var nodeName: String {
         return "#document"
     }
 

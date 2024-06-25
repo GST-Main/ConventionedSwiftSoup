@@ -34,7 +34,7 @@ open class TextNode: Node {
 
     }
 
-    open override func nodeName() -> String {
+    open override var nodeName: String {
         return "#text"
     }
 
