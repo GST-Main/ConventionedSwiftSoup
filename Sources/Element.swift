@@ -28,9 +28,9 @@ open class Element: Node {
      * @see #appendChild(Node)
      * @see #appendElement(String)
      */
-    public init(_ tag: Tag, _ baseUri: String, _ attributes: Attributes) {
+    public init(tag: Tag, baseURI: String, attributes: Attributes) {
         self.tag = tag
-        super.init(baseURI: baseUri, attributes: attributes)
+        super.init(baseURI: baseURI, attributes: attributes)
     }
     /**
      * Create a new Element from a tag and a base URI.
@@ -40,14 +40,15 @@ open class Element: Node {
      *            string, but not null.
      * @see Tag#valueOf(String, ParseSettings)
      */
-    public init(_ tag: Tag, _ baseUri: String) {
+    public init(tag: Tag, baseURI: String) {
         self.tag = tag
-        super.init(baseURI: baseUri, attributes: Attributes())
+        super.init(baseURI: baseURI, attributes: Attributes())
     }
 
     open override var nodeName: String {
         return tag.getName()
     }
+    
     /**
      * Get the name of the tag for this element. E.g. {@code div}
      *
@@ -348,7 +349,7 @@ open class Element: Node {
      */
     @discardableResult
     public func appendElement(tagName: String) throws -> Element {
-        let child = Element(try Tag.valueOf(tagName), baseURI!)
+        let child = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
         try appendChild(child)
         return child
     }
@@ -362,7 +363,7 @@ open class Element: Node {
      */
     @discardableResult
     public func prependElement(tagName: String) throws -> Element {
-        let child: Element = Element(try Tag.valueOf(tagName), baseURI!)
+        let child: Element = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
         try prependChild(child)
         return child
     }
@@ -1209,7 +1210,7 @@ open class Element: Node {
         if tagName == "textarea" {
             return text
         } else {
-            return try? getAttribute(key: "value")
+            return getAttribute(key: "value")
         }
     }
 
@@ -1309,12 +1310,12 @@ open class Element: Node {
 	}
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Element(tag, baseURI!, attributes!)
+		let clone = Element(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Element(tag, baseURI!, attributes!)
+		let clone = Element(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone, parent: parent)
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {

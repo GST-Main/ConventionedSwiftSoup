@@ -92,7 +92,7 @@ class HtmlTreeBuilder: TreeBuilder {
                     tokeniser.transition(TokeniserState.Data)
             }
 
-            root = try Element(Tag.valueOf("html", settings), baseUri)
+            root = try Element(tag: Tag.valueOf("html", settings), baseURI: baseUri)
             try Validate.notNull(obj: root)
             try doc.appendChild(root!)
             stack.append(root!)
@@ -199,14 +199,14 @@ class HtmlTreeBuilder: TreeBuilder {
             return el
         }
         try Validate.notNull(obj: startTag._attributes)
-        let el: Element = try Element(Tag.valueOf(startTag.name(), settings), baseUri, settings.normalizeAttributes(startTag._attributes))
+        let el: Element = try Element(tag: Tag.valueOf(startTag.name(), settings), baseURI: baseUri, attributes: settings.normalizeAttributes(startTag._attributes))
         try insert(el)
         return el
     }
 
     @discardableResult
     func insertStartTag(_ startTagName: String)throws->Element {
-        let el: Element = try Element(Tag.valueOf(startTagName, settings), baseUri)
+        let el: Element = try Element(tag: Tag.valueOf(startTagName, settings), baseURI: baseUri)
         try insert(el)
         return el
     }
@@ -220,7 +220,7 @@ class HtmlTreeBuilder: TreeBuilder {
     func insertEmpty(_ startTag: Token.StartTag)throws->Element {
         let tag: Tag = try Tag.valueOf(startTag.name(), settings)
         try Validate.notNull(obj: startTag._attributes)
-        let el: Element = Element(tag, baseUri, startTag._attributes)
+        let el: Element = Element(tag: tag, baseURI: baseUri, attributes: startTag._attributes)
         try insertNode(el)
         if (startTag.isSelfClosing()) {
             if (tag.isKnownTag()) {
@@ -238,7 +238,7 @@ class HtmlTreeBuilder: TreeBuilder {
     func insertForm(_ startTag: Token.StartTag, _ onStack: Bool)throws->FormElement {
         let tag: Tag = try Tag.valueOf(startTag.name(), settings)
         try Validate.notNull(obj: startTag._attributes)
-        let el: FormElement = FormElement(tag, baseUri, startTag._attributes)
+        let el: FormElement = FormElement(tag: tag, baseURI: baseUri, attributes: startTag._attributes)
         setFormElement(el)
         try insertNode(el)
         if (onStack) {

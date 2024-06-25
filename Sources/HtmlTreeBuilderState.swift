@@ -697,7 +697,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                     break
                                 }
 
-                                let replacement: Element = try Element(Tag.valueOf(node!.nodeName, ParseSettings.preserveCase), tb.getBaseUri())
+                                let replacement: Element = try Element(tag: Tag.valueOf(node!.nodeName, ParseSettings.preserveCase), baseURI: tb.getBaseUri())
                                 // case will follow the original node (so honours ParseSettings)
                                 try tb.replaceActiveFormattingElement(node!, replacement)
                                 try tb.replaceOnStack(node!, replacement)
@@ -727,7 +727,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                 try commonAncestor!.appendChild(lastNode!)
                             }
 
-                            let adopter: Element = Element(formatEl!.tag, tb.getBaseUri())
+                            let adopter: Element = Element(tag: formatEl!.tag, baseURI: tb.getBaseUri())
                             adopter.getAttributes()?.addAll(incoming: formatEl!.getAttributes())
                             let childNodes: [Node] = furthestBlock!.getChildNodes()
                             for childNode: Node in childNodes {

@@ -27,16 +27,16 @@ class NodeTest: XCTestCase {
 			try attribs.put("relHref", "/foo")
 			try attribs.put("absHref", "http://bar/qux")
 
-			let noBase: Element = Element(tag, "", attribs)
+			let noBase: Element = Element(tag: tag, baseURI: "", attributes: attribs)
 			XCTAssertEqual("", try noBase.absoluteURLPath(ofAttribute: "relHref")) // with no base, should NOT fallback to href attrib, whatever it is
 			XCTAssertEqual("http://bar/qux", try noBase.absoluteURLPath(ofAttribute: "absHref")) // no base but valid attrib, return attrib
 
-			let withBase: Element = Element(tag, "http://foo/", attribs)
+			let withBase: Element = Element(tag: tag, baseURI: "http://foo/", attributes: attribs)
 			XCTAssertEqual("http://foo/foo", try withBase.absoluteURLPath(ofAttribute: "relHref")) // construct abs from base + rel
 			XCTAssertEqual("http://bar/qux", try withBase.absoluteURLPath(ofAttribute: "absHref")) // href is abs, so returns that
 			XCTAssertEqual("", try withBase.absoluteURLPath(ofAttribute: "noval"))
 
-			let dodgyBase: Element = Element(tag, "wtf://no-such-protocol/", attribs)
+			let dodgyBase: Element = Element(tag: tag, baseURI: "wtf://no-such-protocol/", attributes: attribs)
 			XCTAssertEqual("http://bar/qux", try dodgyBase.absoluteURLPath(ofAttribute: "absHref")) // base fails, but href good, so get that
 			//TODO:Nabil in swift an url with scheme wtf is valid , find a method to validate schemes
 			//XCTAssertEqual("", try dodgyBase.absUrl("relHref")); // base fails, only rel href, so return nothing
@@ -223,7 +223,7 @@ class NodeTest: XCTestCase {
 	func testBefore() {
 		do {
 			let doc: Document = try SwiftSoup.parse("<p>One <b>two</b> three</p>")
-			let newNode: Element =  Element(try Tag.valueOf("em"), "")
+			let newNode: Element =  Element(tag: try Tag.valueOf("em"), baseURI: "")
 			try newNode.appendText("four")
 
 			try doc.select(cssQuery: "b").first()?.before(newNode)
@@ -239,7 +239,7 @@ class NodeTest: XCTestCase {
 	func testAfter() {
 		do {
 			let doc: Document = try SwiftSoup.parse("<p>One <b>two</b> three</p>")
-			let newNode: Element = Element(try Tag.valueOf("em"), "")
+			let newNode: Element = Element(tag: try Tag.valueOf("em"), baseURI: "")
 			try newNode.appendText("four")
 
 			try _ = doc.select(cssQuery: "b").first()?.after(newNode)
@@ -308,8 +308,8 @@ class NodeTest: XCTestCase {
 
 	func testOrphanNodeReturnsNullForSiblingElements() {
 		do {
-			let node: Node = Element(try Tag.valueOf("p"), "")
-			let el: Element = Element(try Tag.valueOf("p"), "")
+			let node: Node = Element(tag: try Tag.valueOf("p"), baseURI: "")
+			let el: Element = Element(tag: try Tag.valueOf("p"), baseURI: "")
 
 			XCTAssertEqual(0, node.siblingIndex)
 			XCTAssertEqual(0, node.siblingNodes().count)

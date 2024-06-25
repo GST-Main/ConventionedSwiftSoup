@@ -26,7 +26,7 @@ open class Document: Element {
      */
     public init(baseURI: String) {
         self.location = baseURI
-        super.init(try! Tag.valueOf("#root", ParseSettings.htmlDefault), baseURI)
+        super.init(tag: try! Tag.valueOf("#root", ParseSettings.htmlDefault), baseURI: baseURI)
     }
 
     /**
@@ -91,7 +91,7 @@ open class Document: Element {
      @return new element
      */
     public func createElement(withTagName tagName: String) throws -> Element {
-        return try Element(Tag.valueOf(tagName, ParseSettings.preserveCase), self.baseURI!)
+        return try Element(tag: Tag.valueOf(tagName, ParseSettings.preserveCase), baseURI: self.baseURI!)
     }
 
     /**

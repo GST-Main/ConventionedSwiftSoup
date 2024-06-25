@@ -22,8 +22,8 @@ public class FormElement: Element {
      * @param baseUri    the base URI
      * @param attributes initial attributes
      */
-    public override init(_ tag: Tag, _ baseUri: String, _ attributes: Attributes) {
-        super.init(tag, baseUri, attributes)
+    public override init(tag: Tag, baseURI baseUri: String, attributes: Attributes) {
+        super.init(tag: tag, baseURI: baseUri, attributes: attributes)
     }
 
     /**
@@ -107,12 +107,12 @@ public class FormElement: Element {
 //    }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = FormElement(tag, baseURI!, attributes!)
+		let clone = FormElement(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = FormElement(tag, baseURI!, attributes!)
+		let clone = FormElement(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone, parent: parent)
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {

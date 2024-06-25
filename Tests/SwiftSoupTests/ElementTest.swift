@@ -221,7 +221,7 @@ class ElementTest: XCTestCase {
     func testHasClassDomMethods()throws {
         let tag: Tag = try Tag.valueOf("a")
         let attribs: Attributes = Attributes()
-        let el: Element = Element(tag, "", attribs)
+        let el: Element = Element(tag: tag, baseURI: "", attributes: attribs)
 
         try attribs.put("class", "toto")
         var hasClass = el.hasClass(named: "toto")
@@ -369,7 +369,7 @@ class ElementTest: XCTestCase {
 	}
 
 	func testAddBooleanAttribute()throws {
-		let div: Element = try Element(Tag.valueOf("div"), "")
+		let div: Element = try Element(tag: Tag.valueOf("div"), baseURI: "")
 
 		try div.setAttribute(key: "true", value: true)
 
@@ -920,11 +920,11 @@ class ElementTest: XCTestCase {
 	}
 
 	func testHashcodeIsStableWithContentChanges()throws {
-		let root: Element = try Element(Tag.valueOf("root"), "")
+		let root: Element = try Element(tag: Tag.valueOf("root"), baseURI: "")
 		let set = OrderedSet<Element>()
 		// Add root node:
 		set.append(root)
-		try root.appendChild(Element(Tag.valueOf("a"), ""))
+		try root.appendChild(Element(tag: Tag.valueOf("a"), baseURI: ""))
 		XCTAssertTrue(set.contains(root))
 	}
 

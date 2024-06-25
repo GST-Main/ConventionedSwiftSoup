@@ -132,7 +132,7 @@ extension Cleaner {
             let enforcedAttrs = try whitelist.getEnforcedAttributes(sourceTag)
             destAttrs.addAll(incoming: enforcedAttrs)
 
-            let dest = try Element(Tag.valueOf(sourceTag), sourceEl.baseURI!, destAttrs)
+            let dest = try Element(tag: Tag.valueOf(sourceTag), baseURI: sourceEl.baseURI!, attributes: destAttrs)
             return ElementMeta(dest, numDiscarded)
         }
 	}
