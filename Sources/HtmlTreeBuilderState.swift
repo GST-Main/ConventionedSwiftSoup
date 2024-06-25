@@ -415,7 +415,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             return false // ignore frameset
                         } else {
                             let second: Element = stack[1]
-                            if (second.parent() != nil) {
+                            if (second.parent != nil) {
                                 try second.remove()
                             }
                             // pop up to html element
@@ -707,7 +707,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                                     // todo: move the aforementioned bookmark to be immediately after the node in the list of active formatting elements.
                                     // not getting how self bookmark both straddles the element above, but is inbetween here...
                                 }
-                                if (lastNode!.parent() != nil) {
+                                if (lastNode!.parent != nil) {
                                     try lastNode?.remove()
                                 }
                                 try node!.appendChild(lastNode!)
@@ -716,12 +716,12 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             }
 
                             if Constants.InBodyEndTableFosters.contains(commonAncestor!.nodeName()) {
-                                if (lastNode!.parent() != nil) {
+                                if (lastNode!.parent != nil) {
                                     try lastNode!.remove()
                                 }
                                 try tb.insertInFosterParent(lastNode!)
                             } else {
-                                if (lastNode!.parent() != nil) {
+                                if (lastNode!.parent != nil) {
                                     try lastNode!.remove()
                                 }
                                 try commonAncestor!.appendChild(lastNode!)

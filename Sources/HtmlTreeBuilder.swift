@@ -756,8 +756,8 @@ class HtmlTreeBuilder: TreeBuilder {
         let lastTable: Element? = getFromStack("table")
         var isLastTableParent: Bool = false
         if let lastTable = lastTable {
-            if (lastTable.parent() != nil) {
-                fosterParent = lastTable.parent()!
+            if (lastTable.parent != nil) {
+                fosterParent = lastTable.parent!
                 isLastTableParent = true
             } else {
                 fosterParent = aboveOnStack(lastTable)

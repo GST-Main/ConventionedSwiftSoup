@@ -387,7 +387,7 @@ open class Evaluator {
     public final class IsLastChild: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
 
-            if let parent = element.parent() {
+            if let parent = element.parent {
                 let index = element.elementSiblingIndex
                 return !(parent is Document) && index == (parent.getChildNodes().count - 1)
             }
@@ -431,7 +431,7 @@ open class Evaluator {
         }
 
         open override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let p: Element? = element.parent()
+            let p: Element? = element.parent
             if (p == nil || (((p as? Document) != nil))) {return false}
 
             let pos: Int = try calculatePosition(root, element)
@@ -491,7 +491,7 @@ open class Evaluator {
         public override func calculatePosition(_ root: Element, _ element: Element)throws->Int {
             var i = 0
 
-            if let l = element.parent() {
+            if let l = element.parent {
                 i = l.children.count
             }
             return i - element.elementSiblingIndex
@@ -513,7 +513,7 @@ open class Evaluator {
 
         open override func calculatePosition(_ root: Element, _ element: Element) -> Int {
             var pos = 0
-            let family: Elements? = element.parent()?.children
+            let family: Elements? = element.parent?.children
             if let array = family {
                 for el in array {
                     if (el.tag == element.tag) {pos+=1}
@@ -537,7 +537,7 @@ open class Evaluator {
 
         open override func calculatePosition(_ root: Element, _ element: Element)throws->Int {
             var pos = 0
-            if let family = element.parent()?.children {
+            if let family = element.parent?.children {
                 let x = element.elementSiblingIndex
                 for i in x..<family.count {
                     if (family.get(index: i)?.tag == element.tag) { // TODO: Check this optional chaining
@@ -559,7 +559,7 @@ open class Evaluator {
      */
     public final class IsFirstChild: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let p = element.parent()
+            let p = element.parent
             if(p != nil && !(((p as? Document) != nil))) {
                 return element.elementSiblingIndex == 0
             }
@@ -588,7 +588,7 @@ open class Evaluator {
 
     public final class IsOnlyChild: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let p = element.parent()
+            let p = element.parent
             return p != nil && !((p as? Document) != nil) && element.siblingElements.count == 0
         }
         public override func toString() -> String {
@@ -598,7 +598,7 @@ open class Evaluator {
 
     public final class IsOnlyOfType: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let p = element.parent()
+            let p = element.parent
             if (p == nil || (p as? Document) != nil) {return false}
 
             var pos = 0

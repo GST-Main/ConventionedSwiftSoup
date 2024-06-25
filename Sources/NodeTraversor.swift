@@ -34,7 +34,7 @@ class NodeTraversor {
                 depth+=1
             } else {
                 while (node!.nextSibling() == nil && depth > 0) {
-                    let parent = node!.getParentNode()
+                    let parent = node!.parentNode
                     try visitor.tail(node!, depth)
                     node = parent
                     depth-=1

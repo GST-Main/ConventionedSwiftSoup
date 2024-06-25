@@ -96,8 +96,8 @@ open class TextNode: Node {
         let tail: String = getWholeText().substring(offset)
         text(head)
         let tailNode: TextNode = TextNode(tail, self.baseURI!)
-        if (parent() != nil) {
-            try parent()?.addChildren(siblingIndex+1, tailNode)
+        if (parent != nil) {
+            try parent?.addChildren(siblingIndex+1, tailNode)
         }
         return tailNode
     }
@@ -109,7 +109,7 @@ open class TextNode: Node {
             indent(accum, depth, out)
 		}
 
-        let par: Element? = parent() as? Element
+        let par: Element? = parent as? Element
         let normaliseWhite = out.prettyPrint() && par != nil && !Element.preserveWhitespace(par!)
 
         Entities.escape(accum, getWholeText(), out, false, normaliseWhite, false)

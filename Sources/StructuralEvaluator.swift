@@ -75,7 +75,7 @@ public class StructuralEvaluator: Evaluator {
                 return false
             }
 
-            var parent = element.parent()
+            var parent = element.parent
             while (true) {
                 do {
                     if let p = parent, try evaluator.matches(root, p) {
@@ -86,7 +86,7 @@ public class StructuralEvaluator: Evaluator {
                 if (parent == root) {
                     break
                 }
-                parent = parent?.parent()
+                parent = parent?.parent
             }
             return false
         }
@@ -106,7 +106,7 @@ public class StructuralEvaluator: Evaluator {
                 return false
             }
 
-            if let parent = element.parent() {
+            if let parent = element.parent {
                 do {
                     return try evaluator.matches(root, parent)
                 } catch {}

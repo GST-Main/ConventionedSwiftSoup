@@ -143,7 +143,7 @@ open class Element: Node {
         attributes!.dataset()
     }
 
-    open override func parent() -> Element? {
+    open override var parent:Element? {
         return parentNode as? Element
     }
 
@@ -158,7 +158,7 @@ open class Element: Node {
     }
 
     private static func accumulateParents(_ el: Element, _ parents: Elements) {
-        let parent: Element? = el.parent()
+        let parent: Element? = el.parent
         if (parent != nil && !(parent!.tagName == Element.rootString)) {
             parents.append(parent!)
             accumulateParents(parent!, parents)
@@ -511,17 +511,17 @@ open class Element: Node {
             selector.append(classes)
         }
 
-        if (parent() == nil || ((parent() as? Document) != nil)) // don't add Document to selector, as will always have a html node
+        if (parent == nil || ((parent as? Document) != nil)) // don't add Document to selector, as will always have a html node
         {
             return selector
         }
 
         selector.insert(contentsOf: " > ", at: selector.startIndex)
-        if (parent()!.select(cssQuery: selector).count > 1) {
+        if (parent!.select(cssQuery: selector).count > 1) {
             selector.append(":nth-child(\(elementSiblingIndex + 1))")
         }
 
-        return parent()!.cssSelector + (selector)
+        return parent!.cssSelector + (selector)
     }
 
     /**
@@ -532,7 +532,7 @@ open class Element: Node {
     public var siblingElements: Elements {
         if (parentNode == nil) {return Elements()}
 
-        if let elements = parent()?.children {
+        if let elements = parent?.children {
             return elements.copy() as! Elements
         } else {
             return Elements()
@@ -549,7 +549,7 @@ open class Element: Node {
      * @see #previousElementSibling()
      */
     public var nextSiblingElement: Element? {
-        guard let parent = parent() else {
+        guard let parent = parent else {
             return nil
         }
         let siblings = parent.children
@@ -566,7 +566,7 @@ open class Element: Node {
      * @see #nextElementSibling()
      */
     public var previousSiblingElement: Element? {
-        guard let parent = parent() else {
+        guard let parent = parent else {
             return nil
         }
         let siblings = parent.children
@@ -582,7 +582,7 @@ open class Element: Node {
      * @return the first sibling that is an element (aka the parent's first element child)
      */
     public var firstSiblingElement: Element? {
-        return parent()?.children.first
+        return parent?.children.first
     }
 
     /*
@@ -591,7 +591,7 @@ open class Element: Node {
      * @return position in element sibling list
      */
     public var elementSiblingIndex: Int {
-        guard let parent = parent() else {
+        guard let parent = parent else {
             return 0
         }
         return parent.children.firstIndex(of: self)!
@@ -602,7 +602,7 @@ open class Element: Node {
      * @return the last sibling that is an element (aka the parent's last element child)
      */
     public var lastSiblingElement: Element? {
-        return parent()?.children.last
+        return parent?.children.last
     }
 
     // MARK: `getElemntsBy...` Methods
@@ -1010,7 +1010,7 @@ open class Element: Node {
     static func preserveWhitespace(_ node: Node?) -> Bool {
         // looks only at this element and one level up, to prevent recursion & needless stack searches
         if let element = (node as? Element) {
-            return element.tag.preserveWhitespace() || element.parent() != nil && element.parent()!.tag.preserveWhitespace()
+            return element.tag.preserveWhitespace() || element.parent != nil && element.parent!.tag.preserveWhitespace()
         }
         return false
     }
@@ -1229,7 +1229,7 @@ open class Element: Node {
     }
 
     override func outerHtmlHead(_ accum: StringBuilder, _ depth: Int, _ out: OutputSettings)throws {
-        if (out.prettyPrint() && (tag.formatAsBlock() || (parent() != nil && parent()!.tag.formatAsBlock()) || out.outline())) {
+        if (out.prettyPrint() && (tag.formatAsBlock() || (parent != nil && parent!.tag.formatAsBlock()) || out.outline())) {
             if !accum.isEmpty {
                 indent(accum, depth, out)
             }

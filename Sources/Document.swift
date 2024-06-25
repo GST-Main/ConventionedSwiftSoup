@@ -175,7 +175,7 @@ open class Document: Element {
             }
         }
         // ensure parented by <html>
-        if (!(master != nil && master!.parent() != nil && master!.parent()!.equals(htmlEl))) {
+        if (!(master != nil && master!.parent != nil && master!.parent!.equals(htmlEl))) {
             try htmlEl.appendChild(master!) // includes remove()
         }
     }

@@ -241,15 +241,7 @@ open class Node: Equatable, Hashable {
      Gets this node's parent node.
      @return parent node or null if no parent.
      */
-    open func parent() -> Node? {
-        return parentNode
-    }
-
-    /**
-     Gets this node's parent node. Node overridable by extending classes, so useful if you really just need the Node type.
-     @return parent node or null if no parent.
-     */
-    final func getParentNode() -> Node? {
+    open var parent: Node? {
         return parentNode
     }
 
@@ -331,7 +323,7 @@ open class Node: Equatable, Hashable {
     private func addSiblingHtml(_ index: Int, _ html: String)throws {
         try Validate.notNull(obj: parentNode)
 
-        let context: Element? = parent() as? Element
+        let context: Element? = parent as? Element
 
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         try parentNode?.addChildren(index, nodes)
@@ -368,7 +360,7 @@ open class Node: Equatable, Hashable {
         try Validate.notNull(obj: html)
         try Validate.notNull(obj: parentNode)
 
-        let context: Element? = parent() as? Element
+        let context: Element? = parent as? Element
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         try parentNode?.addChildren(index, nodes)
     }
@@ -382,7 +374,7 @@ open class Node: Equatable, Hashable {
     open func wrap(_ html: String)throws -> Node? {
         try Validate.notEmpty(string: html)
 
-        let context: Element? = parent() as? Element
+        let context: Element? = parent as? Element
         var wrapChildren: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         let wrapNode: Node? = wrapChildren.count > 0 ? wrapChildren[0] : nil
         if (wrapNode == nil || !(((wrapNode as? Element) != nil))) { // nothing to wrap with; noop

@@ -95,7 +95,7 @@ extension Cleaner {
 				let destText = TextNode(sourceText.getWholeText(), source.baseURI!)
 				try destination?.appendChild(destText)
 			} else if let sourceData = source as? DataNode {
-				if sourceData.parent() != nil && whitelist.isSafeTag(sourceData.parent()!.nodeName()) {
+				if sourceData.parent != nil && whitelist.isSafeTag(sourceData.parent!.nodeName()) {
 					let destData =  DataNode(sourceData.getWholeData(), source.baseURI!)
 					try destination?.appendChild(destData)
                 } else {
@@ -110,7 +110,7 @@ extension Cleaner {
 			if let x = source as? Element {
 				if whitelist.isSafeTag(x.nodeName()) {
 					// would have descended, so pop destination stack
-					destination = destination?.parent()
+					destination = destination?.parent
 				}
 			}
 		}
