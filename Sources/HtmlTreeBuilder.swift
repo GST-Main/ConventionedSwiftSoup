@@ -60,7 +60,13 @@ class HtmlTreeBuilder: TreeBuilder {
     override func parse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->Document {
         _state = HtmlTreeBuilderState.Initial
         baseUriSetFromDoc = false
-        return try super.parse(input, baseUri, errors, settings)
+        do {
+            return try super.parse(input, baseUri, errors, settings)
+        } catch is SwiftSoupError {
+            throw SwiftSoupError.failedToParseHTML
+        } catch {
+            throw error
+        }
     }
 
     func parseFragment(_ inputFragment: String, _ context: Element?, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings) throws -> [Node] {
