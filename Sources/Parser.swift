@@ -139,10 +139,10 @@ public class Parser {
             clean.outputSettings = settings
         }
         guard let body = clean.body else {
-            throw IllegalArgumentError(message: "No body fragment after cleaning")
+            throw SwiftSoupError(message: "No body fragment after cleaning")
         }
         guard let html = body.html else {
-            throw IllegalArgumentError(message: "Illegal HTML after cleaning")
+            throw SwiftSoupError(message: "Illegal HTML after cleaning")
         }
         return html
     }

@@ -99,7 +99,7 @@ open class Attributes: NSCopying {
      */
     open func remove(key: String) throws {
         if key.isEmpty {
-            throw IllegalArgumentError.emptyAttributeKey
+            throw SwiftSoupError.emptyAttributeKey
         }
         
         if let ix = attributes.firstIndex(where: { $0.getKey() == key }) {
@@ -113,7 +113,7 @@ open class Attributes: NSCopying {
      */
     open func removeIgnoreCase(key: String) throws {
         if key.isEmpty {
-            throw IllegalArgumentError.emptyAttributeKey
+            throw SwiftSoupError.emptyAttributeKey
         }
         
         if let ix = attributes.firstIndex(where: { $0.getKey().caseInsensitiveCompare(key) == .orderedSame}) {

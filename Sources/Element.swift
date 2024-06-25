@@ -72,7 +72,7 @@ open class Element: Node {
     @discardableResult
     public func setTagName(_ tagName: String) throws -> Element {
         if tagName.isEmpty {
-            throw IllegalArgumentError.emptyTagName
+            throw SwiftSoupError.emptyTagName
         }
         tag = try Tag.valueOf(tagName, ParseSettings.preserveCase) // preserve the requested tag case
         return self
@@ -337,7 +337,7 @@ open class Element: Node {
             index += currentSize + 1
         } // roll around
         guard index >= 0 && index <= currentSize else {
-            throw IllegalArgumentError.indexOutOfBounds
+            throw SwiftSoupError.indexOutOfBounds
         }
 
         super.insertChildren(children, at: index)

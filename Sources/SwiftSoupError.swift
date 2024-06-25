@@ -1,10 +1,6 @@
 import Foundation
 
-protocol SwiftSoupError: Error {
-    
-}
-
-public struct IllegalArgumentError: SwiftSoupError {
+public struct SwiftSoupError: Error {
     var localizedDescription: String
     
     init(message: String) {
@@ -20,12 +16,4 @@ public struct IllegalArgumentError: SwiftSoupError {
     static let noHTMLElementsToWrap = Self(message: "No HTML elements to wrap")
     static let noChildrenToUnwrap = Self(message: "No children elements to unwrap")
     static let indexOutOfBounds = Self(message: "Index out of bounds")
-}
-
-public struct SelectorParseError: SwiftSoupError {
-    var localizedDescription: String
-    
-    init(message: String) {
-        localizedDescription = message
-    }
 }

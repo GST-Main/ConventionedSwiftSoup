@@ -152,7 +152,7 @@ open class Document: Element {
     // merge multiple <head> or <body> contents into one, delete the remainder, and ensure they are owned by <html>
     private func normaliseStructure(_ tag: String, _ htmlEl: Element) throws {
         guard let elements: Elements = self.getElementsByTag(tag) else {
-            throw IllegalArgumentError(message: "Cannot get elements") // FIXME: fixme
+            throw SwiftSoupError(message: "Cannot get elements") // FIXME: fixme
         }
         let master: Element? = elements.first // will always be available as created above if not existent
         if (elements.count > 1) { // dupes, move contents to master

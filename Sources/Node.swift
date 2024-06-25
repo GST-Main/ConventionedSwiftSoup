@@ -284,7 +284,7 @@ open class Node: Equatable, Hashable {
     @discardableResult
     open func insertNodeAsPreviousSibling(_ node: Node) throws -> Node {
         guard let parentNode else {
-            throw IllegalArgumentError.noParentNode
+            throw SwiftSoupError.noParentNode
         }
 
         parentNode.insertChildren(node, at: siblingIndex)
@@ -312,7 +312,7 @@ open class Node: Equatable, Hashable {
     @discardableResult
     open func insertNodeAsNextSibling(_ node: Node) throws -> Node {
         guard let parentNode else {
-            throw IllegalArgumentError.noParentNode
+            throw SwiftSoupError.noParentNode
         }
 
         parentNode.insertChildren(node, at: siblingIndex + 1)
@@ -321,7 +321,7 @@ open class Node: Equatable, Hashable {
 
     open func insertSiblingHTML(_ html: String, at index: Int) throws {
         guard let parentNode else {
-            throw IllegalArgumentError.noParentNode
+            throw SwiftSoupError.noParentNode
         }
 
         let context: Element? = parent as? Element
@@ -337,13 +337,13 @@ open class Node: Equatable, Hashable {
     @discardableResult
     open func wrap(html: String) throws -> Node {
         guard !html.isEmpty else {
-            throw IllegalArgumentError.emptyHTML
+            throw SwiftSoupError.emptyHTML
         }
 
         let context = parent as? Element
         var wrapChildren = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         guard wrapChildren.count > 0, let wrap = wrapChildren[0] as? Element else {
-            throw IllegalArgumentError.noHTMLElementsToWrap
+            throw SwiftSoupError.noHTMLElementsToWrap
         }
 
         let deepest: Element = getDeepChild(element: wrap)
@@ -381,10 +381,10 @@ open class Node: Equatable, Hashable {
     @discardableResult
     open func unwrap() throws -> Node {
         guard let parentNode else {
-            throw IllegalArgumentError.noParentNode
+            throw SwiftSoupError.noParentNode
         }
         guard let firstChild = childNodes.first else {
-            throw IllegalArgumentError.noChildrenToUnwrap
+            throw SwiftSoupError.noChildrenToUnwrap
         }
         
         parentNode.insertChildren(self.childNodesAsArray(), at: siblingIndex)
@@ -422,7 +422,7 @@ open class Node: Equatable, Hashable {
 
     public func replaceChildNode(_ childNode: Node, with newNode: Node) throws {
         guard childNode.parentNode === self else {
-            throw IllegalArgumentError.notChildNode
+            throw SwiftSoupError.notChildNode
         }
 
         if let parentNode = newNode.parentNode {
@@ -438,7 +438,7 @@ open class Node: Equatable, Hashable {
 
     public func removeChild(_ node: Node) throws {
         guard node.parentNode === self else {
-            throw IllegalArgumentError.notChildNode
+            throw SwiftSoupError.notChildNode
         }
 
         let index: Int = node.siblingIndex

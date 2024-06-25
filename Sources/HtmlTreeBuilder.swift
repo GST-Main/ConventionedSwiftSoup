@@ -112,7 +112,7 @@ class HtmlTreeBuilder: TreeBuilder {
         do {
             try runParser()
         } catch is SwiftSoupError {
-            throw IllegalArgumentError.failedToParseHTML
+            throw SwiftSoupError.failedToParseHTML
         } catch {
             throw error
         }

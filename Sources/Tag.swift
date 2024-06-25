@@ -65,7 +65,7 @@ open class Tag: Hashable {
         if tag == nil {
             tagName = settings.normalizeTag(tagName)
             guard !tagName.isEmpty else {
-                throw IllegalArgumentError.emptyTagName
+                throw SwiftSoupError.emptyTagName
             }
             tag = Tag.tags[tagName]
 

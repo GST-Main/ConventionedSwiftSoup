@@ -24,7 +24,7 @@ open class Attribute {
 
     public init(key: String, value: String) throws {
         if key.isEmpty {
-            throw IllegalArgumentError.emptyAttributeKey
+            throw SwiftSoupError.emptyAttributeKey
         }
         self.key = key.trim()
         self.value = value
