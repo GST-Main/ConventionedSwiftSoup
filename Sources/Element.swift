@@ -313,7 +313,7 @@ open class Element: Node {
      */
     @discardableResult
     public func prependChild(_ child: Node) throws -> Element {
-        try addChildren(0, child)
+        try insertChildren(child, at: 0)
         return self
     }
 
@@ -335,7 +335,7 @@ open class Element: Node {
         } // roll around
         try Validate.isTrue(val: index >= 0 && index <= currentSize, msg: "Insert position out of bounds.")
 
-        try addChildren(index, children)
+        try super.insertChildren(children, at: index)
         return self
     }
 
@@ -402,7 +402,7 @@ open class Element: Node {
     @discardableResult
     public func appendHTML(_ html: String) throws -> Element {
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
-        try addChildren(nodes)
+        try appendChildren(nodes)
         return self
     }
 
@@ -415,7 +415,7 @@ open class Element: Node {
     @discardableResult
     public func prependHTML(_ html: String) throws -> Element {
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
-        try addChildren(0, nodes)
+        try super.insertChildren(nodes, at: 0)
         return self
     }
 

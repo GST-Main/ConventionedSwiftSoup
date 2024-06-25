@@ -289,7 +289,7 @@ open class Node: Equatable, Hashable {
         try Validate.notNull(obj: node)
         try Validate.notNull(obj: parentNode)
 
-        try parentNode?.addChildren(siblingIndex, node)
+        try parentNode?.insertChildren(node, at: siblingIndex)
         return self
     }
 
@@ -316,7 +316,7 @@ open class Node: Equatable, Hashable {
         try Validate.notNull(obj: node)
         try Validate.notNull(obj: parentNode)
 
-        try parentNode?.addChildren(siblingIndex+1, node)
+        try parentNode?.insertChildren(node, at: siblingIndex + 1)
         return self
     }
 
@@ -327,7 +327,7 @@ open class Node: Equatable, Hashable {
         let context: Element? = parent as? Element
 
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
-        try parentNode?.addChildren(index, nodes)
+        try parentNode?.insertChildren(nodes, at: index)
     }
 
     /**
@@ -350,7 +350,7 @@ open class Node: Equatable, Hashable {
         let deepest: Element = getDeepChild(element: wrap)
         try parentNode?.replaceChildNode(self, with: wrap)
 		wrapChildren = wrapChildren.filter { $0 != wrap}
-        try deepest.addChildren(self)
+        try deepest.appendChildren(self)
 
         // remainder (unbalanced wrap, like <div></div><p></p> -- The <p> is remainder
         if (wrapChildren.count > 0) {
@@ -386,7 +386,7 @@ open class Node: Equatable, Hashable {
             fatalError() // FIXME: throw error
         }
         let firstChild: Node = childNodes[0]
-        try parentNode?.addChildren(siblingIndex, self.childNodesAsArray())
+        try parentNode?.insertChildren(self.childNodesAsArray(), at: siblingIndex)
         try self.remove()
 
         return firstChild
@@ -440,12 +440,12 @@ open class Node: Equatable, Hashable {
         node.parentNode = nil
     }
 
-    public func addChildren(_ children: Node...)throws {
+    public func appendChildren(_ children: Node...) throws {
         //most used. short circuit addChildren(int), which hits reindex children and array copy
-        try addChildren(children)
+        try appendChildren(children)
     }
 
-    public func addChildren(_ children: [Node])throws {
+    public func appendChildren(_ children: [Node]) throws {
         //most used. short circuit addChildren(int), which hits reindex children and array copy
         for child in children {
             try reparentChild(child)
@@ -455,11 +455,11 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    public func addChildren(_ index: Int, _ children: Node...)throws {
-        try addChildren(index, children)
+    public func insertChildren(_ children: Node..., at index: Int) throws {
+        try insertChildren(children, at: index)
     }
 
-    public func addChildren(_ index: Int, _ children: [Node])throws {
+    public func insertChildren(_ children: [Node], at index: Int) throws {
         ensureChildNodes()
         for i in (0..<children.count).reversed() {
             let input: Node = children[i]
@@ -470,16 +470,17 @@ open class Node: Equatable, Hashable {
     }
 
     public func ensureChildNodes() {
-//        if (childNodes === Node.EMPTY_NODES) {
-//            childNodes = Array<Node>()
-//        }
+        // What is this for?
+        if childNodes == Node.EMPTY_NODES {
+            childNodes = Array<Node>()
+        }
     }
 
-    public func reparentChild(_ child: Node)throws {
-        if (child.parentNode != nil) {
-            try child.parentNode?.removeChild(child)
+    public func reparentChild(_ childNode: Node) throws {
+        if childNode.parentNode != nil {
+            try childNode.parentNode?.removeChild(childNode)
         }
-        try child.setParentNode(self)
+        try childNode.setParentNode(self)
     }
 
     private func reindexChildren(_ start: Int) {
