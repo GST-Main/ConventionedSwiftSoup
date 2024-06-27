@@ -212,7 +212,7 @@ class ElementTest: XCTestCase {
 		XCTAssertTrue(classes.contains("mellow"))
 		XCTAssertTrue(classes.contains("yellow"))
 
-		XCTAssertEqual("", doc.className)
+		XCTAssertEqual(nil, doc.className)
 		classes = doc.classNames
 		XCTAssertEqual(0, classes.count)
 		XCTAssertFalse(doc.hasClass(named: "mellow"))
@@ -377,7 +377,7 @@ class ElementTest: XCTestCase {
 		try div.setAttribute(key: "false", value: false)
 
 		XCTAssertTrue(div.hasAttribute(withKey: "true"))
-		XCTAssertEqual("", div.getAttribute(key: "true"))
+		XCTAssertEqual(nil, div.getAttribute(key: "true"))
 
 		let attributes: Array<Attribute> = div.getAttributes()!.asList()
 		XCTAssertEqual(1, attributes.count)
@@ -963,7 +963,8 @@ class ElementTest: XCTestCase {
 			("testKeepsPreTextInCode", testKeepsPreTextInCode),
 			("testBrHasSpace", testBrHasSpace),
 			("testGetSiblings", testGetSiblings),
-			("testGetSiblingsWithDuplicateContent", testGetSiblingsWithDuplicateContent),
+            ("testGetSiblingsWithDuplicateContent", testGetSiblingsWithDuplicateContent),
+			("testGetAncestors", testGetAncestors),
 			("testElementSiblingIndex", testElementSiblingIndex),
 			("testElementSiblingIndexSameContent", testElementSiblingIndexSameContent),
 			("testGetElementsWithClass", testGetElementsWithClass),

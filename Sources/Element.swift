@@ -538,7 +538,8 @@ open class Element: Node {
         if (parentNode == nil) {return Elements()}
 
         if let elements = parent?.children {
-            return elements.copy() as! Elements
+            let selfExcluded = elements.filter { $0 != self }
+            return Elements(selfExcluded)
         } else {
             return Elements()
         }
@@ -1131,7 +1132,7 @@ open class Element: Node {
      */
     @discardableResult
     public func setClass(names: OrderedSet<String>) -> Element {
-        try! attributes?.put(Element.classString, StringUtil.join(classNames, sep: " "))
+        try! attributes?.put(Element.classString, StringUtil.join(names, sep: " "))
         return self
     }
 

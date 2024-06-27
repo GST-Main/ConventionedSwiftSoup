@@ -24,7 +24,10 @@ class FormElementTest: XCTestCase {
 		//"button", "fieldset", "input", "keygen", "object", "output", "select", "textarea"
 		let html = "<form id=1><button id=1><fieldset id=2 /><input id=3><keygen id=4><object id=5><output id=6>" +
 		"<select id=7><option></select><textarea id=8><p id=9>"
-		let doc: Document = Parser.parseHTML(html)!
+        guard let doc: Document = Parser.parseHTML(html) else {
+            XCTFail()
+            return
+        }
 
 		let form: FormElement = doc.select(cssQuery: "form").first! as! FormElement
 		XCTAssertEqual(8, form.elements().count)

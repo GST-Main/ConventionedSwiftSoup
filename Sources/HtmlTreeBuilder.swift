@@ -132,7 +132,7 @@ class HtmlTreeBuilder: TreeBuilder {
     @discardableResult
     public override func process(_ token: Token)throws->Bool {
 		currentToken = token
-		return try self._state.process(token, self)
+		return try! self._state.process(token, self)
 	}
 
 	@discardableResult
@@ -177,10 +177,10 @@ class HtmlTreeBuilder: TreeBuilder {
         if baseUriSetFromDoc { // only listen to the first <base href> in parse
             return
         }
-
         guard let href = base.absoluteURLPath(ofAttribute: "href") else {
-            fatalError("FIXME") // FIXME: Throw error
+            throw SwiftSoupError.noHref
         }
+        
         if href.count != 0 { // ignore <base target> etc
             baseUri = href
             baseUriSetFromDoc = true

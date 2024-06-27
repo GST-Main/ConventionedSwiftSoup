@@ -516,8 +516,6 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                             if (!attribute.equalsIgnoreCase(string: "hidden")) {
                                 tb.framesetOk(false)
                             }
-                        } else {
-                            fatalError("FIXME") // FIXME: Throw error
                         }
                     } else if Constants.InBodyStartMedia.contains(name) {
                         try tb.insertEmpty(startTag)

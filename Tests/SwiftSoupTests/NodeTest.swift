@@ -34,7 +34,7 @@ class NodeTest: XCTestCase {
 			let withBase: Element = Element(tag: tag, baseURI: "http://foo/", attributes: attribs)
 			XCTAssertEqual("http://foo/foo", withBase.absoluteURLPath(ofAttribute: "relHref")) // construct abs from base + rel
 			XCTAssertEqual("http://bar/qux", withBase.absoluteURLPath(ofAttribute: "absHref")) // href is abs, so returns that
-			XCTAssertEqual("", withBase.absoluteURLPath(ofAttribute: "noval"))
+			XCTAssertEqual(nil, withBase.absoluteURLPath(ofAttribute: "noval"))
 
 			let dodgyBase: Element = Element(tag: tag, baseURI: "wtf://no-such-protocol/", attributes: attribs)
 			XCTAssertEqual("http://bar/qux", dodgyBase.absoluteURLPath(ofAttribute: "absHref")) // base fails, but href good, so get that
@@ -229,8 +229,14 @@ class NodeTest: XCTestCase {
 			let node: Node? = try span?.unwrap()
 			XCTAssertEqual("<div>One  Two</div>", TextUtil.stripNewlines(doc.body!.html!))
 			XCTAssertTrue(node == nil)
-		} catch {
-			XCTAssertEqual(1, 2)
+        } catch let error as SwiftSoupError {
+            if error == .noChildrenToUnwrap {
+                return
+            } else {
+                XCTFail("Unknown Error:\n\(error.localizedDescription)")
+            }
+        } catch {
+            XCTFail("Unknown Error:\n\(error.localizedDescription)")
 		}
 	}
 

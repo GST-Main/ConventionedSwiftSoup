@@ -81,8 +81,8 @@ class AttributeParseTest: XCTestCase {
 		let el: Element = Parser.parseHTML(html)!.select(cssQuery: "a").first!
 
 		XCTAssertEqual("123", el.getAttribute(key: "normal"))
-		XCTAssertEqual("", el.getAttribute(key: "boolean"))
-		XCTAssertEqual("", el.getAttribute(key: "empty"))
+		XCTAssertEqual(nil, el.getAttribute(key: "boolean"))
+		XCTAssertEqual(nil, el.getAttribute(key: "empty"))
 
 		let attributes: Array<Attribute> = el.getAttributes()!.asList()
 		XCTAssertEqual(3, attributes.count, "There should be 3 attribute present")

@@ -210,7 +210,7 @@ class SelectorTest: XCTestCase {
 		XCTAssertEqual("div", els.get(index: 1)!.tagName)
 		XCTAssertEqual("bar", els.get(index: 1)!.getAttribute(key: "title"))
 		XCTAssertEqual("div", els.get(index: 2)!.tagName)
-        XCTAssertTrue(els.get(index: 2)!.getAttribute(key: "title")!.count == 0) // missing attributes come back as empty string
+        XCTAssertTrue(els.get(index: 2)!.getAttribute(key: "title") == nil) // missing attributes come back as empty string
 		XCTAssertFalse(els.get(index: 2)!.hasAttribute(withKey: "title"))
 		XCTAssertEqual("p", els.get(index: 3)!.tagName)
 		XCTAssertEqual("span", els.get(index: 4)!.tagName)

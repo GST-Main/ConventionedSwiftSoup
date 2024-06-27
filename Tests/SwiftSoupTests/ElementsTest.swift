@@ -103,7 +103,13 @@ class ElementsTest: XCTestCase {
 	}
 
 	func testVal()throws {
-		let doc: Document = Parser.parseHTML("<input value='one' /><textarea>two</textarea>")!
+        var doc: Document!
+        do {
+            doc = try Parser._parseHTML("<input value='one' /><textarea>two</textarea>")
+        } catch {
+            XCTFail(error.localizedDescription)
+            return
+        }
 		let els: Elements = doc.select(cssQuery: "input, textarea")
 		XCTAssertEqual(2, els.count)
 		XCTAssertEqual("two", els.last?.value)
@@ -150,7 +156,7 @@ class ElementsTest: XCTestCase {
 	}
 
 	func testForms()throws {
-		let doc: Document = Parser.parseHTML("<form id=1><input name=q></form><div /><form id=2><input name=f></form>")!
+        let doc: Document = Parser.parseHTML("<form id=1><input name=q></form><div /><form id=2><input name=f></form>")!
 		let els: Elements = doc.select(cssQuery: "*")
 		XCTAssertEqual(9, els.count)
 

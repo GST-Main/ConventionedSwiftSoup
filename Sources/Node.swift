@@ -81,9 +81,9 @@ open class Node: Equatable, Hashable {
         if value.count > 0 {
             return value
         } else if (key.lowercased().startsWith(Node.abs)) {
-            return nil
+            return absoluteURLPath(ofAttribute: key.substring(Node.abs.count))
         } else {
-            return Node.empty
+            return nil
         }
     }
 
