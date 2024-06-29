@@ -17,6 +17,8 @@ import Foundation
 /// For example, ``getElementById(_:)`` retrieves an ``Elements`` object consisting of ``Element`` objects whose id matches the specified id.
 ///
 /// You can modify an element using methods like ``setAttribute(key:value:)-5p0uc``, ``setClass(names:)``, ``setHTML(_:)``, etc.
+///
+/// Some properties and methods, such as ``parent`` or ``setAttribute(key:value:)-5p0uc``, from the superclass ``Node`` have been overriden. Most of these changes simply replace the type ``Node`` with ``Element``.
 open class Element: Node {
 	public internal(set) var tag: Tag
 

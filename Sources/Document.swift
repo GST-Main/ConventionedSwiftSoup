@@ -8,6 +8,38 @@
 
 import Foundation
 
+/// An ``Element`` representing an HTML document.
+///
+/// ``Document`` is a main object of ``SwiftSoup``. 
+/// In most cases, an HTML document is first parsed into a ``Document`` instance
+/// using the static method ``Parser/parseHTML(_:baseURI:)-swift.type.method`` of ``Parser``.
+/// Then, you manipulate the document with members of its superclasses or itself.
+/// ```swift
+/// let url = URL(string: "https://www.swift.org")!
+/// let data = try! Data(contentsOf: url)
+/// let html = String(data: data, encoding: .utf8)!
+/// if let document = Parser.parseHTML(html) {
+///     // do something with document...
+/// }
+/// ```
+///
+/// A ``Document`` is commonly treated as an ``Element`` since it is a subclass of ``Element``. Useful methods from ``Element`` (or even ``Node``), such as ``Element/getElementById(_:)`` or ``Element/getChild(at:)``, are also essential for ``Document``. For more information, please check ``Element`` documentation.
+/// ```swift
+/// // Get an element with id "soup"
+/// let soupElement: Element? = document.getElementById("soup")
+/// // Get the first child of the first child of a document
+/// let grandkid: Element? = document.firstChild?.firstChild
+/// // Append an element to children
+/// if let grandkid {
+///     document.appendChild(grandkid)
+/// }
+/// // Get HTML string
+/// let htmlString: String = document.html ?? ""
+/// ```
+///
+/// ``Document`` contains members specifically useful for an HTML document. 
+/// For example, you can get ``head`` and ``body`` from a document.
+/// The property ``charset`` represents which text-encoding is used to represent a document.
 open class Document: Element {
     public enum QuirksMode {
         case noQuirks, quirks, limitedQuirks
@@ -15,25 +47,17 @@ open class Document: Element {
 
     public var outputSettings = OutputSettings()
     private var _quirksMode: Document.QuirksMode = QuirksMode.noQuirks
+    /// An alias of a document's base URI.
     public let location: String
     private var updateMetaCharset: Bool = false
 
-    /**
-     Create a new, empty Document.
-     @param baseUri base URI of document
-     @see SwiftSoup#parse
-     @see #createShell
-     */
+    /// Create an empty document.
     public init(baseURI: String) {
         self.location = baseURI
         super.init(tag: try! Tag.valueOf("#root", ParseSettings.htmlDefault), baseURI: baseURI)
     }
 
-    /**
-     Create a valid, empty shell of a document, suitable for adding more elements to.
-     @param baseUri baseUri of document
-     @return document with html, head, and body elements.
-     */
+    /// Create a valid and empty shell of a document suitable for adding more elements to.
     static public func createShell(baseURI: String) -> Document {
         let doc: Document = Document(baseURI: baseURI)
         let html: Element = try! doc.appendElement(tagName: "html")
@@ -43,18 +67,12 @@ open class Document: Element {
         return doc
     }
 
-    /**
-     Accessor to the document's {@code head} element.
-     @return {@code head}
-     */
+    /// A head element of this document.
     public var head: Element? {
         findFirstElementByTagName("head", self)
     }
 
-    /**
-     Accessor to the document's {@code body} element.
-     @return {@code body}
-     */
+    /// A body element of this document.
     public var body: Element? {
         return findFirstElementByTagName("body", self)
     }
@@ -63,6 +81,8 @@ open class Document: Element {
      Get the string contents of the document's {@code title} element.
      @return Trimmed title, or empty string if none set.
      */
+    
+    /// A String value representing contents of the title element.
     public var title: String? {
         // title is a preserve whitespace tag (for document output), but normalised here
         if let titleElement = getElementsByTag("title").first {
@@ -72,11 +92,7 @@ open class Document: Element {
         }
     }
 
-    /**
-     Set the document's {@code title} element. Updates the existing element, or adds {@code title} to {@code head} if
-     not present
-     @param title string to set as title
-     */
+    /// Set this document's title.
     public func setTitle(_ title: String) {
         if let titleElement = getElementsByTag("title").first {
             titleElement.setText(title)
@@ -85,20 +101,21 @@ open class Document: Element {
         }
     }
 
-    /**
-     Create a new Element, with this document's base uri. Does not make the new element a child of this document.
-     @param tagName element tag name (e.g. {@code a})
-     @return new element
-     */
+    /// Create a new element with the given tag name.
+    ///
+    /// Create a new ``Element`` instance with the base URI of this document and the specified tag name. This method does not add the created element to this document.
+    ///
+    /// - Parameter tagName: A tag name of new element.
+    /// - Returns: A new element.
     public func createElement(withTagName tagName: String) throws -> Element {
         return try Element(tag: Tag.valueOf(tagName, ParseSettings.preserveCase), baseURI: self.baseURI!)
     }
 
-    /**
-     Normalise the document. This happens after the parse phase so generally does not need to be called.
-     Moves any text content that is not in the body element into the body.
-     @return this document after normalisation
-     */
+    /// Normalize this document.
+    ///
+    /// This happens after the parse phase so generally does not need to be called. Moves any text content that is not in the body element into the body.
+    ///
+    /// - Returns: This document after normalization.
     @discardableResult
     public func normalise() throws -> Document {
         var htmlElement = findFirstElementByTagName("html", self)
@@ -192,17 +209,15 @@ open class Document: Element {
         return super.html // no outer wrapper tag
     }
 
-    /**
-     Set the text of the {@code body} of this document. Any existing nodes within the body will be cleared.
-     @param text unencoded text
-     @return this document
-     */
     @discardableResult
     public override func setText(_ text: String) -> Element {
         body?.setText(text) // overridden to not nuke doc structure
         return self
     }
 
+    /// The node name of this node.
+    ///
+    /// In ``Document``, this is the literal "#document".
     open override var nodeName: String {
         return "#document"
     }
@@ -231,6 +246,8 @@ open class Document: Element {
      * @see #updateMetaCharsetElement(boolean)
      * @see OutputSettings#charset(java.nio.charset.Charset)
      */
+    
+    /// Set a text encoding used in this document.
     public func charset(_ charset: String.Encoding) throws {
         updateMetaCharsetElement(true)
         outputSettings.charset(charset)
