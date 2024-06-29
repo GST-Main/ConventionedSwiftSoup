@@ -82,7 +82,7 @@ open class Node: Equatable, Hashable {
     /// Set an attribute with the given key. If the attribute already exists, it will be replaced.
     ///
     /// - Parameters:
-    ///     - key: The key of an attribute to set. Must not be empty otherwise throws an ``SwiftSoupError/emptyAttributeKey`` error.
+    ///     - key: The key of an attribute to set. Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey` error.
     ///     - value: The new value of an attribute with the given key.
     ///
     /// - Returns: `self` for chaining.
@@ -113,7 +113,7 @@ open class Node: Equatable, Hashable {
     /// Remove an attribute from this node.
     ///
     /// - Parameters:
-    ///     - key: The key of an attribute to remove. Must not be empty otherwise throws an ``SwiftSoupError/emptyAttributeKey`` error.
+    ///     - key: The key of an attribute to remove. Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey`error.
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
@@ -236,11 +236,11 @@ open class Node: Equatable, Hashable {
     ///
     /// Parse the given HTML string and create a new node. Then, insert the new node as a preceding sibling of this node.
     ///
-    /// If this node doesn't have a parent, throws ``SwiftSoupError/noParentNode``. If parsing HTML is failed, throws ``SwiftSoupError/failedToParseHTML``.
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesn't have a parent.
+    /// * `SwiftSoupError.failedToParseHTML` if parsing HTML is failed.
     ///
-    /// - Parameters:
-    ///     - html: HTML string to add before this node.
-    ///
+    /// - Parameter html: HTML string to add before this node.
     /// - Returns: `self` for chaining.
     @discardableResult
     open func insertHTMLAsPreviousSibling(_ html: String) throws -> Node {
@@ -252,11 +252,10 @@ open class Node: Equatable, Hashable {
     ///
     /// Insert the given node as a preceding sibling of this node.
     ///
-    /// If this node doesn't have a parent, throws ``SwiftSoupError/noParentNode``.
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesnt't have a parent.
     ///
-    /// - Parameters:
-    ///     - node: A node to add before this node.
-    ///
+    /// - Parameter node: A node to insert.
     /// - Returns: `self` for chaining.
     @discardableResult
     open func insertNodeAsPreviousSibling(_ node: Node) throws -> Node {
@@ -272,11 +271,11 @@ open class Node: Equatable, Hashable {
     ///
     /// Parse the given HTML string and create a new node. Then, insert the new node as a following sibling of this node.
     ///
-    /// If this node doesn't have a parent, throws ``SwiftSoupError/noParentNode``. If parsing HTML is failed, throws ``SwiftSoupError/failedToParseHTML``.
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesn't have a parent.
+    /// * `SwiftSoupError.failedToParseHTML` if parsing HTML is failed.
     ///
-    /// - Parameters:
-    ///     - html: HTML string to add after this node.
-    ///
+    /// - Parameter html: HTML string to add after this node.
     /// - Returns: `self` for chaining.
     @discardableResult
     open func insertHTMLAsNextSibling(_ html: String) throws -> Node {
@@ -288,11 +287,10 @@ open class Node: Equatable, Hashable {
     ///
     /// Insert the given node as a following sibling of this node.
     ///
-    /// If this node doesn't have a parent, throws ``SwiftSoupError/noParentNode``.
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesnt't have a parent.
     ///
-    /// - Parameters:
-    ///     - node: A node to add after this node.
-    ///
+    /// - Parameter node: A node to add after this node.
     /// - Returns: `self` for chaining.
     @discardableResult
     open func insertNodeAsNextSibling(_ node: Node) throws -> Node {
@@ -325,8 +323,7 @@ open class Node: Equatable, Hashable {
 
     /// Wrap the supplied HTML around this node.
     ///
-    /// - Parameters:
-    ///     - html: HTML to wrap around this element. For example, `"<div class="head"></div>"`. Can be arbitrarily deep.
+    /// - Parameter html: HTML to wrap around this element. For example, `"<div class="head"></div>"`. Can be arbitrarily deep.
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
