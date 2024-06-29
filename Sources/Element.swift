@@ -8,6 +8,15 @@
 
 import Foundation
 
+// TODO: Code example
+/// A node representing an HTML element.
+///
+/// This is a subclass of ``Node`` that contains information about a HTML element. Access this information with properties or methods like ``className``, ``tagName``, ``text``, ``Node/getAttribute(key:)``, etc.
+///
+/// Use methods of this object to get elements with specific id, tag name, attirbute, etc.
+/// For example, ``getElementById(_:)`` retrieves an ``Elements`` object consisting of ``Element`` objects whose id matches the specified id.
+///
+/// You can modify an element using methods like ``setAttribute(key:value:)-5p0uc``, ``setClass(names:)``, ``setHTML(_:)``, etc.
 open class Element: Node {
 	public internal(set) var tag: Tag
 
@@ -19,56 +28,42 @@ open class Element: Node {
     //private static let classSplit : Pattern = Pattern("\\s+")
 	private static let classSplit = "\\s+"
 
-    /**
-     * Create a new, standalone Element. (Standalone in that is has no parent.)
-     *
-     * @param tag tag of this element
-     * @param baseUri the base URI
-     * @param attributes initial attributes
-     * @see #appendChild(Node)
-     * @see #appendElement(String)
-     */
+    /// Create a new standalone element.
+    ///
+    /// - Tip: Creating a new ``Element`` is useful when you need to insert a new element into an existing element. Please check ``appendElement(tagName:)`` or ``insertChildrenElements(_:at:)``.
     public init(tag: Tag, baseURI: String, attributes: Attributes) {
         self.tag = tag
         super.init(baseURI: baseURI, attributes: attributes)
     }
-    /**
-     * Create a new Element from a tag and a base URI.
-     *
-     * @param tag element tag
-     * @param baseUri the base URI of this element. It is acceptable for the base URI to be an empty
-     *            string, but not null.
-     * @see Tag#valueOf(String, ParseSettings)
-     */
+    /// Create a new standalone element.
+    ///
+    /// - Tip: Creating a new ``Element`` is useful when you need to insert a new element into an existing element. Please check ``appendElement(tagName:)`` or ``insertChildrenElements(_:at:)``.
     public init(tag: Tag, baseURI: String) {
         self.tag = tag
         super.init(baseURI: baseURI, attributes: Attributes())
     }
-
+    
+    /// The node name of this node.
+    ///
+    /// In ``Element``, this is the element's tag name.
     open override var nodeName: String {
         return tag.getName()
     }
     
-    /**
-     * Get the name of the tag for this element. E.g. {@code div}
-     *
-     * @return the tag name
-     */
+    /// The name of the tag for this element.
     open var tagName: String {
         return tag.getName()
     }
-    // TODO: Document
+    /// The normalized name of the tag for this element.
     open var tagNameNormal: String {
         return tag.getNameNormal()
     }
 
-    /**
-     * Change the tag of this element. For example, convert a {@code <span>} to a {@code <div>} with
-     * {@code el.tagName("div")}.
-     *
-     * @param tagName new tag name for this element
-     * @return this element, for chaining
-     */
+    /// Set the name of the tag of this element.
+    ///
+    /// - Parameter tagName: A new tag name for this element.
+    /// - Returns: `self` for chaining.
+    /// - Throws: `SwiftSoupError.emptyTagName` if given tag name is empty string.
     @discardableResult
     public func setTagName(_ tagName: String) throws -> Element {
         if tagName.isEmpty {
@@ -78,21 +73,14 @@ open class Element: Node {
         return self
     }
 
-    /**
-     * Test if this element is a block-level element. (E.g. {@code <div> == true} or an inline element
-     * {@code <p> == false}).
-     *
-     * @return true if block, false if not (and thus inline)
-     */
+    /// A Boolean value indicating whether a element is a block.
     open var isBlock: Bool {
         return tag.isBlock()
     }
 
-    /**
-     * Get the {@code id} attribute of this element.
-     *
-     * @return The id attribute, if present, or an empty string if not.
-     */
+    /// A value of the "id" attribute.
+    ///
+    /// The id is NOT unique actually. It just represent the "id" attribute's value. If this element has no "id" element, this property represents empty string.
     open var id: String {
         guard let attributes = attributes else { return Element.emptyString }
         do {
@@ -101,59 +89,50 @@ open class Element: Node {
         return Element.emptyString
     }
 
-    /**
-     * Set an attribute value on this element. If this element already has an attribute with the
-     * key, its value is updated; otherwise, a new attribute is added.
-     *
-     * @return this element
-     */
+    /// Set an attribute value on this element.
+    ///
+    /// If an attribute with given key exists, set a new value of it. Otherwise, add a new attirbute with given key and value.
+    ///
+    /// - Parameters:
+    ///     - key: The key of an attribute to set. Must not be empty otherwise throws an `SwiftSoupError.emptyAttributeKey` error.
+    ///     - value: The new value of an attribute with the given key.
+    ///
+    /// - Returns: `self` for chaining.
     @discardableResult
     open override func setAttribute(key: String, value: String) throws -> Element {
         try super.setAttribute(key: key, value: value)
         return self
     }
 
-    /**
-     * Set a boolean attribute value on this element. Setting to <code>true</code> sets the attribute value to "" and
-     * marks the attribute as boolean so no value is written out. Setting to <code>false</code> removes the attribute
-     * with the same key if it exists.
-     *
-     * @param attributeKey the attribute key
-     * @param attributeValue the attribute value
-     *
-     * @return this element
-     */
+    /// Set a boolean attribute value on this element.
+    ///
+    /// Setting to `true` sets the attribute value to "" and marks the attribute as boolean so no value is written out.
+    /// Setting to `false` removes the attribute with the same key if it exists.
+    ///
+    /// - Parameters:
+    ///     - key: The key of an attribute to set. Must not be empty otherwise throws an `SwiftSoupError.emptyAttributeKey` error.
+    ///     - value: The new boolean value of an attribute with the given key.
+    ///
+    /// - Returns: `self` for chaining.
     @discardableResult
     open func setAttribute(key: String, value: Bool) throws -> Element {
         try attributes?.put(key, value)
         return self
     }
 
-    /**
-     * Get this element's HTML5 custom data attributes. Each attribute in the element that has a key
-     * starting with "data-" is included the dataset.
-     * <p>
-     * E.g., the element {@code <div data-package="SwiftSoup" data-language="Java" class="group">...} has the dataset
-     * {@code package=SwiftSoup, language=java}.
-     * <p>
-     * This map is a filtered view of the element's attribute map. Changes to one map (add, remove, update) are reflected
-     * in the other map.
-     * <p>
-     * You can find elements that have data attributes using the {@code [^data-]} attribute key prefix selector.
-     * @return a map of {@code key=value} custom data attributes.
-     */
+    /// A dictionary paired with `key:value` pairs of attributes of this element.
     open var attributesAsDictionary: Dictionary<String, String> {
         attributes!.dataset()
     }
 
-    open override var parent:Element? {
+    /// A parent of this element.
+    open override var parent: Element? {
         return parentNode as? Element
     }
 
-    /**
-     * Get this element's parent and ancestors, up to the document root.
-     * @return this element's stack of parents, closest first.
-     */
+    /// An ``Elements`` object contains this element's parent and ancestors up to the document root.
+    ///
+    /// This property represent this element's stack of parents by closest first.
     open var ancestors: Elements {
         let ancestors: Elements = Elements()
         Element.accumulateParents(self, ancestors)
@@ -168,94 +147,67 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Get a child element of this element, by its 0-based index number.
-     * <p>
-     * Note that an element can have both mixed Nodes and Elements as children. This method inspects
-     * a filtered list of children that are elements, and the index is based on that filtered list.
-     * </p>
-     *
-     * @param index the index number of the element to retrieve
-     * @return the child element, if it exists, otherwise throws an {@code IndexOutOfBoundsException}
-     * @see #childNode(int)
-     */
+    /// Get a child element of this element at given index.
+    ///
+    /// This method is a safe way to get a child element with specific index.
+    ///
+    /// An element can have both mixed ``Node``s and ``Element``s as children.
+    /// This method inspects a filtered list of children that are elements.
+    ///
+    /// This method also checks if the given index is in valid range and safely returns the child element.
+    ///
+    /// - Parameter index: The index number of the child element to retrieve.
+    /// - Returns: The child element, if exists, otherwise returns `nil`.
     open func getChild(at index: Int) -> Element? {
         return children.get(index: index)
     }
 
-    /**
-     * Get this element's child elements.
-     * <p>
-     * This is effectively a filter on {@link #childNodes()} to get Element nodes.
-     * </p>
-     * @return child elements. If this element has no children, returns an
-     * empty list.
-     * @see #childNodes()
-     */
+    /// This element's child elements.
     open var children: Elements {
         // create on the fly rather than maintaining two lists. if gets slow, memoize, and mark dirty on change
         let elements = childNodes.compactMap { $0 as? Element }
         return Elements(elements)
     }
     
-    // TODO: Document
+    /// The first child of this element.
     open var firstChild: Element? {
         getChild(at: 0)
     }
 
-    /**
-     * Get this element's child text nodes. The list is unmodifiable but the text nodes may be manipulated.
-     * <p>
-     * This is effectively a filter on {@link #childNodes()} to get Text nodes.
-     * @return child text nodes. If this element has no text nodes, returns an
-     * empty list.
-     * </p>
-     * For example, with the input HTML: {@code <p>One <span>Two</span> Three <br> Four</p>} with the {@code p} element selected:
-     * <ul>
-     *     <li>{@code p.text()} = {@code "One Two Three Four"}</li>
-     *     <li>{@code p.ownText()} = {@code "One Three Four"}</li>
-     *     <li>{@code p.children} = {@code Elements[<span>, <br>]}</li>
-     *     <li>{@code p.childNodes()} = {@code List<Node>["One ", <span>, " Three ", <br>, " Four"]}</li>
-     *     <li>{@code p.textNodes()} = {@code List<TextNode>["One ", " Three ", " Four"]}</li>
-     * </ul>
-     */
+    /// Child text nodes of this element.
+    ///
+    /// ```swift
+    /// let html =
+    /// """
+    /// <p>One
+    ///     <span>Two</span>
+    ///     Three
+    ///     <br>
+    ///     Four
+    /// </p>
+    /// """
+    /// let element = Parser.parseHTML(html)!.body!
+    /// let childNodes = element.childNodes
+    /// let textNodes = element.textNodes
+    ///
+    /// // `childNodes` is ["One"(TextNode), <span>(Element), "Three"(TextNode), <br>(Element), "Four"(TextNode)] as a `Node` array.
+    /// // `textNode` is ["One", "Three", "Four"] as a `TextNode` array.
+    /// ```
     open var textNodes: [TextNode] {
         return childNodes.compactMap { $0 as? TextNode }
     }
 
-    /**
-     * Get this element's child data nodes. The list is unmodifiable but the data nodes may be manipulated.
-     * <p>
-     * This is effectively a filter on {@link #childNodes()} to get Data nodes.
-     * </p>
-     * @return child data nodes. If this element has no data nodes, returns an
-     * empty list.
-     * @see #data()
-     */
+    /// Child data nodes of this element.
     open var dataNodes: [DataNode] {
         return childNodes.compactMap{ $0 as? DataNode }
     }
 
-    /**
-     * Find elements that match the {@link CssSelector} CSS query, with this element as the starting context. Matched elements
-     * may include this element, or any of its children.
-     * <p>
-     * This method is generally more powerful to use than the DOM-type {@code getElementBy*} methods, because
-     * multiple filters can be combined, e.g.:
-     * </p>
-     * <ul>
-     * <li>{@code el.select("a[href]")} - finds links ({@code a} tags with {@code href} attributes)
-     * <li>{@code el.select("a[href*=example.com]")} - finds links pointing to example.com (loosely)
-     * </ul>
-     * <p>
-     * See the query syntax documentation in {@link CssSelector}.
-     * </p>
-     *
-     * @param cssQuery a {@link CssSelector} CSS-like query
-     * @return elements that match the query (empty if none match)
-     * @see CssSelector
-     * @throws CssSelector.SelectorParseException (unchecked) on an invalid CSS query.
-     */
+    /// Find elements that match the CSS query.
+    ///
+    /// Find elements with a CSS query among all descendants of this element, including the element itself.
+    ///
+    /// - Parameter cssQuery: A css selector to find element
+    /// - Returns: Elements that match the query. Returns empty if none match.
     public func select(cssQuery: String) -> Elements {
         do {
             return try CssSelector.select(cssQuery, self)
@@ -264,11 +216,7 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Check if this element matches the given {@link CssSelector} CSS query.
-     * @param cssQuery a {@link CssSelector} CSS query
-     * @return if this element matches the query
-     */
+    /// Check if this element matches the given CSS query.
     public func isMatchedWith(cssQuery: String) -> Bool {
         do {
             return try self.isMatchedWith(evaluator: QueryParser.parse(cssQuery))
@@ -277,11 +225,13 @@ open class Element: Node {
         }
     }
 
-    /**
+    /** old documentary
      * Check if this element matches the given {@link CssSelector} CSS query.
      * @param cssQuery a {@link CssSelector} CSS query
      * @return if this element matches the query
      */
+    
+    ///
     public func isMatchedWith(evaluator: Evaluator) -> Bool {
         guard let od = self.ownerDocument() else {
             return false
@@ -293,12 +243,12 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Add a node child node to this element.
-     *
-     * @param child node to add.
-     * @return this element, so that you can add more child nodes or elements.
-     */
+    /// Add a node to the end of element's children.
+    ///
+    /// If the given node already exists on a tree, the node will be removed from the tree before appending.
+    ///
+    /// - Parameter child: A child node to append.
+    /// - Returns: `self` for chaining.
     @discardableResult
     public func appendChild(_ child: Node) -> Element {
         reparentChild(child)
@@ -308,27 +258,28 @@ open class Element: Node {
         return self
     }
 
-    /**
-     * Add a node to the start of this element's children.
-     *
-     * @param child node to add.
-     * @return this element, so that you can add more child nodes or elements.
-     */
+    /// Add a node to the start of this element's children.
+    ///
+    /// If the given node already exists on a tree, the node will be removed from the tree before prepending.
+    ///
+    /// - Parameter child: A child node to prepend.
+    /// - Returns: `self` for chaining.
     @discardableResult
     public func prependChild(_ child: Node) -> Element {
         insertChildren(child, at: 0)
         return self
     }
 
-    /**
-     * Inserts the given child nodes into this element at the specified index. Current nodes will be shifted to the
-     * right. The inserted nodes will be moved from their current parent. To prevent moving, copy the nodes first.
-     *
-     * @param index 0-based index to insert children at. Specify {@code 0} to insert at the start, {@code -1} at the
-     * end
-     * @param children child nodes to insert
-     * @return this element, for chaining.
-     */
+    /// Insert the given child nodes at the sepcific index of this element's children.
+    ///
+    /// If the given nodes already exist on some trees, the nodes will be removed from trees before insertion.
+    ///
+    /// - Parameters:
+    ///     - children: Nodes to insert as children.
+    ///     - index: An index to insert children at.
+    ///
+    /// - Returns: `self` for chaining.
+    /// - Throws: `SwiftSoupError.indexOutOfBounds` if the index is out of bound.
     @discardableResult
     public func insertChildrenElements(_ children: [Node], at index: Int) throws -> Element {
         var index = index
@@ -344,13 +295,17 @@ open class Element: Node {
         return self
     }
 
-    /**
-     * Create a new element by tag name, and add it as the last child.
-     *
-     * @param tagName the name of the tag (e.g. {@code div}).
-     * @return the new element, to allow you to add content to it, e.g.:
-     *  {@code parent.appendElement("h1").attr("id", "header").text("Welcome")}
-     */
+    /// Append a new element.
+    ///
+    /// Create a new element by tag name, and add it as the last child.
+    /// ```swift
+    /// try? div.appendElement("h2")
+    ///         .setAttribute(key: "id", value: "apple")
+    ///         .setText("Hello, World!")
+    /// ```
+    ///
+    /// - Parameter tagName: The tag name of the new elemen . Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey`error.
+    /// - Returns: The created element. This allows you to start a builder chain.
     @discardableResult
     public func appendElement(tagName: String) throws -> Element {
         let child = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
@@ -358,13 +313,17 @@ open class Element: Node {
         return child
     }
 
-    /**
-     * Create a new element by tag name, and add it as the first child.
-     *
-     * @param tagName the name of the tag (e.g. {@code div}).
-     * @return the new element, to allow you to add content to it, e.g.:
-     *  {@code parent.prependElement("h1").attr("id", "header").text("Welcome")}
-     */
+    /// Prepend a new element.
+    ///
+    /// Create a new element by tag name, and add it as the first child.
+    /// ```swift
+    /// try? div.prependElement("h2")
+    ///         .setAttribute(key: "id", value: "apple")
+    ///         .setText("Hello, World!")
+    /// ```
+    ///
+    /// - Parameter tagName: The tag name of the new element. Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey`error.
+    /// - Returns: The created element. This allows you to start a builder chain.
     @discardableResult
     public func prependElement(tagName: String) throws -> Element {
         let child: Element = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
@@ -372,12 +331,12 @@ open class Element: Node {
         return child
     }
 
-    /**
-     * Create and append a new TextNode to this element.
-     *
-     * @param text the unencoded text to add
-     * @return this element
-     */
+    /// Append a new text node as a child of this element.
+    ///
+    /// Create a new ``TextNode`` object and append it as the last child of this element.
+    ///
+    /// - Parameter text: A text to add.
+    /// - Returns: `self` for chaining.
     @discardableResult
     public func appendText(_ text: String) -> Element {
         let node: TextNode = TextNode(text, baseURI!)
@@ -385,12 +344,12 @@ open class Element: Node {
         return self
     }
 
-    /**
-     * Create and prepend a new TextNode to this element.
-     *
-     * @param text the unencoded text to add
-     * @return this element
-     */
+    /// Prepend a new text node as a child of this element.
+    ///
+    /// Create a new ``TextNode`` object and prepend it as the first child of this element.
+    ///
+    /// - Parameter text: A text to add.
+    /// - Returns: `self` for chaining.
     @discardableResult
     public func prependText(_ text: String) -> Element {
         let node: TextNode = TextNode(text, baseURI!)
@@ -398,12 +357,13 @@ open class Element: Node {
         return self
     }
 
-    /**
-     * Add inner HTML to this element. The supplied HTML will be parsed, and each node appended to the end of the children.
-     * @param html HTML to add inside this element, after the existing HTML
-     * @return this element
-     * @see #html(String)
-     */
+    /// Append a HTML element as a child of this element.
+    ///
+    /// Parse the given HTML string and create an ``Element``. Then, append it as the last child of this element.
+    ///
+    /// - Parameter html: HTML to append inside this element.
+    /// - Returns: `self` for chaining.
+    /// - Throws: `SwiftSoupError.failedToParseHTML` if failed to parse HTML.
     @discardableResult
     public func appendHTML(_ html: String) throws -> Element {
         let nodes: [Node] = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
@@ -411,12 +371,13 @@ open class Element: Node {
         return self
     }
 
-    /**
-     * Add inner HTML into this element. The supplied HTML will be parsed, and each node prepended to the start of the element's children.
-     * @param html HTML to add inside this element, before the existing HTML
-     * @return this element
-     * @see #html(String)
-     */
+    /// Prepend a HTML element as a child of this element.
+    ///
+    /// Parse the given HTML string and create an ``Element``. Then, prepend it as the first child of this element.
+    ///
+    /// - Parameter html: HTML to prepend inside this element.
+    /// - Returns: `self` for chaining.
+    /// - Throws: `SwiftSoupError.failedToParseHTML` if failed to parse HTML.
     @discardableResult
     public func prependHTML(_ html: String) throws -> Element {
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
@@ -424,82 +385,87 @@ open class Element: Node {
         return self
     }
 
-    /**
-     * Insert the specified HTML into the DOM before this element (as a preceding sibling).
-     *
-     * @param html HTML to add before this element
-     * @return this element, for chaining
-     * @see #after(String)
-     */
+    /// Insert the specified HTML into the DOM as a preceding sibling.
+    ///
+    /// Parse the given HTML string and create a new element. Then, insert the new element as a preceding sibling of this element.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesn't have a parent.
+    /// * `SwiftSoupError.failedToParseHTML` if parsing HTML is failed.
+    ///
+    /// - Parameter html: HTML string to add before this element.
+    /// - Returns: `self` for chaining.
     @discardableResult
     open override func insertHTMLAsPreviousSibling(_ html: String) throws -> Element {
         return try super.insertHTMLAsPreviousSibling(html) as! Element
     }
 
-    /**
-     * Insert the specified node into the DOM before this node (as a preceding sibling).
-     * @param node to add before this element
-     * @return this Element, for chaining
-     * @see #after(Node)
-     */
+    /// Insert the specified element into the DOM as a preceding sibling.
+    ///
+    /// Insert the given element as a preceding sibling of this element.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this element doesn't have a parent.
+    ///
+    /// - Parameter node: An element to insert. This must be an ``Element`` instance.
+    /// - Returns: `self` for chaining.
+    /// - Attention: The parameter `node` must be an instance of `Element`. Even though it's named `node` and the type is `Node`, it will be force-casted in run time.
     @discardableResult
     open override func insertNodeAsPreviousSibling(_ node: Node) throws -> Element {
         return try super.insertNodeAsPreviousSibling(node) as! Element
     }
-
-    /**
-     * Insert the specified HTML into the DOM after this element (as a following sibling).
-     *
-     * @param html HTML to add after this element
-     * @return this element, for chaining
-     * @see #before(String)
-     */
+    
+    /// Insert the specified HTML into the DOM as a following sibling.
+    ///
+    /// Parse the given HTML string and create a new element. Then, insert the new element as a following sibling of this element.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this element doesn't have a parent.
+    /// * `SwiftSoupError.failedToParseHTML` if parsing HTML is failed.
+    ///
+    /// - Parameter html: HTML string to add after this node.
+    /// - Returns: `self` for chaining.
     @discardableResult
     open override func insertHTMLAsNextSibling(_ html: String) throws -> Element {
         return try super.insertHTMLAsNextSibling(html) as! Element
     }
 
-    /**
-     * Insert the specified node into the DOM after this node (as a following sibling).
-     * @param node to add after this element
-     * @return this element, for chaining
-     * @see #before(Node)
-     */
+    /// Insert the specified element into the DOM as a following sibling.
+    ///
+    /// Insert the given element as a following sibling of this element.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this element doesn't have a parent.
+    ///
+    /// - Parameter node: A element to add after this node. This must be an ``Element`` instance.
+    /// - Returns: `self` for chaining.
+    /// - Attention: The parameter `node` must be an instance of `Element`. Even though it's named `node` and the type is `Node`, it will be force-casted in run time.
     open override func insertNodeAsNextSibling(_ node: Node) throws -> Element {
         return try super.insertNodeAsNextSibling(node) as! Element
     }
 
-    /**
-     * Remove all of the element's child nodes. Any attributes are left as-is.
-     * @return this element
-     */
+    /// Remove all of the children.
+    ///
+    /// This method removes all of the child nodes. Any attributes are left as-is.
+    ///
+    /// - Returns: `self` for chaining.
     @discardableResult
     public func removeAll() -> Element {
         childNodes.removeAll()
         return self
     }
 
-    /**
-     * Wrap the supplied HTML around this element.
-     *
-     * @param html HTML to wrap around this element, e.g. {@code <div class="head"></div>}. Can be arbitrarily deep.
-     * @return this element, for chaining.
-     */
+    /// Wrap the supplied HTML around this element.
+    ///
+    /// - Parameter html: HTML to wrap around this element. For example, `"<div class="head"></div>"`. Can be arbitrarily deep.
+    ///
+    /// - Returns: `self` for chaining.
     @discardableResult
     open override func wrap(html: String) throws -> Element {
         return try super.wrap(html: html) as! Element
     }
 
-    /**
-     * Get a CSS selector that will uniquely select this element.
-     * <p>
-     * If the element has an ID, returns #id;
-     * otherwise returns the parent (if any) CSS selector, followed by {@literal '>'},
-     * followed by a unique selector for the element (tag.class.class:nth-child(n)).
-     * </p>
-     *
-     * @return the CSS Path that can be used to retrieve the element in a selector.
-     */
+    /// A CSS selector that uniquely select this element.
     public var cssSelector: String {
         let elementId = id
         if (elementId.count > 0) {
@@ -529,13 +495,13 @@ open class Element: Node {
         return parent!.cssSelector + (selector)
     }
 
-    /**
-     * Get sibling elements. If the element has no sibling elements, returns an empty list. An element is not a sibling
-     * of itself, so will not be included in the returned list.
-     * @return sibling elements
-     */
+    /// Elements of siblings.
+    ///
+    /// An element is not a sibling of itself, so is excluded in the this property.
     public var siblingElements: Elements {
-        if (parentNode == nil) {return Elements()}
+        if parentNode == nil {
+            return Elements()
+        }
 
         if let elements = parent?.children {
             let selfExcluded = elements.filter { $0 != self }
@@ -545,15 +511,9 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Gets the next sibling element of this element. E.g., if a {@code div} contains two {@code p}s,
-     * the {@code nextElementSibling} of the first {@code p} is the second {@code p}.
-     * <p>
-     * This is similar to {@link #nextSibling()}, but specifically finds only Elements
-     * </p>
-     * @return the next element, or null if there is no next element
-     * @see #previousElementSibling()
-     */
+    /// The next sibling element of this element.
+    ///
+    /// This is similar to ``Node/nextSibling``, but specifically finds only elements.
     public var nextSiblingElement: Element? {
         guard let parent = parent else {
             return nil
@@ -566,11 +526,9 @@ open class Element: Node {
         return siblings.get(index: index + 1)
     }
 
-    /**
-     * Gets the previous element sibling of this element.
-     * @return the previous element, or null if there is no previous element
-     * @see #nextElementSibling()
-     */
+    /// The preivous sibling element of this element.
+    ///
+    /// This is similar to ``Node/previousSibling``, but specifically finds only elements.
     public var previousSiblingElement: Element? {
         guard let parent = parent else {
             return nil
@@ -583,19 +541,14 @@ open class Element: Node {
         return siblings.get(index: index - 1)
     }
 
-    /**
-     * Gets the first element sibling of this element.
-     * @return the first sibling that is an element (aka the parent's first element child)
-     */
+    /// The first sibling element of this element.
     public var firstSiblingElement: Element? {
         return parent?.children.first
     }
 
-    /*
-     * Get the list index of this element in its element sibling list. I.e. if this is the first element
-     * sibling, returns 0.
-     * @return position in element sibling list
-     */
+    /// An index value of this element in its element sibling list.
+    ///
+    /// This is similar to ``Node/siblingIndex``, but specifically indicates the index in the sibling elements.
     public var elementSiblingIndex: Int {
         guard let parent = parent else {
             return 0
@@ -603,20 +556,18 @@ open class Element: Node {
         return parent.children.firstIndex(of: self)!
     }
 
-    /**
-     * Gets the last element sibling of this element
-     * @return the last sibling that is an element (aka the parent's last element child)
-     */
+    /// The last sibling element of this element.
     public var lastSiblingElement: Element? {
         return parent?.children.last
     }
 
-    // MARK: `getElemntsBy...` Methods
-    /**
-     * Finds elements, including and recursively under this element, with the specified tag name.
-     * @param tagName The tag name to search for (case insensitively).
-     * @return a matching unmodifiable list of elements. Will be empty if this element and none of its children match.
-     */
+    // MARK: `getElementsBy...` Methods
+    /// Get a list of elements by their tag name.
+    ///
+    /// Find elements with the specific tag name including itself and all descendants.
+    ///
+    /// - Parameter tagName: The tag name to search for. Case insensitive.
+    /// - Returns: A matching list of elements.
     public func getElementsByTag(_ tagName: String) -> Elements {
         guard !tagName.isEmpty else { return Elements() }
         let tagName = tagName.lowercased().trim()
@@ -625,15 +576,12 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    /**
-     * Find an element by ID, including or under this element.
-     * <p>
-     * Note that this finds the first matching ID, starting with this element. If you search down from a different
-     * starting point, it is possible to find a different element by ID. For unique element by ID within a Document,
-     * use {@link Document#getElementById(String)}
-     * @param id The ID to search for.
-     * @return The first matching element by ID, starting with this element, or null if none found.
-     */
+    /// Get an element by ID.
+    ///
+    /// Find the first matching element by ID. Starting with this element, it searches all descendants including itself.
+    ///
+    /// - Parameter id: The id to search for.
+    /// - Returns: The first mathcing element by ID.
     public func getElementById(_ id: String) -> Element? {
         guard !id.isEmpty else { return nil }
 
@@ -647,28 +595,23 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Find elements that have this class, including or under this element. Case insensitive.
-     * <p>
-     * Elements can have multiple classes (e.g. {@code <div class="header round first">}. This method
-     * checks each class, so you can find the above with {@code el.getElementsByClass("header")}.
-     *
-     * @param className the name of the class to search for.
-     * @return elements with the supplied class name, empty if none
-     * @see #hasClass(String)
-     * @see #classNames()
-     */
+    /// Get a list of elements by its class name.
+    ///
+    /// Find elements with the specific class name including itself and all descendants.
+    ///
+    /// - Parameter className: A class name to search for.
+    /// - Returns: A matching list of elements.
     public func getElementsByClass(_ className: String) -> Elements {
         let result = try? Collector.collect(Evaluator.Class(className), self)
         return result ?? Elements()
     }
 
-    /**
-     * Find elements that have a named attribute set. Case insensitive.
-     *
-     * @param key name of the attribute, e.g. {@code href}
-     * @return elements that have this attribute, empty if none
-     */
+    /// Get a list of elements that have an attribute with the given key.
+    ///
+    /// Find elements with the specific attirbute key including itself and all descendants.
+    ///
+    /// - Parameter key: An attribute key to search for. Case insensitive.
+    /// - Returns: A matching list of elements.
     public func getElementsByAttribute(key: String) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
@@ -677,12 +620,12 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    /**
-     * Find elements that have an attribute name starting with the supplied prefix. Use {@code data-} to find elements
-     * that have HTML5 datasets.
-     * @param keyPrefix name prefix of the attribute e.g. {@code data-}
-     * @return elements that have attribute names that start with with the prefix, empty if none.
-     */
+    /// Get a list of elements whose attribute keys start with supplied prefix.
+    ///
+    /// Find elements with the attribute key prefix including itself and all descendants.
+    ///
+    /// - Parameter keyPrefix: A prefix of attribute key to search for.
+    /// - Returns: A matching list of elements.
     public func getElementsByAttribute(keyPrefix: String) -> Elements {
         guard !keyPrefix.isEmpty else { return Elements() }
         let keyPrefix = keyPrefix.trim()
@@ -691,13 +634,14 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    /**
-     * Find elements that have an attribute with the specific value. Case insensitive.
-     *
-     * @param key name of the attribute
-     * @param value value of the attribute
-     * @return elements that have this attribute with this value, empty if none
-     */
+    /// Get a list of elements whose attributes have the specific value.
+    ///
+    /// Find elements that match both the given attirbute key and value. Starting with this element, it searches all descendants including itself case insensitively.
+    ///
+    /// - Parameters
+    ///     - key: A attribute key to search for.
+    ///     - value: A value that an attribute's value with the given key should have.
+    /// - Returns: A matching list of elements.
     public func getElementsByAttribute(key: String, value: String) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
@@ -706,13 +650,14 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    /**
-     * Find elements that either do not have this attribute, or have it with a different value. Case insensitive.
-     *
-     * @param key name of the attribute
-     * @param value value of the attribute
-     * @return elements that do not have a matching attribute
-     */
+    /// Get a list of elements which either do not have attribute with the given key or with a different value.
+    ///
+    /// Find elements that do not match either the given attirbute key or value. Starting with this element, it searches all descendants including itself case insensitively.
+    ///
+    /// - Parameters
+    ///     - key: A attribute key to search for.
+    ///     - value: A value that an attribute's value with the given key should not have.
+    /// - Returns: A matching list of elements.
     public func getElementsByAttributeNotMatching(key: String, value: String) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
@@ -721,13 +666,14 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    /**
-     * Find elements that have attributes that start with the value prefix. Case insensitive.
-     *
-     * @param key name of the attribute
-     * @param valuePrefix start of attribute value
-     * @return elements that have attributes that start with the value prefix
-     */
+    /// Get a list of elements whose attribute value start with the given prefix.
+    ///
+    /// Find elements that match both the given attirbute key and value prefix. Starting with this element, it searches all descendants including itself case insensitively.
+    ///
+    /// - Parameters
+    ///     - key: An attribute key to search for.
+    ///     - valuePrefix: A prefix that an attribute's value with the given key should start with.
+    /// - Returns: A matching list of elements.
     public func getElementsByAttribute(key: String, valueStartingWith valuePrefix: String) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
@@ -736,13 +682,14 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    /**
-     * Find elements that have attributes that end with the value suffix. Case insensitive.
-     *
-     * @param key name of the attribute
-     * @param valueSuffix end of the attribute value
-     * @return elements that have attributes that end with the value suffix
-     */
+    /// Get a list of elements whose attribute values end with the given suffix.
+    ///
+    /// Find elements that match both the given attirbute key and value prefix. Starting with this element, it searches all descendants including itself case insensitively.
+    ///
+    /// - Parameters
+    ///     - key: An attribute key to search for.
+    ///     - valueSuffix: A suffix that an attribute's value with the given key should end with.
+    /// - Returns: A matching list of elements.
     public func getElementsByAttribute(key: String, valueEndingWith valueSuffix: String) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
@@ -751,13 +698,15 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    /**
-     * Find elements that have attributes whose value contains the match string. Case insensitive.
-     *
-     * @param key name of the attribute
-     * @param match substring of value to search for
-     * @return elements that have attributes containing this text
-     */
+    // TODO: Fix parameter name typo
+    /// Get a list of elements whose attribute values contain the given keyword.
+    ///
+    /// Find elements that have attributes with the given attirbute key, and whose attribute value also contains the given match string. Starting with this element, it searches all descendants including itself case insensitively.
+    ///
+    /// - Parameters
+    ///     - key: An attribute key to search for.
+    ///     - match: A substring that an attribute's value with the given key should contains.
+    /// - Returns: A matching list of elements.
     public func getElementsByAttribute(key: String, valueMathcingWith match: String) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
@@ -772,6 +721,8 @@ open class Element: Node {
      * @param pattern compiled regular expression to match against attribute values
      * @return elements that have attributes matching this regular expression
      */
+    
+    ///
     public func getElementsByAttribute(key: String, valueMathcingWith pattern: Pattern) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
@@ -780,12 +731,14 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    /**
-     * Find elements that have attributes whose values match the supplied regular expression.
-     * @param key name of the attribute
-     * @param regex regular expression to match against attribute values. You can use <a href="http://java.sun.com/docs/books/tutorial/essential/regex/pattern.html#embedded">embedded flags</a> (such as (?i) and (?m) to control regex options.
-     * @return elements that have attributes matching this regular expression
-     */
+    /// Get a list of elements whose attribute values match the supplied regular expression.
+    ///
+    /// Find elements that have attributes with the given attirbute key, and whose attribute value also match the given regular expression string. Starting with this element, it searches all descendants including itself.
+    ///
+    /// - Parameters
+    ///     - key: An attribute key to search for.
+    ///     - match: A substring that an attribute's value with the given key should contains.
+    /// - Returns: A matching list of elements.
     public func getElementsByAttribute(key: String, valueRegex regex: String) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
@@ -802,11 +755,9 @@ open class Element: Node {
     
     // TODO: SwiftRegex
 
-    /**
-     * Find elements whose sibling index is less than the supplied index.
-     * @param index 0-based index
-     * @return elements less than index
-     */
+    /// Get a list of elements whose sibling index is less than the supplied index.
+    ///
+    /// Find elements whose sibling index is less than the given index. Starting with this element, it searches all descendants including itself.
     public func getElementsByIndex(lessThan index: Int) -> Elements {
         do {
             return try Collector.collect(Evaluator.IndexLessThan(index), self)
@@ -815,11 +766,9 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Find elements whose sibling index is greater than the supplied index.
-     * @param index 0-based index
-     * @return elements greater than index
-     */
+    /// Get a list of elements whose sibling index is greater than the supplied index.
+    ///
+    /// Find elements whose sibling index is greater than the given index. Starting with this element, it searches all descendants including itself.
     public func getElementsByIndex(greaterThan index: Int) -> Elements {
         do {
             return try Collector.collect(Evaluator.IndexGreaterThan(index), self)
@@ -828,11 +777,9 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Find elements whose sibling index is equal to the supplied index.
-     * @param index 0-based index
-     * @return elements equal to index
-     */
+    /// Get a list of elements whose sibling index is equal to the supplied index.
+    ///
+    /// Find elements whose sibling index is equalt to the supplied index. Starting with this element, it searches all descendants including itself.
     public func getElementsByIndex(equals index: Int) -> Elements {
         do {
             return try Collector.collect(Evaluator.IndexEquals(index), self)
@@ -841,13 +788,12 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Find elements that contain the specified string. The search is case insensitive. The text may appear directly
-     * in the element, or in any of its descendants.
-     * @param searchText to look for in the element's text
-     * @return elements that contain the string, case insensitive.
-     * @see Element#text()
-     */
+    /// Get a list of elements that contain the specified string.
+    ///
+    /// Find elements with the given text. The matched text may appear directly in the element, or in any of its descendants. The search is case insensitive.
+    ///
+    /// - Parameter searchText: A search text to look for in the element's text.
+    /// - Returns: Elements that contain the search text.
     public func getElementsContainingText(_ searchText: String) -> Elements {
         do {
             return try Collector.collect(Evaluator.ContainsText(searchText), self)
@@ -856,13 +802,12 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Find elements that directly contain the specified string. The search is case insensitive. The text must appear directly
-     * in the element, not in any of its descendants.
-     * @param searchText to look for in the element's own text
-     * @return elements that contain the string, case insensitive.
-     * @see Element#ownText()
-     */
+    /// Get a list of elements that directly contain the specified string.
+    ///
+    /// Find elements with the given text. Only the elements in which the matched text appear directly will be collected. The search is case insensitive.
+    ///
+    /// - Parameter searchText: A search text to look for in the element's own text.
+    /// - Returns: Elements that contain the search text directly.
     public func getElementsContainingOwnText(_ searchText: String) -> Elements {
         do {
             return try Collector.collect(Evaluator.ContainsOwnText(searchText), self)
@@ -877,6 +822,8 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#text()
      */
+    
+    ///
     public func getElementsMatchingText(_ pattern: Pattern) -> Elements {
         do {
             return try Collector.collect(Evaluator.Matches(pattern), self)
@@ -885,12 +832,12 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Find elements whose text matches the supplied regular expression.
-     * @param regex regular expression to match text against. You can use <a href="http://java.sun.com/docs/books/tutorial/essential/regex/pattern.html#embedded">embedded flags</a> (such as (?i) and (?m) to control regex options.
-     * @return elements matching the supplied regular expression.
-     * @see Element#text()
-     */
+    /// Get a list of elements whose text matches the supplied regular expression.
+    ///
+    /// Find elements with the given regular expression. The matched text may appear directly in the element, or in any of its descendants.
+    ///
+    /// - Parameter regex: Regular expression to match text against.
+    /// - Returns: Elements that match the supplied regualr expression.
     public func getElementsMatchingText(_ regex: String) -> Elements {
         let pattern: Pattern
         do {
@@ -908,6 +855,8 @@ open class Element: Node {
      * @return elements matching the supplied regular expression.
      * @see Element#ownText()
      */
+    
+    ///
     public func getElementsMatchingOwnText(_ pattern: Pattern) -> Elements {
         do {
             return try Collector.collect(Evaluator.MatchesOwn(pattern), self)
@@ -916,12 +865,12 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Find elements whose text matches the supplied regular expression.
-     * @param regex regular expression to match text against. You can use <a href="http://java.sun.com/docs/books/tutorial/essential/regex/pattern.html#embedded">embedded flags</a> (such as (?i) and (?m) to control regex options.
-     * @return elements matching the supplied regular expression.
-     * @see Element#ownText()
-     */
+    /// Get a list of elements whose own text matches the supplied regular expression.
+    ///
+    /// Find elements with the given regular expression. Only the elements in which the matched text appear directly will be collected.
+    ///
+    /// - Parameter regex: Regular expression to match text against.
+    /// - Returns: Elements that match the supplied regualr expression.
     public func getElementsMatchingOwnText(_ regex: String) -> Elements {
         let pattern: Pattern
         do {
@@ -933,11 +882,9 @@ open class Element: Node {
         return getElementsMatchingOwnText(pattern)
     }
 
-    /**
-     * Find all elements under this element (including self, and children of children).
-     *
-     * @return all elements
-     */
+    /// Elements of all elements under this element.
+    ///
+    /// This property represents all descendants of this element and also itself.
     public var allElements: Elements {
         do {
             return try Collector.collect(Evaluator.AllElements(), self)
@@ -982,7 +929,43 @@ open class Element: Node {
         }
     }
     
-    // TODO: Document
+    /// Get a text within this element.
+    ///
+    /// This method retrieves the text within this element. The text includes not only the text directly in the element but also the text of its descendants.
+    ///
+    /// Each collected text may be trimmed and its whitespace normalized by the `trimAndNormaliseWhitespace` option.
+    /// ```swift
+    /// let html =
+    /// """
+    /// <p>One
+    ///     <span>Two  </span>
+    ///     Three
+    ///     <br>  Four
+    /// </p>
+    /// """
+    /// let document = Parser.parseHTML(html)!
+    /// let p = document.getElementsByTag("p").first!
+    ///
+    /// print(p.getText(trimAndNormaliseWhitespace: true))
+    /// print(p.getText(trimAndNormaliseWhitespace: false))
+    /// print(p.ownText)
+    ///
+    /// // Prints:
+    /// // One Two Three Four  - getText(trimAndNormaliseWhitespace: true)
+    /// // One                 - getText(trimAndNormaliseWhitespace: false)
+    /// //     Two
+    /// //     Three
+    /// //       Four
+    ///
+    /// // One Three Four      - ownText
+    /// ```
+    ///
+    /// # See Also
+    /// * ``text`` : A simple property version of this method.
+    /// * ``ownText`` : An element's own text.
+    ///
+    /// - Parameter trimAndNormaliseWhitespace: Trim and normalize whitespace if it's `true`.
+    /// - Returns: A combined text within this element.
     public func getText(trimAndNormaliseWhitespace: Bool = true) -> String {
         let accum: StringBuilder = StringBuilder()
         try? NodeTraversor(textNodeVisitor(accum, trimAndNormaliseWhitespace: trimAndNormaliseWhitespace)).traverse(self)
@@ -993,22 +976,69 @@ open class Element: Node {
         return text
     }
     
-    // TODO: Document
+    /// A text within this element.
+    ///
+    /// A text that includes not only the text directly in the element but also the text of its descendants.
+    ///
+    /// This is a simple property version of ``getText(trimAndNormaliseWhitespace:)`` where `trimAndNormaliseWhitespace` is `true`.
+    /// ```swift
+    /// let html =
+    /// """
+    /// <p>One
+    ///     <span>Two  </span>
+    ///     Three
+    ///     <br>  Four
+    /// </p>
+    /// """
+    /// let document = Parser.parseHTML(html)!
+    /// let p = document.getElementsByTag("p").first!
+    ///
+    /// print(p.text)
+    /// print(p.getText(trimAndNormaliseWhitespace: false))
+    /// print(p.ownText)
+    ///
+    /// // Prints:
+    /// // One Two Three Four  - text
+    /// // One                 - getText(trimAndNormaliseWhitespace: false)
+    /// //     Two
+    /// //     Three
+    /// //       Four
+    /// //
+    /// // One Three Four      - ownText
+    /// ```
+    ///
+    /// # See Also
+    /// * ``getText(trimAndNormaliseWhitespace:)`` : Original version of this property.
+    /// * ``ownText`` : An element's own text.
     public var text: String {
         getText()
     }
 
-    /**
-     * Gets the text owned by this element only; does not get the combined text of all children.
-     * <p>
-     * For example, given HTML {@code <p>Hello <b>there</b> now!</p>}, {@code p.ownText()} returns {@code "Hello now!"},
-     * whereas {@code p.text()} returns {@code "Hello there now!"}.
-     * Note that the text within the {@code b} element is not returned, as it is not a direct child of the {@code p} element.
-     *
-     * @return unencoded text, or empty string if none.
-     * @see #text()
-     * @see #textNodes()
-     */
+    /// A text directly in this element.
+    ///
+    /// This property represent only the text owned by this element whereas ``text`` also contains its desendants' texts.
+    /// ```swift
+    /// let html =
+    /// """
+    /// <p>One
+    ///     <span>Two  </span>
+    ///     Three
+    ///     <br>  Four
+    /// </p>
+    /// """
+    /// let document = Parser.parseHTML(html)!
+    /// let p = document.getElementsByTag("p").first!
+    ///
+    /// print(p.text)
+    /// // Prints "One Two Three Four"
+    ///
+    /// print(p.ownText)
+    /// // Prints "One Three Four"
+    /// ```
+    ///
+    /// # See Also
+    /// * ``text`` : A text within an element
+    /// * ``getText(trimAndNormaliseWhitespace:)`` : Get a text within an element.
     public var ownText: String {
         let stringBuilder: StringBuilder = StringBuilder()
         ownText(stringBuilder)
@@ -1049,11 +1079,13 @@ open class Element: Node {
         return false
     }
 
-    /**
-     * Set the text of this element. Any existing contents (text or elements) will be cleared
-     * @param text unencoded text
-     * @return this element
-     */
+    /// Set the text of this element.
+    ///
+    /// Set the text of this element. Any existing contents will be replaced.
+    ///
+    /// - Parameter text: A text to set.
+    /// - Returns: `self`for chaining.
+    /// - Attention: All of children of this element will be removed.
     @discardableResult
     public func setText(_ text: String) -> Element {
         removeAll()
@@ -1062,10 +1094,9 @@ open class Element: Node {
         return self
     }
 
-    /**
-     Test if this element has any text content (that is not just whitespace).
-     @return true if element has non-blank text content.
-     */
+    /// A Boolean value indicating whether this element has any text content.
+    ///
+    /// This property represents whether this element has any text. All texts in descendants are also checked.
     public var hasText: Bool {
         for childNode in childNodes {
             if let textNode = childNode as? TextNode {
@@ -1081,12 +1112,7 @@ open class Element: Node {
         return false
     }
 
-    /**
-     * Get the combined data of this element. Data is e.g. the inside of a {@code script} tag.
-     * @return the data, or empty string if none
-     *
-     * @see #dataNodes()
-     */
+    /// A combined data of this element.
     public var data: String {
         let stringBuilder: StringBuilder = StringBuilder()
 
@@ -1101,47 +1127,38 @@ open class Element: Node {
         return stringBuilder.toString()
     }
 
-    /**
-     * Gets the literal value of this element's "class" attribute, which may include multiple class names, space
-     * separated. (E.g. on <code>&lt;div class="header gray"&gt;</code> returns, "<code>header gray</code>")
-     * @return The literal class attribute, or <b>empty string</b> if no class attribute set.
-     */
+    /// A String value of this element's "class" attribute.
+    ///
+    /// This property represents the "class" attribute of this element. Multiple class names are separated by spaces. If there is no class attribute, this will be nil.
     public var className: String? {
         return getAttribute(key: Element.classString)?.trim()
     }
 
-    /**
-     * Get all of the element's class names. E.g. on element {@code <div class="header gray">},
-     * returns a set of two elements {@code "header", "gray"}. Note that modifications to this set are not pushed to
-     * the backing {@code class} attribute; use the {@link #classNames(java.util.Set)} method to persist them.
-     * @return set of classnames, empty if no class attribute
-     */
+    /// A list of class names of this element.
+    ///
+    /// This property represents the all of the element's class names. In other words, this represent split values of "class" attribute using the separator `" "`.
+    ///
+    /// - Tip: Modifications to this set are not refelected. Use ``setClass(names:)`` to modify class names.
     public var classNames: OrderedSet<String> {
         guard let className else { return [] }
 		let fitted = className.replaceAll(of: Element.classSplit, with: " ", options: .caseInsensitive)
-		let names: [String] = fitted.components(separatedBy: " ")
+        let names: [String] = fitted.components(separatedBy: " ")
 		let classNames = OrderedSet(sequence: names)
 		classNames.remove(Element.emptyString) // if classNames() was empty, would include an empty class
 		return classNames
 	}
 
-    /**
-     Set the element's {@code class} attribute to the supplied class names.
-     @param classNames set of classes
-     @return this element, for chaining
-     */
+    /// Set "class" attribute value of this element.
+    ///
+    /// This method combines the given class names and sets the "class" atrribute. Existing class attribute will be replaced.
     @discardableResult
     public func setClass(names: OrderedSet<String>) -> Element {
         try! attributes?.put(Element.classString, StringUtil.join(names, sep: " "))
         return self
     }
 
-    /**
-     * Tests if this element has a class. Case insensitive.
-     * @param className name of class to check for
-     * @return true if it does, false if not
-     */
     // performance sensitive
+    /// Check if this element has a class attribute with given name. Case insensitive.
     public func hasClass(named className: String) -> Bool {
         let classAtt: String? = attributes?.get(key: Element.classString)
         let len: Int = (classAtt != nil) ? classAtt!.count : 0
@@ -1189,11 +1206,10 @@ open class Element: Node {
         return false
     }
 
-    /**
-     Add a class name to this element's {@code class} attribute.
-     @param className class name to add
-     @return this element
-     */
+    /// Add a class name to this element's class attribute.
+    ///
+    /// - Parameter className: A class name to add.
+    /// - Returns: `self` for chaining.
     @discardableResult
 	public func addClass(named className: String) -> Element {
 		let classes = classNames
@@ -1203,11 +1219,10 @@ open class Element: Node {
 		return self
 	}
 
-    /**
-     Remove a class name from this element's {@code class} attribute.
-     @param className class name to remove
-     @return this element
-     */
+    /// Remove a class name from this element's class attribute.
+    ///
+    /// - Parameter className: A class name to remove.
+    /// - Returns: `self` for chaining.
     @discardableResult
     public func removeClass(named className: String) -> Element {
         let classes = classNames
@@ -1217,11 +1232,12 @@ open class Element: Node {
         return self
     }
 
-    /**
-     Toggle a class name on this element's {@code class} attribute: if present, remove it; otherwise add it.
-     @param className class name to toggle
-     @return this element
-     */
+    /// Toggle a class name on this element's class attribute.
+    ///
+    /// If the class name exists, remove it; otherwise add it.
+    ///
+    /// - Parameter className: A class name to toggle.
+    /// - Returns `self` for chaining.
     @discardableResult
     public func toggleClass(named className: String) -> Element {
         let classes = classNames
@@ -1234,11 +1250,10 @@ open class Element: Node {
 
         return self
     }
-
-    /**
-     * Get the value of a form element (input, textarea, etc).
-     * @return the value of the form element, or empty string if not set.
-     */
+    
+    /// A string value of a form element.
+    ///
+    /// This property represents a value of a form element like `input` or `textarea`. For a `textarea` element, the value will be the text of the textarea.
     public var value: String? {
         if tagName == "textarea" {
             return text
@@ -1247,11 +1262,12 @@ open class Element: Node {
         }
     }
 
-    /**
-     * Set the value of a form element (input, textarea, etc).
-     * @param value value to set
-     * @return this element (for chaining)
-     */
+    /// Set the value of a form element.
+    ///
+    /// Set a value of form element like `input` or `textarea` with this method.
+    ///
+    /// - Parameter value: A new value to set.
+    /// - Returns: `self` for chaining.
     @discardableResult
     public func setValue(_ value: String) -> Element {
         if tagName == "textarea" {
@@ -1303,6 +1319,9 @@ open class Element: Node {
      * @return String of HTML.
      * @see #outerHtml()
      */
+    
+    // FIXME: Found unexpected whitespaces. and add example code.
+    /// A String value represents this element's inner HTML text.
     public var html: String? {
         let accum: StringBuilder = StringBuilder()
         do {
@@ -1319,9 +1338,6 @@ open class Element: Node {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     open override func html(_ appendable: StringBuilder) throws -> StringBuilder {
         for node in childNodes {
             try node.outerHtml(appendable)
@@ -1329,12 +1345,17 @@ open class Element: Node {
         return appendable
     }
 
-	/**
-	* Set this element's inner HTML. Clears the existing HTML first.
-	* @param html HTML to parse and set into this element
-	* @return this element
-	* @see #append(String)
-	*/
+    // FIXME: Parse HTML first before clear html
+    /// Set this element's inner HTML.
+    ///
+    /// This method clears and sets the inner HTML. The given HTML string is first parsed as an ``Element`` and then replaces existing children with the parsed ``Element``.
+    ///
+    /// - Parameter html: A HTML string to parse and set into this element.
+    /// - Returns: `self` for chaining.
+    /// - Attention: Removing existing children precedes parsing the given HTML. This means that this element's children will be empty if an error occurs.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.failedToParseHTML` if a parser failed to parse HTML.
     @discardableResult
 	public func setHTML(_ html: String) throws -> Element {
 		removeAll()
