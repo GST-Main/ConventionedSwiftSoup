@@ -229,7 +229,7 @@ class SelectorTest: XCTestCase {
 	func testDescendant()throws {
 		let h: String = "<div class=head><p class=first>Hello</p><p>There</p></div><p>None</p>"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let root: Element = doc.getElementsByClass("HEAD").first!
+		let root: HTMLElement = doc.getElementsByClass("HEAD").first!
 
 		let els: Elements = root.select(cssQuery: ".head p")
 		XCTAssertEqual(2, els.count)
@@ -271,7 +271,7 @@ class SelectorTest: XCTestCase {
 	func testDeeperDescendant()throws {
 		let h: String = "<div class=head><p><span class=first>Hello</div><div class=head><p class=first><span>Another</span><p>Again</div>"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let root: Element = doc.getElementsByClass("head").first!
+		let root: HTMLElement = doc.getElementsByClass("head").first!
 
 		let els: Elements = root.select(cssQuery: "div p .first")
 		XCTAssertEqual(1, els.count)
@@ -399,14 +399,14 @@ class SelectorTest: XCTestCase {
 		let h: String = "<div><p id='a1-foo_bar'>One</p><p class='b2-qux_bif'>Two</p></div>"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
 
-		let el1: Element = doc.getElementById("a1-foo_bar")!
+		let el1: HTMLElement = doc.getElementById("a1-foo_bar")!
 		XCTAssertEqual("One", el1.getText())
-		let el2: Element = doc.getElementsByClass("b2-qux_bif").first!
+		let el2: HTMLElement = doc.getElementsByClass("b2-qux_bif").first!
 		XCTAssertEqual("Two", el2.getText())
 
-		let el3: Element = doc.select(cssQuery: "#a1-foo_bar").first!
+		let el3: HTMLElement = doc.select(cssQuery: "#a1-foo_bar").first!
 		XCTAssertEqual("One", el3.getText())
-		let el4: Element = doc.select(cssQuery: ".b2-qux_bif").first!
+		let el4: HTMLElement = doc.select(cssQuery: ".b2-qux_bif").first!
 		XCTAssertEqual("Two", el4.getText())
 	}
 
@@ -415,7 +415,7 @@ class SelectorTest: XCTestCase {
 		var h: String = "<div><p><span>One</span><span>Two</span></p></div>"
 		var doc: HTMLDocument = HTMLParser.parse(h)!
 
-		let p: Element = doc.select(cssQuery: "div > p").first!
+		let p: HTMLElement = doc.select(cssQuery: "div > p").first!
 		let spans: Elements = p.select(cssQuery: "> span")
 		XCTAssertEqual(2, spans.count)
 		XCTAssertEqual("One", spans.first?.getText())
@@ -423,7 +423,7 @@ class SelectorTest: XCTestCase {
 		// make sure doesn't get nested
 		h = "<div id=1><div id=2><div id=3></div></div></div>"
 		doc = HTMLParser.parse(h)!
-		let div: Element = doc.select(cssQuery: "div").select(cssQuery: " > div").first!
+		let div: HTMLElement = doc.select(cssQuery: "div").select(cssQuery: " > div").first!
 		XCTAssertEqual("2", div.id)
 	}
 

@@ -91,7 +91,7 @@
 		8CE418651DAA568600240B42 /* DataNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE4183E1DAA568600240B42 /* DataNode.swift */; };
 		8CE418661DAA568600240B42 /* HTMLDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE4183F1DAA568600240B42 /* HTMLDocument.swift */; };
 		8CE418671DAA568600240B42 /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418401DAA568600240B42 /* DocumentType.swift */; };
-		8CE418681DAA568600240B42 /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418411DAA568600240B42 /* Element.swift */; };
+		8CE418681DAA568600240B42 /* HTMLElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418411DAA568600240B42 /* HTMLElement.swift */; };
 		8CE4186C1DAA568600240B42 /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418451DAA568600240B42 /* Entities.swift */; };
 		8CE4186D1DAA568700240B42 /* FormElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418461DAA568600240B42 /* FormElement.swift */; };
 		8CE4186E1DAA568700240B42 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418471DAA568600240B42 /* Node.swift */; };
@@ -127,7 +127,7 @@
 		BD3B5B741FBED933001FDB3B /* CharacterExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418511DAA568600240B42 /* CharacterExt.swift */; };
 		BD3B5B751FBED933001FDB3B /* HtmlTreeBuilderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6239C31DBE90740024F42D /* HtmlTreeBuilderState.swift */; };
 		BD3B5B761FBED933001FDB3B /* OrderedSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C246B521DD7396200B31DA7 /* OrderedSet.swift */; };
-		BD3B5B771FBED933001FDB3B /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418411DAA568600240B42 /* Element.swift */; };
+		BD3B5B771FBED933001FDB3B /* HTMLElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418411DAA568600240B42 /* HTMLElement.swift */; };
 		BD3B5B781FBED933001FDB3B /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418451DAA568600240B42 /* Entities.swift */; };
 		BD3B5B791FBED933001FDB3B /* DataNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE4183E1DAA568600240B42 /* DataNode.swift */; };
 		BD3B5B7A1FBED933001FDB3B /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA859601DB69481006B8148 /* Token.swift */; };
@@ -178,7 +178,7 @@
 		BD3B5BB71FC063BD001FDB3B /* CharacterExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418511DAA568600240B42 /* CharacterExt.swift */; };
 		BD3B5BB81FC063BD001FDB3B /* HtmlTreeBuilderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6239C31DBE90740024F42D /* HtmlTreeBuilderState.swift */; };
 		BD3B5BB91FC063BD001FDB3B /* OrderedSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C246B521DD7396200B31DA7 /* OrderedSet.swift */; };
-		BD3B5BBA1FC063BD001FDB3B /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418411DAA568600240B42 /* Element.swift */; };
+		BD3B5BBA1FC063BD001FDB3B /* HTMLElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418411DAA568600240B42 /* HTMLElement.swift */; };
 		BD3B5BBB1FC063BD001FDB3B /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418451DAA568600240B42 /* Entities.swift */; };
 		BD3B5BBC1FC063BD001FDB3B /* DataNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE4183E1DAA568600240B42 /* DataNode.swift */; };
 		BD3B5BBD1FC063BD001FDB3B /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA859601DB69481006B8148 /* Token.swift */; };
@@ -229,7 +229,7 @@
 		BD3B5BFA1FC06423001FDB3B /* CharacterExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418511DAA568600240B42 /* CharacterExt.swift */; };
 		BD3B5BFB1FC06423001FDB3B /* HtmlTreeBuilderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6239C31DBE90740024F42D /* HtmlTreeBuilderState.swift */; };
 		BD3B5BFC1FC06423001FDB3B /* OrderedSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C246B521DD7396200B31DA7 /* OrderedSet.swift */; };
-		BD3B5BFD1FC06423001FDB3B /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418411DAA568600240B42 /* Element.swift */; };
+		BD3B5BFD1FC06423001FDB3B /* HTMLElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418411DAA568600240B42 /* HTMLElement.swift */; };
 		BD3B5BFE1FC06423001FDB3B /* Entities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE418451DAA568600240B42 /* Entities.swift */; };
 		BD3B5BFF1FC06423001FDB3B /* DataNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CE4183E1DAA568600240B42 /* DataNode.swift */; };
 		BD3B5C001FC06423001FDB3B /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CA859601DB69481006B8148 /* Token.swift */; };
@@ -360,7 +360,7 @@
 		8CE4183E1DAA568600240B42 /* DataNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataNode.swift; sourceTree = "<group>"; };
 		8CE4183F1DAA568600240B42 /* HTMLDocument.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLDocument.swift; sourceTree = "<group>"; };
 		8CE418401DAA568600240B42 /* DocumentType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
-		8CE418411DAA568600240B42 /* Element.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Element.swift; sourceTree = "<group>"; };
+		8CE418411DAA568600240B42 /* HTMLElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLElement.swift; sourceTree = "<group>"; };
 		8CE418451DAA568600240B42 /* Entities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Entities.swift; sourceTree = "<group>"; };
 		8CE418461DAA568600240B42 /* FormElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormElement.swift; sourceTree = "<group>"; };
 		8CE418471DAA568600240B42 /* Node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
@@ -489,7 +489,7 @@
 				8CE4183E1DAA568600240B42 /* DataNode.swift */,
 				8CE4183F1DAA568600240B42 /* HTMLDocument.swift */,
 				8CE418401DAA568600240B42 /* DocumentType.swift */,
-				8CE418411DAA568600240B42 /* Element.swift */,
+				8CE418411DAA568600240B42 /* HTMLElement.swift */,
 				8CE418451DAA568600240B42 /* Entities.swift */,
 				8CE418461DAA568600240B42 /* FormElement.swift */,
 				8CE418471DAA568600240B42 /* Node.swift */,
@@ -955,7 +955,7 @@
 				1AD27D952C312F3700BDEEB5 /* MarkupParser.swift in Sources */,
 				8C5B31C51DC3F2F000D2F649 /* HtmlTreeBuilderState.swift in Sources */,
 				8C246B531DD7396200B31DA7 /* OrderedSet.swift in Sources */,
-				8CE418681DAA568600240B42 /* Element.swift in Sources */,
+				8CE418681DAA568600240B42 /* HTMLElement.swift in Sources */,
 				8CE4186C1DAA568600240B42 /* Entities.swift in Sources */,
 				8CE418651DAA568600240B42 /* DataNode.swift in Sources */,
 				8CA859611DB69481006B8148 /* Token.swift in Sources */,
@@ -1057,7 +1057,7 @@
 				1AD27D962C312F3700BDEEB5 /* MarkupParser.swift in Sources */,
 				BD3B5B751FBED933001FDB3B /* HtmlTreeBuilderState.swift in Sources */,
 				BD3B5B761FBED933001FDB3B /* OrderedSet.swift in Sources */,
-				BD3B5B771FBED933001FDB3B /* Element.swift in Sources */,
+				BD3B5B771FBED933001FDB3B /* HTMLElement.swift in Sources */,
 				BD3B5B781FBED933001FDB3B /* Entities.swift in Sources */,
 				BD3B5B791FBED933001FDB3B /* DataNode.swift in Sources */,
 				BD3B5B7A1FBED933001FDB3B /* Token.swift in Sources */,
@@ -1120,7 +1120,7 @@
 				1AD27D972C312F3700BDEEB5 /* MarkupParser.swift in Sources */,
 				BD3B5BB81FC063BD001FDB3B /* HtmlTreeBuilderState.swift in Sources */,
 				BD3B5BB91FC063BD001FDB3B /* OrderedSet.swift in Sources */,
-				BD3B5BBA1FC063BD001FDB3B /* Element.swift in Sources */,
+				BD3B5BBA1FC063BD001FDB3B /* HTMLElement.swift in Sources */,
 				BD3B5BBB1FC063BD001FDB3B /* Entities.swift in Sources */,
 				BD3B5BBC1FC063BD001FDB3B /* DataNode.swift in Sources */,
 				BD3B5BBD1FC063BD001FDB3B /* Token.swift in Sources */,
@@ -1183,7 +1183,7 @@
 				1AD27D982C312F3700BDEEB5 /* MarkupParser.swift in Sources */,
 				BD3B5BFB1FC06423001FDB3B /* HtmlTreeBuilderState.swift in Sources */,
 				BD3B5BFC1FC06423001FDB3B /* OrderedSet.swift in Sources */,
-				BD3B5BFD1FC06423001FDB3B /* Element.swift in Sources */,
+				BD3B5BFD1FC06423001FDB3B /* HTMLElement.swift in Sources */,
 				BD3B5BFE1FC06423001FDB3B /* Entities.swift in Sources */,
 				BD3B5BFF1FC06423001FDB3B /* DataNode.swift in Sources */,
 				BD3B5C001FC06423001FDB3B /* Token.swift in Sources */,

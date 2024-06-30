@@ -27,16 +27,16 @@ class NodeTest: XCTestCase {
 			try attribs.put("relHref", "/foo")
 			try attribs.put("absHref", "http://bar/qux")
 
-			let noBase: Element = Element(tag: tag, baseURI: "", attributes: attribs)
+			let noBase: HTMLElement = HTMLElement(tag: tag, baseURI: "", attributes: attribs)
 			XCTAssertEqual("", noBase.absoluteURLPath(ofAttribute: "relHref")) // with no base, should NOT fallback to href attrib, whatever it is
 			XCTAssertEqual("http://bar/qux", noBase.absoluteURLPath(ofAttribute: "absHref")) // no base but valid attrib, return attrib
 
-			let withBase: Element = Element(tag: tag, baseURI: "http://foo/", attributes: attribs)
+			let withBase: HTMLElement = HTMLElement(tag: tag, baseURI: "http://foo/", attributes: attribs)
 			XCTAssertEqual("http://foo/foo", withBase.absoluteURLPath(ofAttribute: "relHref")) // construct abs from base + rel
 			XCTAssertEqual("http://bar/qux", withBase.absoluteURLPath(ofAttribute: "absHref")) // href is abs, so returns that
 			XCTAssertEqual(nil, withBase.absoluteURLPath(ofAttribute: "noval"))
 
-			let dodgyBase: Element = Element(tag: tag, baseURI: "wtf://no-such-protocol/", attributes: attribs)
+			let dodgyBase: HTMLElement = HTMLElement(tag: tag, baseURI: "wtf://no-such-protocol/", attributes: attribs)
 			XCTAssertEqual("http://bar/qux", dodgyBase.absoluteURLPath(ofAttribute: "absHref")) // base fails, but href good, so get that
 			//TODO:Nabil in swift an url with scheme wtf is valid , find a method to validate schemes
 			//XCTAssertEqual("", try dodgyBase.absUrl("relHref")); // base fails, only rel href, so return nothing
@@ -58,7 +58,7 @@ class NodeTest: XCTestCase {
 
 	func testHandlesAbsPrefix() {
         let doc: HTMLDocument = HTMLParser.parse("<a href=/foo>Hello</a>", baseURI: "https://jsoup.org/")!
-        let a: Element? = doc.select(cssQuery: "a").first
+        let a: HTMLElement? = doc.select(cssQuery: "a").first
         XCTAssertEqual("/foo", a?.getAttribute(withKey: "href"))
         XCTAssertEqual("https://jsoup.org/foo", a?.getAttribute(withKey: "abs:href"))
         //XCTAssertTrue(a!.hasAttr("abs:href"));//TODO:nabil
@@ -66,7 +66,7 @@ class NodeTest: XCTestCase {
 
 	func testHandlesAbsOnImage() {
         let doc: HTMLDocument = HTMLParser.parse("<p><img src=\"/rez/osi_logo.png\" /></p>", baseURI: "https://jsoup.org/")!
-        let img: Element? = doc.select(cssQuery: "img").first
+        let img: HTMLElement? = doc.select(cssQuery: "img").first
         XCTAssertEqual("https://jsoup.org/rez/osi_logo.png", img?.getAttribute(withKey: "abs:src"))
         XCTAssertEqual(img?.absoluteURLPath(ofAttribute: "src"), img?.getAttribute(withKey: "abs:src"))
 	}
@@ -74,8 +74,8 @@ class NodeTest: XCTestCase {
 	func testHandlesAbsPrefixOnHasAttr() {
         // 1: no abs url; 2: has abs url
         let doc: HTMLDocument = HTMLParser.parse("<a id=1 href='/foo'>One</a> <a id=2 href='https://jsoup.org/'>Two</a>")!
-        let one: Element = doc.select(cssQuery: "#1").first!
-        let two: Element = doc.select(cssQuery: "#2").first!
+        let one: HTMLElement = doc.select(cssQuery: "#1").first!
+        let two: HTMLElement = doc.select(cssQuery: "#2").first!
         
         XCTAssertFalse(one.hasAttribute(withKey: "abs:href"))
         XCTAssertTrue(one.hasAttribute(withKey: "href"))
@@ -89,7 +89,7 @@ class NodeTest: XCTestCase {
 	func testLiteralAbsPrefix() {
         // if there is a literal attribute "abs:xxx", don't try and make absolute.
         let doc: HTMLDocument = HTMLParser.parse("<a abs:href='odd'>One</a>")!
-        let el: Element = doc.select(cssQuery: "a").first!
+        let el: HTMLElement = doc.select(cssQuery: "a").first!
         XCTAssertTrue(el.hasAttribute(withKey: "abs:href"))
         XCTAssertEqual("odd", el.getAttribute(withKey: "abs:href"))
 	}
@@ -98,9 +98,9 @@ class NodeTest: XCTestCase {
 	func testHandleAbsOnFileUris() {
 		do{
 			let doc: HTMLDocument = try Jsoup.parse("<a href='password'>One/a><a href='/var/log/messages'>Two</a>", "file:/etc/");
-			let one: Element = try doc.select("a").first!;
+			let one: HTMLElement = try doc.select("a").first!;
 			XCTAssertEqual("file:/etc/password", try one.absUrl("href"));
-			let two: Element = try doc.select("a").get(index: 1)!;
+			let two: HTMLElement = try doc.select("a").get(index: 1)!;
 			XCTAssertEqual("file:/var/log/messages", try two.absUrl("href"));
 		}catch{
 			XCTAssertEqual(1,2)
@@ -109,7 +109,7 @@ class NodeTest: XCTestCase {
 */
 	func testHandleAbsOnLocalhostFileUris() {
         let doc: HTMLDocument  = HTMLParser.parse("<a href='password'>One/a><a href='/var/log/messages'>Two</a>", baseURI: "file://localhost/etc/")!
-        let one: Element? = doc.select(cssQuery: "a").first
+        let one: HTMLElement? = doc.select(cssQuery: "a").first
         XCTAssertEqual("file://localhost/etc/password", one?.absoluteURLPath(ofAttribute: "href"))
 	}
 
@@ -117,8 +117,8 @@ class NodeTest: XCTestCase {
         let doc1: HTMLDocument = HTMLParser.parse("<a href='//example.net/foo'>One</a>", baseURI: "http://example.com/")!
         let doc2: HTMLDocument = HTMLParser.parse("<a href='//example.net/foo'>One</a>", baseURI: "https://example.com/")!
         
-        let one: Element? = doc1.select(cssQuery: "a").first
-        let two: Element? = doc2.select(cssQuery: "a").first
+        let one: HTMLElement? = doc1.select(cssQuery: "a").first
+        let two: HTMLElement? = doc2.select(cssQuery: "a").first
         
         XCTAssertEqual("http://example.net/foo", one?.absoluteURLPath(ofAttribute: "href"))
         XCTAssertEqual("https://example.net/foo", two?.absoluteURLPath(ofAttribute: "href"))
@@ -127,22 +127,22 @@ class NodeTest: XCTestCase {
 	func testAbsHandlesRelativeQuery() {
         let doc: HTMLDocument = HTMLParser.parse("<a href='?foo'>One</a> <a href='bar.html?foo'>Two</a>", baseURI: "https://jsoup.org/path/file?bar")!
         
-        let a1: Element? = doc.select(cssQuery: "a").first
+        let a1: HTMLElement? = doc.select(cssQuery: "a").first
         XCTAssertEqual("https://jsoup.org/path/file?foo", a1?.absoluteURLPath(ofAttribute: "href"))
         
-        let a2: Element? = doc.select(cssQuery: "a").get(index: 1)!
+        let a2: HTMLElement? = doc.select(cssQuery: "a").get(index: 1)!
         XCTAssertEqual("https://jsoup.org/path/bar.html?foo", a2?.absoluteURLPath(ofAttribute: "href"))
 	}
 
 	func testAbsHandlesDotFromIndex() {
         let doc: HTMLDocument = HTMLParser.parse("<a href='./one/two.html'>One</a>", baseURI: "http://example.com")!
-        let a1: Element? = doc.select(cssQuery: "a").first
+        let a1: HTMLElement? = doc.select(cssQuery: "a").first
         XCTAssertEqual("http://example.com/one/two.html", a1?.absoluteURLPath(ofAttribute: "href"))
 	}
 
 	func testRemove() {
         let doc: HTMLDocument = HTMLParser.parse("<p>One <span>two</span> three</p>")!
-        let p: Element? = doc.select(cssQuery: "p").first
+        let p: HTMLElement? = doc.select(cssQuery: "p").first
         p?.childNode(0).remove()
         
         XCTAssertEqual("two three", p?.getText())
@@ -152,8 +152,8 @@ class NodeTest: XCTestCase {
 	func testReplace() {
 		do {
 			let doc: HTMLDocument = HTMLParser.parse("<p>One <span>two</span> three</p>")!
-			let p: Element? = doc.select(cssQuery: "p").first
-			let insert: Element = try doc.createElement(withTagName: "em").setText("foo")
+			let p: HTMLElement? = doc.select(cssQuery: "p").first
+			let insert: HTMLElement = try doc.createElement(withTagName: "em").setText("foo")
             p?.childNode(1).replace(with: insert)
 
 			XCTAssertEqual("One <em>foo</em> three", p?.html)
@@ -164,7 +164,7 @@ class NodeTest: XCTestCase {
 
 	func testOwnerDocument() {
         let doc: HTMLDocument = HTMLParser.parse("<p>Hello")!
-        let p: Element? = doc.select(cssQuery: "p").first
+        let p: HTMLElement? = doc.select(cssQuery: "p").first
         XCTAssertTrue(p?.ownerDocument() == doc)
         XCTAssertTrue(doc.ownerDocument() == doc)
         XCTAssertNil(doc.parent)
@@ -173,7 +173,7 @@ class NodeTest: XCTestCase {
 	func testBefore() {
 		do {
 			let doc: HTMLDocument = HTMLParser.parse("<p>One <b>two</b> three</p>")!
-			let newNode: Element =  Element(tag: try Tag.valueOf("em"), baseURI: "")
+			let newNode: HTMLElement =  HTMLElement(tag: try Tag.valueOf("em"), baseURI: "")
             newNode.appendText("four")
 
 			try doc.select(cssQuery: "b").first?.insertNodeAsPreviousSibling(newNode)
@@ -189,7 +189,7 @@ class NodeTest: XCTestCase {
 	func testAfter() {
 		do {
 			let doc: HTMLDocument = HTMLParser.parse("<p>One <b>two</b> three</p>")!
-			let newNode: Element = Element(tag: try Tag.valueOf("em"), baseURI: "")
+			let newNode: HTMLElement = HTMLElement(tag: try Tag.valueOf("em"), baseURI: "")
             newNode.appendText("four")
 
 			try _ = doc.select(cssQuery: "b").first?.insertNodeAsNextSibling(newNode)
@@ -206,7 +206,7 @@ class NodeTest: XCTestCase {
 	func testUnwrap() {
 		do {
 			let doc: HTMLDocument = HTMLParser.parse("<div>One <span>Two <b>Three</b></span> Four</div>")!
-			let span: Element? = doc.select(cssQuery: "span").first
+			let span: HTMLElement? = doc.select(cssQuery: "span").first
 			let twoText: Node? = span?.childNode(0)
 			let node: Node? = try span?.unwrap()
 
@@ -223,7 +223,7 @@ class NodeTest: XCTestCase {
 	func testUnwrapNoChildren() {
 		do {
 			let doc: HTMLDocument = HTMLParser.parse("<div>One <span></span> Two</div>")!
-			let span: Element? = doc.select(cssQuery: "span").first
+			let span: HTMLElement? = doc.select(cssQuery: "span").first
 			let node: Node? = try span?.unwrap()
 			XCTAssertEqual("<div>One  Two</div>", TextUtil.stripNewlines(doc.body!.html!))
 			XCTAssertTrue(node == nil)
@@ -264,8 +264,8 @@ class NodeTest: XCTestCase {
 
 	func testOrphanNodeReturnsNullForSiblingElements() {
 		do {
-			let node: Node = Element(tag: try Tag.valueOf("p"), baseURI: "")
-			let el: Element = Element(tag: try Tag.valueOf("p"), baseURI: "")
+			let node: Node = HTMLElement(tag: try Tag.valueOf("p"), baseURI: "")
+			let el: HTMLElement = HTMLElement(tag: try Tag.valueOf("p"), baseURI: "")
 
 			XCTAssertEqual(0, node.siblingIndex)
 			XCTAssertEqual(0, node.siblingNodes.count)
@@ -283,7 +283,7 @@ class NodeTest: XCTestCase {
 
 	func testNodeIsNotASiblingOfItself() {
         let doc: HTMLDocument = HTMLParser.parse("<div><p>One<p>Two<p>Three</div>")!
-        let p2: Element = doc.select(cssQuery: "p").get(index: 1)!
+        let p2: HTMLElement = doc.select(cssQuery: "p").get(index: 1)!
         
         XCTAssertEqual("Two", p2.getText())
         let nodes = p2.siblingNodes
@@ -294,8 +294,8 @@ class NodeTest: XCTestCase {
 
 	func testChildNodesCopy() {
         let doc: HTMLDocument = HTMLParser.parse("<div id=1>Text 1 <p>One</p> Text 2 <p>Two<p>Three</div><div id=2>")!
-        let div1: Element? = doc.select(cssQuery: "#1").first
-        let div2: Element? = doc.select(cssQuery: "#2").first
+        let div1: HTMLElement? = doc.select(cssQuery: "#1").first
+        let div2: HTMLElement? = doc.select(cssQuery: "#2").first
         let divChildren = div1?.childNodesCopy()
         XCTAssertEqual(5, divChildren?.count)
         let tn1: TextNode? = div1?.childNode(0) as? TextNode
@@ -308,10 +308,10 @@ class NodeTest: XCTestCase {
 
 	func testSupportsClone() {
         let doc: HTMLDocument = HTMLParser.parse("<div class=foo>Text</div>")!
-        let el: Element = doc.select(cssQuery: "div").first!
+        let el: HTMLElement = doc.select(cssQuery: "div").first!
         XCTAssertTrue(el.hasClass(named: "foo"))
         
-        let elClone: Element = (doc.copy() as! HTMLDocument).select(cssQuery: "div").first!
+        let elClone: HTMLElement = (doc.copy() as! HTMLDocument).select(cssQuery: "div").first!
         XCTAssertTrue(elClone.hasClass(named: "foo"))
         XCTAssertTrue(elClone.getText() == "Text")
         

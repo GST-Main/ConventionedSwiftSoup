@@ -19,7 +19,7 @@ public class StructuralEvaluator: Evaluator {
     }
 
     public class Root: Evaluator {
-        public override func matches(_ root: Element, _ element: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement) -> Bool {
             return root === element
         }
     }
@@ -29,7 +29,7 @@ public class StructuralEvaluator: Evaluator {
             super.init(evaluator)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             for e in element.allElements {
                 do {
                     if(e != element) {
@@ -53,7 +53,7 @@ public class StructuralEvaluator: Evaluator {
             super.init(evaluator)
         }
 
-        public override func matches(_ root: Element, _ node: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ node: HTMLElement) -> Bool {
             do {
                 return try !evaluator.matches(root, node)
             } catch {}
@@ -70,7 +70,7 @@ public class StructuralEvaluator: Evaluator {
             super.init(evaluator)
         }
 
-        public override func matches(_ root: Element, _ element: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement) -> Bool {
             if (root == element) {
                 return false
             }
@@ -101,7 +101,7 @@ public class StructuralEvaluator: Evaluator {
             super.init(evaluator)
         }
 
-        public override func matches(_ root: Element, _ element: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement) -> Bool {
             if (root == element) {
                 return false
             }
@@ -125,7 +125,7 @@ public class StructuralEvaluator: Evaluator {
             super.init(evaluator)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             if (root == element) {
             return false
             }
@@ -154,7 +154,7 @@ public class StructuralEvaluator: Evaluator {
             super.init(evaluator)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             if (root == element) {
                 return false
             }

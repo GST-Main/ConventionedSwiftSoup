@@ -12,7 +12,7 @@ public class TreeBuilder {
     public var reader: CharacterReader
     var tokeniser: Tokeniser
     public var doc: HTMLDocument // current doc we are building into
-    public var stack: Array<Element> // the stack of open elements
+    public var stack: Array<HTMLElement> // the stack of open elements
     public var baseUri: String // current base uri, for creating new elements
     public var currentToken: Token? // currentToken is used only for error tracking.
     public var errors: ParseErrorList // null when not tracking errors
@@ -27,7 +27,7 @@ public class TreeBuilder {
         doc =  HTMLDocument(baseURI: "")
         reader = CharacterReader("")
         tokeniser = Tokeniser(reader, nil)
-        stack = Array<Element>()
+        stack = Array<HTMLElement>()
         baseUri = ""
         errors = ParseErrorList(0, 0)
         settings = ParseSettings(false, false)
@@ -39,7 +39,7 @@ public class TreeBuilder {
         reader = CharacterReader(input)
         self.errors = errors
         tokeniser = Tokeniser(reader, errors)
-        stack = Array<Element>()
+        stack = Array<HTMLElement>()
         self.baseUri = baseUri
     }
 
@@ -91,7 +91,7 @@ public class TreeBuilder {
     return try process(end.reset().name(name))
     }
 
-    public func currentElement() -> Element? {
+    public func currentElement() -> HTMLElement? {
         let size: Int = stack.count
         return size > 0 ? stack[size-1] : nil
     }

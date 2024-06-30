@@ -65,10 +65,10 @@ public class XmlTreeBuilder: TreeBuilder {
     }
 
     @discardableResult
-    func insert(_ startTag: Token.StartTag)throws->Element {
+    func insert(_ startTag: Token.StartTag)throws->HTMLElement {
         let tag: Tag = try Tag.valueOf(startTag.name(), settings)
         // todo: wonder if for xml parsing, should treat all tags as unknown? because it's not html.
-        let el: Element = try Element(tag: tag, baseURI: baseUri, attributes: settings.normalizeAttributes(startTag._attributes))
+        let el: HTMLElement = try HTMLElement(tag: tag, baseURI: baseUri, attributes: settings.normalizeAttributes(startTag._attributes))
         try insertNode(el)
         if (startTag.isSelfClosing()) {
             tokeniser.acknowledgeSelfClosingFlag()
@@ -91,7 +91,7 @@ public class XmlTreeBuilder: TreeBuilder {
             if (data.count > 1 && (data.startsWith("!") || data.startsWith("?"))) {
                 let parser = XMLParser()
                 let doc: HTMLDocument = try parser.parse("<" + data.substring(1, data.count - 2) + ">", baseURI: baseUri)
-                let el: Element = doc.getChild(at: 0)!
+                let el: HTMLElement = doc.getChild(at: 0)!
                 insert = XmlDeclaration(settings.normalizeTag(el.tagName), comment.baseURI!, data.startsWith("!"))
                 insert.getAttributes()?.addAll(incoming: el.getAttributes())
             }
@@ -117,10 +117,10 @@ public class XmlTreeBuilder: TreeBuilder {
      */
     private func popStackToClose(_ endTag: Token.EndTag)throws {
         let elName: String = try endTag.name()
-        var firstFound: Element? = nil
+        var firstFound: HTMLElement? = nil
 
         for pos in (0..<stack.count).reversed() {
-            let next: Element = stack[pos]
+            let next: HTMLElement = stack[pos]
             if (next.nodeName.equals(elName)) {
                 firstFound = next
                 break
@@ -131,7 +131,7 @@ public class XmlTreeBuilder: TreeBuilder {
         }
 
         for pos in (0..<stack.count).reversed() {
-            let next: Element = stack[pos]
+            let next: HTMLElement = stack[pos]
             stack.remove(at: pos)
             if (next == firstFound!) {
             break

@@ -232,7 +232,7 @@ open class Token {
 		override func reset() -> Tag {
 			super.reset()
 			_attributes = Attributes()
-			// todo - would prefer these to be null, but need to check Element assertions
+			// todo - would prefer these to be null, but need to check HTMLElement assertions
 			return self
 		}
 

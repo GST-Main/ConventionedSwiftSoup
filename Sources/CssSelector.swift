@@ -70,16 +70,16 @@ import Foundation
  * <tr><td><code>:empty</code></td><td>elements that have no children at all</td><td></td></tr>
  * </table>
  *
- * @see Element#select(String)
+ * @see HTMLElement#select(String)
  */
 @available(*, deprecated, renamed: "CssSelector")
 typealias Selector = CssSelector
 
 open class CssSelector {
     private let evaluator: Evaluator
-    private let root: Element
+    private let root: HTMLElement
 
-    private init(_ query: String, _ root: Element)throws {
+    private init(_ query: String, _ root: HTMLElement)throws {
         let query = query.trim()
         try Validate.notEmpty(string: query)
 
@@ -88,7 +88,7 @@ open class CssSelector {
         self.root = root
     }
 
-    private init(_ evaluator: Evaluator, _ root: Element) {
+    private init(_ evaluator: Evaluator, _ root: HTMLElement) {
         self.evaluator = evaluator
         self.root = root
     }
@@ -101,7 +101,7 @@ open class CssSelector {
      * @return matching elements, empty if none
      * @throws CssSelector.SelectorParseException (unchecked) on an invalid CSS query.
      */
-    public static func select(_ query: String, _ root: Element)throws->Elements {
+    public static func select(_ query: String, _ root: HTMLElement)throws->Elements {
         return try CssSelector(query, root).select()
     }
 
@@ -112,7 +112,7 @@ open class CssSelector {
      * @param root root element to descend into
      * @return matching elements, empty if none
      */
-    public static func select(_ evaluator: Evaluator, _ root: Element)throws->Elements {
+    public static func select(_ evaluator: Evaluator, _ root: HTMLElement)throws->Elements {
         return try CssSelector(evaluator, root).select()
     }
 
@@ -123,16 +123,16 @@ open class CssSelector {
      * @param roots root elements to descend into
      * @return matching elements, empty if none
      */
-    public static func select(_ query: String, _ roots: Array<Element>)throws->Elements {
+    public static func select(_ query: String, _ roots: Array<HTMLElement>)throws->Elements {
         try Validate.notEmpty(string: query)
         let evaluator: Evaluator = try QueryParser.parse(query)
-        var elements: Array<Element> = Array<Element>()
-        var seenElements: Array<Element> = Array<Element>()
+        var elements: Array<HTMLElement> = Array<HTMLElement>()
+        var seenElements: Array<HTMLElement> = Array<HTMLElement>()
         // dedupe elements by identity, not equality
 
-        for root: Element in roots {
+        for root: HTMLElement in roots {
             let found: Elements = try select(evaluator, root)
-            for  el: Element in found {
+            for  el: HTMLElement in found {
                 if (!seenElements.contains(el)) {
                     elements.append(el)
                     seenElements.append(el)
@@ -147,11 +147,11 @@ open class CssSelector {
     }
 
     // exclude set. package open so that Elements can implement .not() selector.
-    static func filterOut(_ elements: Array<Element>, _ outs: Array<Element>) -> Elements {
+    static func filterOut(_ elements: Array<HTMLElement>, _ outs: Array<HTMLElement>) -> Elements {
         let output: Elements = Elements()
-        for el: Element in elements {
+        for el: HTMLElement in elements {
             var found: Bool = false
-            for out: Element in outs {
+            for out: HTMLElement in outs {
                 if (el.equals(out)) {
                     found = true
                     break

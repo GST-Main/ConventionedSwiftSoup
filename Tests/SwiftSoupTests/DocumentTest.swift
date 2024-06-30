@@ -34,7 +34,7 @@ class DocumentTest: XCTestCase {
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			let els: Elements = try doc.getElementsByClass("special")
-//			let special: Element? = els.first//get first element
+//			let special: HTMLElement? = els.first//get first element
 //			print(try special?.text())//"this is in bold"
 //			print(special?.tagName())//"p"
 //			print(special?.child(0).tag().getName())//"b"
@@ -227,7 +227,7 @@ class DocumentTest: XCTestCase {
 		let htmlCharsetUTF8: String = "<html>\n" + " <head>\n" + "  <meta charset=\"" + "UTF-8" + "\">\n" + " </head>\n" + " <body></body>\n" + "</html>"
 		XCTAssertEqual(htmlCharsetUTF8, doc.outerHTML ?? "")
 
-		let selectedElement: Element = doc.select(cssQuery: "meta[charset]").first!
+		let selectedElement: HTMLElement = doc.select(cssQuery: "meta[charset]").first!
 		XCTAssertEqual(DocumentTest.charsetUtf8, doc.charset)
 		XCTAssertEqual("UTF-8", selectedElement.getAttribute(withKey: "charset"))
 		XCTAssertEqual(doc.charset, doc.outputSettings.charset())
@@ -246,7 +246,7 @@ class DocumentTest: XCTestCase {
 		"</html>"
 		XCTAssertEqual(htmlCharsetISO, doc.outerHTML)
 
-		let selectedElement: Element = doc.select(cssQuery: "meta[charset]").first!
+		let selectedElement: HTMLElement = doc.select(cssQuery: "meta[charset]").first!
 		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), doc.charset.displayName())
 		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), selectedElement.getAttribute(withKey: "charset"))
 		XCTAssertEqual(doc.charset, doc.outputSettings.charset())
@@ -290,7 +290,7 @@ class DocumentTest: XCTestCase {
 		"</html>"
         XCTAssertEqual(htmlCharset, doc.outerHTML)
 
-		var selectedElement: Element = doc.select(cssQuery: "meta[charset]").first!
+		var selectedElement: HTMLElement = doc.select(cssQuery: "meta[charset]").first!
 		XCTAssertNotNil(selectedElement)
         XCTAssertEqual("dontTouch", selectedElement.getAttribute(withKey: "charset"))
 
@@ -303,7 +303,7 @@ class DocumentTest: XCTestCase {
 		let doc: HTMLDocument = createHtmlDocument("dontTouch")
         doc.charset = .utf8
 
-		let selectedElement: Element = doc.select(cssQuery: "meta[charset]").first!
+		let selectedElement: HTMLElement = doc.select(cssQuery: "meta[charset]").first!
         XCTAssertEqual(String.Encoding.utf8.displayName(), selectedElement.getAttribute(withKey: "charset"))
         XCTAssertTrue(doc.select(cssQuery: "meta[name=charset]").isEmpty)
 	}

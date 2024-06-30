@@ -106,7 +106,7 @@ class FormElementTest: XCTestCase {
 	func testFormsAddedAfterParseAreFormElements()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<body />")!
 		try doc.body?.setHTML("<form action='http://example.com/search'><input name='q' value='search'>")
-		let formEl: Element = doc.select(cssQuery: "form").first!
+		let formEl: HTMLElement = doc.select(cssQuery: "form").first!
 		XCTAssertNotNil(formEl as? FormElement)
 
 		let form: FormElement =  formEl as! FormElement
@@ -117,7 +117,7 @@ class FormElementTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse("<body />")!
 		try doc.body?.setHTML("<form />")
 
-		let formEl: Element = doc.select(cssQuery: "form").first!
+		let formEl: HTMLElement = doc.select(cssQuery: "form").first!
 		try formEl.appendHTML("<input name=foo value=bar>")
 
 		XCTAssertNotNil(formEl as? FormElement)

@@ -46,12 +46,12 @@ public class HTMLParser: MarkupParser {
     ///     - context: The element that this HTML fragment is being parsed for (i.e. for inner HTML). this provides stack context for implicit element creation).
     ///     - baseURI: Base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: An array of nodes parsed from the given HTML. If parser failed to parse the HTML string, returns `nil` instead. Note that the context element, if supplied, is not modified.
-    public static func parseHTMLFragment(_ fragmentHTML: String, context: Element?, baseURI: String = "") -> [Node]? {
+    public static func parseHTMLFragment(_ fragmentHTML: String, context: HTMLElement?, baseURI: String = "") -> [Node]? {
         let treeBuilder = HtmlTreeBuilder()
         return try? treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
     
-    internal static func _parseHTMLFragment(_ fragmentHTML: String, context: Element?, baseURI: String = "") throws -> [Node] {
+    internal static func _parseHTMLFragment(_ fragmentHTML: String, context: HTMLElement?, baseURI: String = "") throws -> [Node] {
         let treeBuilder = HtmlTreeBuilder()
         return try treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
@@ -64,7 +64,7 @@ public class HTMLParser: MarkupParser {
     /// - Returns: Parsed ``HTMLDocument`` object, with empty ``HTMLDocument/head``, and HTML parsed into ``HTMLDocument/body``. If parser failed to parse HTML string, returns `nil` instead.
     public static func parseBodyFragment(_ bodyHTML: String, baseURI: String = "") -> HTMLDocument? {
         let document = HTMLDocument.createShell(baseURI: baseURI)
-        if let body: Element = document.body, let nodes = parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI) {
+        if let body: HTMLElement = document.body, let nodes = parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI) {
             if nodes.count > 0 {
                 for i in 1..<nodes.count {
                     nodes[i].remove()

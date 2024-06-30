@@ -22,7 +22,7 @@ open class Evaluator {
      * @return Returns <tt>true</tt> if the requirements are met or
      * <tt>false</tt> otherwise
      */
-    open func matches(_ root: Element, _ element: Element)throws->Bool {
+    open func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
         preconditionFailure("self method must be overridden")
     }
 
@@ -42,7 +42,7 @@ open class Evaluator {
             self.tagNameNormal = tagName.lowercased()
         }
 
-        open override func matches(_ root: Element, _ element: Element)throws->Bool {
+        open override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return element.tagNameNormal == tagNameNormal
         }
 
@@ -61,7 +61,7 @@ open class Evaluator {
             self.tagName = tagName
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return (element.tagName.hasSuffix(tagName))
         }
 
@@ -80,7 +80,7 @@ open class Evaluator {
             self.id = id
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return (id == element.id)
         }
 
@@ -100,7 +100,7 @@ open class Evaluator {
             self.className = className
         }
 
-        public override func matches(_ root: Element, _ element: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement) -> Bool {
             return (element.hasClass(named: className))
         }
 
@@ -120,7 +120,7 @@ open class Evaluator {
             self.key = key
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return element.hasAttribute(withKey: key)
         }
 
@@ -141,7 +141,7 @@ open class Evaluator {
             self.keyPrefix = keyPrefix.lowercased()
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             if let values = element.getAttributes() {
                 for attribute in values where attribute.getKey().lowercased().hasPrefix(keyPrefix) {
                     return true
@@ -164,7 +164,7 @@ open class Evaluator {
             try super.init(key, value)
         }
 
-        public override func matches(_ root: Element, _ element: Element) throws -> Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement) throws -> Bool {
             if element.hasAttribute(withKey: key) {
                 let string = element.getAttribute(withKey: key)
                 return value.equalsIgnoreCase(string: string?.trim())
@@ -186,7 +186,7 @@ open class Evaluator {
             try super.init(key, value)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             let string = element.getAttribute(withKey: key)
             return !value.equalsIgnoreCase(string: string)
         }
@@ -205,7 +205,7 @@ open class Evaluator {
             try super.init(key, value)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             if element.hasAttribute(withKey: key) {
                 return element.getAttribute(withKey: key)?.lowercased().hasPrefix(value) == true  // value is lower case already
             }
@@ -226,7 +226,7 @@ open class Evaluator {
             try super.init(key, value)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             if element.hasAttribute(withKey: key) {
                 return element.getAttribute(withKey: key)?.lowercased().hasSuffix(value) == true // value is lower case
             }
@@ -247,7 +247,7 @@ open class Evaluator {
             try super.init(key, value)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             if element.hasAttribute(withKey: key) {
                 return element.getAttribute(withKey: key)?.lowercased().contains(value) == true // value is lower case
             }
@@ -273,7 +273,7 @@ open class Evaluator {
             super.init()
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             if element.hasAttribute(withKey: key) {
                 guard let string = element.getAttribute(withKey: key) else {
                     return false
@@ -308,7 +308,7 @@ open class Evaluator {
             self.value = value2.trim().lowercased()
         }
 
-        open override func matches(_ root: Element, _ element: Element)throws->Bool {
+        open override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             preconditionFailure("self method must be overridden")
         }
     }
@@ -318,7 +318,7 @@ open class Evaluator {
      */
     public final class AllElements: Evaluator {
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return true
         }
 
@@ -335,7 +335,7 @@ open class Evaluator {
             super.init(index)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return element.elementSiblingIndex < index
         }
 
@@ -353,7 +353,7 @@ open class Evaluator {
             super.init(index)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return element.elementSiblingIndex > index
         }
 
@@ -371,7 +371,7 @@ open class Evaluator {
             super.init(index)
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return element.elementSiblingIndex == index
         }
 
@@ -385,7 +385,7 @@ open class Evaluator {
      * Evaluator for matching the last sibling (css :last-child)
      */
     public final class IsLastChild: Evaluator {
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
 
             if let parent = element.parent {
                 let index = element.elementSiblingIndex
@@ -430,8 +430,8 @@ open class Evaluator {
             self.b = b
         }
 
-        open override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let p: Element? = element.parent
+        open override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
+            let p: HTMLElement? = element.parent
             if (p == nil || (((p as? HTMLDocument) != nil))) {return false}
 
             let pos: Int = try calculatePosition(root, element)
@@ -453,7 +453,7 @@ open class Evaluator {
         open func getPseudoClass() -> String {
             preconditionFailure("self method must be overridden")
         }
-        open func calculatePosition(_ root: Element, _ element: Element)throws->Int {
+        open func calculatePosition(_ root: HTMLElement, _ element: HTMLElement)throws->Int {
             preconditionFailure("self method must be overridden")
         }
     }
@@ -469,7 +469,7 @@ open class Evaluator {
             super.init(a, b)
         }
 
-        public override func calculatePosition(_ root: Element, _ element: Element)throws->Int {
+        public override func calculatePosition(_ root: HTMLElement, _ element: HTMLElement)throws->Int {
             return element.elementSiblingIndex + 1
         }
 
@@ -488,7 +488,7 @@ open class Evaluator {
             super.init(a, b)
         }
 
-        public override func calculatePosition(_ root: Element, _ element: Element)throws->Int {
+        public override func calculatePosition(_ root: HTMLElement, _ element: HTMLElement)throws->Int {
             var i = 0
 
             if let l = element.parent {
@@ -511,7 +511,7 @@ open class Evaluator {
             super.init(a, b)
         }
 
-        open override func calculatePosition(_ root: Element, _ element: Element) -> Int {
+        open override func calculatePosition(_ root: HTMLElement, _ element: HTMLElement) -> Int {
             var pos = 0
             let family: Elements? = element.parent?.children
             if let array = family {
@@ -535,7 +535,7 @@ open class Evaluator {
             super.init(a, b)
         }
 
-        open override func calculatePosition(_ root: Element, _ element: Element)throws->Int {
+        open override func calculatePosition(_ root: HTMLElement, _ element: HTMLElement)throws->Int {
             var pos = 0
             if let family = element.parent?.children {
                 let x = element.elementSiblingIndex
@@ -558,7 +558,7 @@ open class Evaluator {
      * Evaluator for matching the first sibling (css :first-child)
      */
     public final class IsFirstChild: Evaluator {
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             let p = element.parent
             if(p != nil && !(((p as? HTMLDocument) != nil))) {
                 return element.elementSiblingIndex == 0
@@ -577,8 +577,8 @@ open class Evaluator {
      *
      */
     public final class IsRoot: Evaluator {
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let r: Element = ((root as? HTMLDocument) != nil) ? root.getChild(at: 0)! : root
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
+            let r: HTMLElement = ((root as? HTMLDocument) != nil) ? root.getChild(at: 0)! : root
             return element === r
         }
         public override func toString() -> String {
@@ -587,7 +587,7 @@ open class Evaluator {
     }
 
     public final class IsOnlyChild: Evaluator {
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             let p = element.parent
             return p != nil && !((p as? HTMLDocument) != nil) && element.siblingElements.count == 0
         }
@@ -597,7 +597,7 @@ open class Evaluator {
     }
 
     public final class IsOnlyOfType: Evaluator {
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             let p = element.parent
             if (p == nil || (p as? HTMLDocument) != nil) {return false}
 
@@ -616,7 +616,7 @@ open class Evaluator {
     }
 
     public final class IsEmpty: Evaluator {
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             let family: Array<Node> = element.getChildNodes()
             for n in family {
                 if (!((n as? Comment) != nil || (n as? XmlDeclaration) != nil || (n as? DocumentType) != nil)) {return false}
@@ -643,7 +643,7 @@ open class Evaluator {
     }
 
     /**
-     * Evaluator for matching Element (and its descendants) text
+     * Evaluator for matching HTMLElement (and its descendants) text
      */
     public final class ContainsText: Evaluator {
         private let searchText: String
@@ -652,7 +652,7 @@ open class Evaluator {
             self.searchText = searchText.lowercased()
         }
 
-        public override func matches(_ root: Element, _ element: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement) -> Bool {
             return (element.getText().lowercased().contains(searchText))
         }
 
@@ -662,7 +662,7 @@ open class Evaluator {
     }
 
     /**
-     * Evaluator for matching Element's own text
+     * Evaluator for matching HTMLElement's own text
      */
     public final class ContainsOwnText: Evaluator {
         private let searchText: String
@@ -671,7 +671,7 @@ open class Evaluator {
             self.searchText = searchText.lowercased()
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             return (element.ownText.lowercased().contains(searchText))
         }
 
@@ -681,7 +681,7 @@ open class Evaluator {
     }
 
     /**
-     * Evaluator for matching Element (and its descendants) text with regex
+     * Evaluator for matching HTMLElement (and its descendants) text with regex
      */
     public final class Matches: Evaluator {
         private let pattern: Pattern
@@ -690,7 +690,7 @@ open class Evaluator {
             self.pattern = pattern
         }
 
-        public override func matches(_ root: Element, _ element: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement) -> Bool {
             let m = pattern.matcher(in: element.getText())
             return m.find()
         }
@@ -701,7 +701,7 @@ open class Evaluator {
     }
 
     /**
-     * Evaluator for matching Element's own text with regex
+     * Evaluator for matching HTMLElement's own text with regex
      */
     public final class MatchesOwn: Evaluator {
         private let pattern: Pattern
@@ -710,7 +710,7 @@ open class Evaluator {
             self.pattern = pattern
         }
 
-        public override func matches(_ root: Element, _ element: Element)throws->Bool {
+        public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
             let m = pattern.matcher(in: element.ownText)
             return m.find()
         }

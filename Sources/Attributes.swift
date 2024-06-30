@@ -9,7 +9,7 @@
 import Foundation
 
 /**
- * The attributes of an Element.
+ * The attributes of an HTMLElement.
  * <p>
  * Attributes are treated as a map: there can be only one value associated with an attribute key/name.
  * </p>

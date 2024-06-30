@@ -26,9 +26,9 @@ class HtmlParserTest: XCTestCase {
 		let html: String = "<html><head><title>First!</title></head><body><p>First post! <img src=\"foo.png\" /></p></body></html>"
 		let doc: HTMLDocument = HTMLParser.parse(html)!
 		// need a better way to verify these:
-        let p: Element = doc.body!.getChild(at: 0)!
+        let p: HTMLElement = doc.body!.getChild(at: 0)!
 		XCTAssertEqual("p", p.tagName)
-		let img: Element = p.getChild(at: 0)!
+		let img: HTMLElement = p.getChild(at: 0)!
 		XCTAssertEqual("foo.png", img.getAttribute(withKey: "src"))
 		XCTAssertEqual("img", img.tagName)
 	}
@@ -38,7 +38,7 @@ class HtmlParserTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse(html)!
 
 		// need a better way to verify these:
-		let p: Element = doc.body!.getChild(at: 0)!
+		let p: HTMLElement = doc.body!.getChild(at: 0)!
 		XCTAssertEqual("p", p.tagName)
 		XCTAssertEqual("foo > bar", p.getAttribute(withKey: "class"))
 	}
@@ -58,10 +58,10 @@ class HtmlParserTest: XCTestCase {
 		let html = "<html><head></head><body><img src=foo><!-- <table><tr><td></table> --><p>Hello</p></body></html>"
 		let doc = HTMLParser.parse(html)!
 
-		let body: Element = doc.body!
+		let body: HTMLElement = doc.body!
 		let comment: Comment =  body.childNode(1)as! Comment // comment should not be sub of img, as it's an empty tag
 		XCTAssertEqual(" <table><tr><td></table> ", comment.getData())
-		let p: Element = body.getChild(at: 1)!
+		let p: HTMLElement = body.getChild(at: 1)!
 		let text: TextNode = p.childNode(0)as! TextNode
 		XCTAssertEqual("Hello", text.getWholeText())
 	}
@@ -69,7 +69,7 @@ class HtmlParserTest: XCTestCase {
 	func testParsesUnterminatedComments()throws {
 		let html = "<p>Hello<!-- <tr><td>"
 		let doc: HTMLDocument = HTMLParser.parse(html)!
-		let p: Element = doc.getElementsByTag("p").get(index: 0)!
+		let p: HTMLElement = doc.getElementsByTag("p").get(index: 0)!
 		XCTAssertEqual("Hello", p.getText())
 		let text: TextNode = p.childNode(0) as! TextNode
 		XCTAssertEqual("Hello", text.getWholeText())
@@ -99,7 +99,7 @@ class HtmlParserTest: XCTestCase {
 	func testParsesUnterminatedTextarea()throws {
 		// don't parse right to end, but break on <p>
 		let doc: HTMLDocument = HTMLParser.parse("<body><p><textarea>one<p>two")!
-		let t: Element = doc.select(cssQuery: "textarea").first!
+		let t: HTMLElement = doc.select(cssQuery: "textarea").first!
 		XCTAssertEqual("one", t.getText())
 		XCTAssertEqual("two", doc.select(cssQuery: "p").get(index: 1)!.getText())
 	}
@@ -121,8 +121,8 @@ class HtmlParserTest: XCTestCase {
 	func testCreatesDocumentStructure()throws {
 		let html = "<meta name=keywords /><link rel=stylesheet /><title>SwiftSoup</title><p>Hello world</p>"
 		let doc = HTMLParser.parse(html)!
-		let head: Element = doc.head!
-		let body: Element = doc.body!
+		let head: HTMLElement = doc.head!
+		let body: HTMLElement = doc.body!
 
 		XCTAssertEqual(1, doc.children.count) // root node: contains html node
 		XCTAssertEqual(2, doc.getChild(at: 0)!.children.count) // html node: head and body
@@ -148,7 +148,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesEscapedData()throws {
 		let html = "<div title='Surf &amp; Turf'>Reef &amp; Beef</div>"
 		let doc = HTMLParser.parse(html)!
-		let div: Element = doc.getElementsByTag("div").get(index: 0)!
+		let div: HTMLElement = doc.getElementsByTag("div").get(index: 0)!
 
 		XCTAssertEqual("Surf & Turf", div.getAttribute(withKey: "title"))
 		XCTAssertEqual("Reef & Beef", div.getText())
@@ -184,7 +184,7 @@ class HtmlParserTest: XCTestCase {
 		// preserve because the tag is marked as preserve white space
 		let doc: HTMLDocument = HTMLParser.parse("<textarea>\n\tOne\n\tTwo\n\tThree\n</textarea>")!
 		let expect: String = "One\n\tTwo\n\tThree" // the leading and trailing spaces are dropped as a convenience to authors
-		let el: Element = doc.select(cssQuery: "textarea").first!
+		let el: HTMLElement = doc.select(cssQuery: "textarea").first!
 		XCTAssertEqual(expect, el.getText())
 		XCTAssertEqual(expect, el.value)
 		XCTAssertEqual(expect, el.html)
@@ -195,7 +195,7 @@ class HtmlParserTest: XCTestCase {
 		// preserve because it's content is a data node
 		let doc: HTMLDocument = HTMLParser.parse("<script>\nOne\n\tTwo\n\tThree\n</script>")!
 		let expect = "\nOne\n\tTwo\n\tThree\n"
-		let el: Element = doc.select(cssQuery: "script").first!
+		let el: HTMLElement = doc.select(cssQuery: "script").first!
 		XCTAssertEqual(expect, el.data)
 		XCTAssertEqual("One\n\tTwo\n\tThree", el.html)
 		XCTAssertEqual("<script>" + expect + "</script>", el.outerHTML)
@@ -285,7 +285,7 @@ class HtmlParserTest: XCTestCase {
 		let base = "https://example.com/"
 		let html = "<img src='//example.net/img.jpg'>"
         let doc = HTMLParser.parse(html, baseURI: base)!
-        let el: Element = doc.select(cssQuery: "img").first!
+        let el: HTMLElement = doc.select(cssQuery: "img").first!
 		XCTAssertEqual("https://example.net/img.jpg", el.absoluteURLPath(ofAttribute: "src"))
 	}
 
@@ -293,7 +293,7 @@ class HtmlParserTest: XCTestCase {
 		// todo: as this is html namespace, should actually treat as bogus comment, not cdata. keep as cdata for now
 		let h = "<div id=1><![CDATA[<html>\n<foo><&amp;]]></div>" // the &amp; in there should remain literal
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let div: Element = doc.getElementById("1")!
+		let div: HTMLElement = doc.getElementById("1")!
 		XCTAssertEqual("<html> <foo><&amp;", div.getText())
 		XCTAssertEqual(0, div.children.count)
 		XCTAssertEqual(1, div.childNodeSize()) // no elements, one text node
@@ -420,7 +420,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesJavadocFont()throws {
 		let h = "<TD BGCOLOR=\"#EEEEFF\" CLASS=\"NavBarCell1\">    <A HREF=\"deprecated-list.html\"><FONT CLASS=\"NavBarFont1\"><B>Deprecated</B></FONT></A>&nbsp;</TD>"
 		let doc = HTMLParser.parse(h)!
-		let a: Element = doc.select(cssQuery: "a").first!
+		let a: HTMLElement = doc.select(cssQuery: "a").first!
 		XCTAssertEqual("Deprecated", a.getText())
 		XCTAssertEqual("font", a.getChild(at: 0)?.tagName)
 		XCTAssertEqual("b", a.getChild(at: 0)?.getChild(at: 0)?.tagName)
@@ -429,7 +429,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesBaseWithoutHref()throws {
 		let h = "<head><base target='_blank'></head><body><a href=/foo>Test</a></body>"
         let doc = HTMLParser.parse(h, baseURI: "http://example.com/")!
-		let a: Element = doc.select(cssQuery: "a").first!
+		let a: HTMLElement = doc.select(cssQuery: "a").first!
 		XCTAssertEqual("/foo", a.getAttribute(withKey: "href"))
 		XCTAssertEqual("http://example.com/foo",  a.getAttribute(withKey: "abs:href"))
 	}
@@ -592,7 +592,7 @@ class HtmlParserTest: XCTestCase {
 		// test for bug #66
 		let h = "<a class=lp href=/lib/14160711/>link text</a>"
 		let doc = HTMLParser.parse(h)!
-		let a: Element = doc.select(cssQuery: "a").first!
+		let a: HTMLElement = doc.select(cssQuery: "a").first!
 		XCTAssertEqual("link text", a.getText())
 		XCTAssertEqual("/lib/14160711/", a.getAttribute(withKey: "href"))
 	}

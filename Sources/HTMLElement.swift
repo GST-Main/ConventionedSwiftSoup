@@ -1,5 +1,5 @@
 //
-//  Element.swift
+//  HTMLElement.swift
 //  SwifSoup
 //
 //  Created by Nabil Chatbi on 29/09/16.
@@ -14,12 +14,14 @@ import Foundation
 /// This is a subclass of ``Node`` that contains information about a HTML element. Access this information with properties or methods like ``className``, ``tagName``, ``text``, ``Node/getAttribute(key:)``, etc.
 ///
 /// Use methods of this object to get elements with specific id, tag name, attirbute, etc.
-/// For example, ``getElementById(_:)`` retrieves an ``Elements`` object consisting of ``Element`` objects whose id matches the specified id.
+/// For example, ``getElementById(_:)`` retrieves an ``Elements`` object consisting of ``HTMLElement`` objects whose id matches the specified id.
 ///
 /// You can modify an element using methods like ``setAttribute(key:value:)-5p0uc``, ``setClass(names:)``, ``setHTML(_:)``, etc.
 ///
-/// Some properties and methods, such as ``parent`` or ``setAttribute(key:value:)-5p0uc``, from the superclass ``Node`` have been overriden. Most of these changes simply replace the type ``Node`` with ``Element``.
-open class Element: Node {
+/// Some properties and methods, such as ``parent`` or ``setAttribute(key:value:)-5p0uc``, from the superclass ``Node`` have been overriden. Most of these changes simply replace the type ``Node`` with ``HTMLElement``.
+///
+/// - todo: This object also represents an XML element. This is temporary and will be refactored into a more object-oriented structure in the future.
+open class HTMLElement: Node {
 	public internal(set) var tag: Tag
 
     private static let classString = "class"
@@ -32,14 +34,14 @@ open class Element: Node {
 
     /// Create a new standalone element.
     ///
-    /// - Tip: Creating a new ``Element`` is useful when you need to insert a new element into an existing element. Please check ``appendElement(tagName:)`` or ``insertChildrenElements(_:at:)``.
+    /// - Tip: Creating a new ``HTMLElement`` is useful when you need to insert a new element into an existing element. Please check ``appendElement(tagName:)`` or ``insertChildrenElements(_:at:)``.
     public init(tag: Tag, baseURI: String, attributes: Attributes) {
         self.tag = tag
         super.init(baseURI: baseURI, attributes: attributes)
     }
     /// Create a new standalone element.
     ///
-    /// - Tip: Creating a new ``Element`` is useful when you need to insert a new element into an existing element. Please check ``appendElement(tagName:)`` or ``insertChildrenElements(_:at:)``.
+    /// - Tip: Creating a new ``HTMLElement`` is useful when you need to insert a new element into an existing element. Please check ``appendElement(tagName:)`` or ``insertChildrenElements(_:at:)``.
     public init(tag: Tag, baseURI: String) {
         self.tag = tag
         super.init(baseURI: baseURI, attributes: Attributes())
@@ -47,7 +49,7 @@ open class Element: Node {
     
     /// The node name of this node.
     ///
-    /// In ``Element``, this is the element's tag name.
+    /// In ``HTMLElement``, this is the element's tag name.
     open override var nodeName: String {
         return tag.getName()
     }
@@ -69,7 +71,7 @@ open class Element: Node {
     /// ## Throws
     /// * `SwiftSoupError.emptyTagName` if given tag name is an empty string.
     @discardableResult
-    public func setTagName(_ tagName: String) throws -> Element {
+    public func setTagName(_ tagName: String) throws -> HTMLElement {
         if tagName.isEmpty {
             throw SwiftSoupError.emptyTagName
         }
@@ -86,11 +88,11 @@ open class Element: Node {
     ///
     /// The id is NOT unique actually. It just represent the "id" attribute's value. If this element has no "id" element, this property represents empty string.
     open var id: String {
-        guard let attributes = attributes else { return Element.emptyString }
+        guard let attributes = attributes else { return HTMLElement.emptyString }
         do {
-            return try attributes.getIgnoreCase(key: Element.idString)
+            return try attributes.getIgnoreCase(key: HTMLElement.idString)
         } catch {}
-        return Element.emptyString
+        return HTMLElement.emptyString
     }
 
     /// Set an attribute value on this element.
@@ -106,7 +108,7 @@ open class Element: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    open override func setAttribute(withKey: String, newValue: String) throws -> Element {
+    open override func setAttribute(withKey: String, newValue: String) throws -> HTMLElement {
         try super.setAttribute(withKey: withKey, newValue: newValue)
         return self
     }
@@ -125,7 +127,7 @@ open class Element: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    open func setAttribute(key: String, value: Bool) throws -> Element {
+    open func setAttribute(key: String, value: Bool) throws -> HTMLElement {
         try attributes?.put(key, value)
         return self
     }
@@ -136,8 +138,8 @@ open class Element: Node {
     }
 
     /// A parent of this element.
-    open override var parent: Element? {
-        return parentNode as? Element
+    open override var parent: HTMLElement? {
+        return parentNode as? HTMLElement
     }
 
     /// An ``Elements`` object contains this element's parent and ancestors up to the document root.
@@ -145,13 +147,13 @@ open class Element: Node {
     /// This property represent this element's stack of parents by closest first.
     open var ancestors: Elements {
         let ancestors: Elements = Elements()
-        Element.accumulateParents(self, ancestors)
+        HTMLElement.accumulateParents(self, ancestors)
         return ancestors
     }
 
-    private static func accumulateParents(_ el: Element, _ parents: Elements) {
-        let parent: Element? = el.parent
-        if (parent != nil && !(parent!.tagName == Element.rootString)) {
+    private static func accumulateParents(_ el: HTMLElement, _ parents: Elements) {
+        let parent: HTMLElement? = el.parent
+        if (parent != nil && !(parent!.tagName == HTMLElement.rootString)) {
             parents.append(parent!)
             accumulateParents(parent!, parents)
         }
@@ -161,26 +163,26 @@ open class Element: Node {
     ///
     /// This method is a safe way to get a child element with specific index.
     ///
-    /// An element can have both mixed ``Node``s and ``Element``s as children.
+    /// An element can have both mixed ``Node``s and ``HTMLElement``s as children.
     /// This method inspects a filtered list of children that are elements.
     ///
     /// This method also checks if the given index is in valid range and safely returns the child element.
     ///
     /// - Parameter index: The index number of the child element to retrieve.
     /// - Returns: The child element, if exists, otherwise returns `nil`.
-    open func getChild(at index: Int) -> Element? {
+    open func getChild(at index: Int) -> HTMLElement? {
         return children.get(index: index)
     }
 
     /// This element's child elements.
     open var children: Elements {
         // create on the fly rather than maintaining two lists. if gets slow, memoize, and mark dirty on change
-        let elements = childNodes.compactMap { $0 as? Element }
+        let elements = childNodes.compactMap { $0 as? HTMLElement }
         return Elements(elements)
     }
     
     /// The first child of this element.
-    open var firstChild: Element? {
+    open var firstChild: HTMLElement? {
         getChild(at: 0)
     }
 
@@ -200,7 +202,7 @@ open class Element: Node {
     /// let childNodes = element.childNodes
     /// let textNodes = element.textNodes
     ///
-    /// // `childNodes` is ["One"(TextNode), <span>(Element), "Three"(TextNode), <br>(Element), "Four"(TextNode)] as a `Node` array.
+    /// // `childNodes` is ["One"(TextNode), <span>(HTMLElement), "Three"(TextNode), <br>(HTMLElement), "Four"(TextNode)] as a `Node` array.
     /// // `textNode` is ["One", "Three", "Four"] as a `TextNode` array.
     /// ```
     open var textNodes: [TextNode] {
@@ -260,7 +262,7 @@ open class Element: Node {
     /// - Parameter child: A child node to append.
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func appendChild(_ child: Node) -> Element {
+    public func appendChild(_ child: Node) -> HTMLElement {
         reparentChild(child)
         ensureChildNodes()
         childNodes.append(child)
@@ -275,7 +277,7 @@ open class Element: Node {
     /// - Parameter child: A child node to prepend.
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func prependChild(_ child: Node) -> Element {
+    public func prependChild(_ child: Node) -> HTMLElement {
         insertChildren(child, at: 0)
         return self
     }
@@ -293,7 +295,7 @@ open class Element: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func insertChildrenElements(_ children: [Node], at index: Int) throws -> Element {
+    public func insertChildrenElements(_ children: [Node], at index: Int) throws -> HTMLElement {
         var index = index
         let currentSize = childNodeSize()
         if index < 0 {
@@ -322,8 +324,8 @@ open class Element: Node {
     /// - Parameter tagName: The tag name of the new elemen . Must not be empty, otherwise throws `SwiftSoupError.emptyTagName`error.
     /// - Returns: The created element. This allows you to start a builder chain.
     @discardableResult
-    public func appendElement(tagName: String) throws -> Element {
-        let child = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
+    public func appendElement(tagName: String) throws -> HTMLElement {
+        let child = HTMLElement(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
         appendChild(child)
         return child
     }
@@ -343,8 +345,8 @@ open class Element: Node {
     /// - Parameter tagName: The tag name of the new element. Must not be empty, otherwise throws `SwiftSoupError.emptyTagName`error.
     /// - Returns: The created element. This allows you to start a builder chain.
     @discardableResult
-    public func prependElement(tagName: String) throws -> Element {
-        let child: Element = Element(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
+    public func prependElement(tagName: String) throws -> HTMLElement {
+        let child: HTMLElement = HTMLElement(tag: try Tag.valueOf(tagName), baseURI: baseURI!)
         prependChild(child)
         return child
     }
@@ -356,7 +358,7 @@ open class Element: Node {
     /// - Parameter text: A text to add.
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func appendText(_ text: String) -> Element {
+    public func appendText(_ text: String) -> HTMLElement {
         let node: TextNode = TextNode(text, baseURI!)
         appendChild(node)
         return self
@@ -369,7 +371,7 @@ open class Element: Node {
     /// - Parameter text: A text to add.
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func prependText(_ text: String) -> Element {
+    public func prependText(_ text: String) -> HTMLElement {
         let node: TextNode = TextNode(text, baseURI!)
         prependChild(node)
         return self
@@ -377,7 +379,7 @@ open class Element: Node {
 
     /// Append a HTML element as a child of this element.
     ///
-    /// Parse the given HTML string and create an ``Element``. Then, append it as the last child of this element.
+    /// Parse the given HTML string and create an ``HTMLElement``. Then, append it as the last child of this element.
     ///
     /// ## Throws
     /// * `SwiftSoupError.failedToParseHTML` if failed to parse HTML.
@@ -385,7 +387,7 @@ open class Element: Node {
     /// - Parameter html: HTML to append inside this element.
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func appendHTML(_ html: String) throws -> Element {
+    public func appendHTML(_ html: String) throws -> HTMLElement {
         let nodes: [Node] = try HTMLParser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
         appendChildren(nodes)
         return self
@@ -393,7 +395,7 @@ open class Element: Node {
 
     /// Prepend a HTML element as a child of this element.
     ///
-    /// Parse the given HTML string and create an ``Element``. Then, prepend it as the first child of this element.
+    /// Parse the given HTML string and create an ``HTMLElement``. Then, prepend it as the first child of this element.
     ///
     /// ## Throws
     /// * `SwiftSoupError.failedToParseHTML` if failed to parse HTML.
@@ -401,7 +403,7 @@ open class Element: Node {
     /// - Parameter html: HTML to prepend inside this element.
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func prependHTML(_ html: String) throws -> Element {
+    public func prependHTML(_ html: String) throws -> HTMLElement {
         let nodes: Array<Node> = try HTMLParser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
         super.insertChildren(nodes, at: 0)
         return self
@@ -418,8 +420,8 @@ open class Element: Node {
     /// - Parameter html: HTML string to add before this element.
     /// - Returns: `self` for chaining.
     @discardableResult
-    open override func insertHTMLAsPreviousSibling(_ html: String) throws -> Element {
-        return try super.insertHTMLAsPreviousSibling(html) as! Element
+    open override func insertHTMLAsPreviousSibling(_ html: String) throws -> HTMLElement {
+        return try super.insertHTMLAsPreviousSibling(html) as! HTMLElement
     }
 
     /// Insert the specified element into the DOM as a preceding sibling.
@@ -429,12 +431,12 @@ open class Element: Node {
     /// ## Throws
     /// * `SwiftSoupError.noParentNode` if this element doesn't have a parent.
     ///
-    /// - Parameter node: An element to insert. This must be an ``Element`` instance.
+    /// - Parameter node: An element to insert. This must be an ``HTMLElement`` instance.
     /// - Returns: `self` for chaining.
-    /// - Attention: The parameter `node` must be an instance of `Element`. Even though it's named `node` and the type is `Node`, it will be force-casted in run time.
+    /// - Attention: The parameter `node` must be an instance of `HTMLElement`. Even though it's named `node` and the type is `Node`, it will be force-casted in run time.
     @discardableResult
-    open override func insertNodeAsPreviousSibling(_ node: Node) throws -> Element {
-        return try super.insertNodeAsPreviousSibling(node) as! Element
+    open override func insertNodeAsPreviousSibling(_ node: Node) throws -> HTMLElement {
+        return try super.insertNodeAsPreviousSibling(node) as! HTMLElement
     }
     
     /// Insert the specified HTML into the DOM as a following sibling.
@@ -448,8 +450,8 @@ open class Element: Node {
     /// - Parameter html: HTML string to add after this node.
     /// - Returns: `self` for chaining.
     @discardableResult
-    open override func insertHTMLAsNextSibling(_ html: String) throws -> Element {
-        return try super.insertHTMLAsNextSibling(html) as! Element
+    open override func insertHTMLAsNextSibling(_ html: String) throws -> HTMLElement {
+        return try super.insertHTMLAsNextSibling(html) as! HTMLElement
     }
 
     /// Insert the specified element into the DOM as a following sibling.
@@ -459,11 +461,11 @@ open class Element: Node {
     /// ## Throws
     /// * `SwiftSoupError.noParentNode` if this element doesn't have a parent.
     ///
-    /// - Parameter node: A element to add after this node. This must be an ``Element`` instance.
+    /// - Parameter node: A element to add after this node. This must be an ``HTMLElement`` instance.
     /// - Returns: `self` for chaining.
-    /// - Attention: The parameter `node` must be an instance of `Element`. Even though it's named `node` and the type is `Node`, it will be force-casted in run time.
-    open override func insertNodeAsNextSibling(_ node: Node) throws -> Element {
-        return try super.insertNodeAsNextSibling(node) as! Element
+    /// - Attention: The parameter `node` must be an instance of `HTMLElement`. Even though it's named `node` and the type is `Node`, it will be force-casted in run time.
+    open override func insertNodeAsNextSibling(_ node: Node) throws -> HTMLElement {
+        return try super.insertNodeAsNextSibling(node) as! HTMLElement
     }
 
     /// Remove all of the children.
@@ -472,7 +474,7 @@ open class Element: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func removeAll() -> Element {
+    public func removeAll() -> HTMLElement {
         childNodes.removeAll()
         return self
     }
@@ -483,8 +485,8 @@ open class Element: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    open override func wrap(html: String) throws -> Element {
-        return try super.wrap(html: html) as! Element
+    open override func wrap(html: String) throws -> HTMLElement {
+        return try super.wrap(html: html) as! HTMLElement
     }
 
     /// A CSS selector that uniquely select this element.
@@ -536,7 +538,7 @@ open class Element: Node {
     /// The next sibling element of this element.
     ///
     /// This is similar to ``Node/nextSibling``, but specifically finds only elements.
-    public var nextSiblingElement: Element? {
+    public var nextSiblingElement: HTMLElement? {
         guard let parent = parent else {
             return nil
         }
@@ -551,7 +553,7 @@ open class Element: Node {
     /// The preivous sibling element of this element.
     ///
     /// This is similar to ``Node/previousSibling``, but specifically finds only elements.
-    public var previousSiblingElement: Element? {
+    public var previousSiblingElement: HTMLElement? {
         guard let parent = parent else {
             return nil
         }
@@ -564,7 +566,7 @@ open class Element: Node {
     }
 
     /// The first sibling element of this element.
-    public var firstSiblingElement: Element? {
+    public var firstSiblingElement: HTMLElement? {
         return parent?.children.first
     }
 
@@ -579,7 +581,7 @@ open class Element: Node {
     }
 
     /// The last sibling element of this element.
-    public var lastSiblingElement: Element? {
+    public var lastSiblingElement: HTMLElement? {
         return parent?.children.last
     }
 
@@ -604,7 +606,7 @@ open class Element: Node {
     ///
     /// - Parameter id: The id to search for.
     /// - Returns: The first mathcing element by ID.
-    public func getElementById(_ id: String) -> Element? {
+    public func getElementById(_ id: String) -> HTMLElement? {
         guard !id.isEmpty else { return nil }
 
         guard let elements: Elements = try? Collector.collect(Evaluator.Id(id), self) else {
@@ -841,7 +843,7 @@ open class Element: Node {
      * Find elements whose text matches the supplied regular expression.
      * @param pattern regular expression to match text against
      * @return elements matching the supplied regular expression.
-     * @see Element#text()
+     * @see HTMLElement#text()
      */
     
     ///
@@ -874,7 +876,7 @@ open class Element: Node {
      * Find elements whose own text matches the supplied regular expression.
      * @param pattern regular expression to match text against
      * @return elements matching the supplied regular expression.
-     * @see Element#ownText()
+     * @see HTMLElement#ownText()
      */
     
     ///
@@ -933,11 +935,11 @@ open class Element: Node {
         public func head(_ node: Node, _ depth: Int) {
             if let textNode = (node as? TextNode) {
                 if trimAndNormaliseWhitespace {
-                    Element.appendNormalisedText(accum, textNode)
+                    HTMLElement.appendNormalisedText(accum, textNode)
                 } else {
                     accum.append(textNode.getWholeText())
                 }
-            } else if let element = (node as? Element) {
+            } else if let element = (node as? HTMLElement) {
                 if !accum.isEmpty &&
                     (element.isBlock || element.tag.getName() == "br") &&
                     !TextNode.lastCharIsWhitespace(accum) {
@@ -1069,9 +1071,9 @@ open class Element: Node {
     private func ownText(_ accum: StringBuilder) {
         for child: Node in childNodes {
             if let textNode = (child as? TextNode) {
-                Element.appendNormalisedText(accum, textNode)
-            } else if let child =  (child as? Element) {
-                Element.appendWhitespaceIfBr(child, accum)
+                HTMLElement.appendNormalisedText(accum, textNode)
+            } else if let child =  (child as? HTMLElement) {
+                HTMLElement.appendWhitespaceIfBr(child, accum)
             }
         }
     }
@@ -1079,14 +1081,14 @@ open class Element: Node {
     private static func appendNormalisedText(_ accum: StringBuilder, _ textNode: TextNode) {
         let text: String = textNode.getWholeText()
 
-        if (Element.preserveWhitespace(textNode.parentNode)) {
+        if (HTMLElement.preserveWhitespace(textNode.parentNode)) {
             accum.append(text)
         } else {
             StringUtil.appendNormalisedWhitespace(accum, string: text, stripLeading: TextNode.lastCharIsWhitespace(accum))
         }
     }
 
-    private static func appendWhitespaceIfBr(_ element: Element, _ accum: StringBuilder) {
+    private static func appendWhitespaceIfBr(_ element: HTMLElement, _ accum: StringBuilder) {
         if (element.tag.getName() == "br" && !TextNode.lastCharIsWhitespace(accum)) {
             accum.append(" ")
         }
@@ -1094,7 +1096,7 @@ open class Element: Node {
 
     static func preserveWhitespace(_ node: Node?) -> Bool {
         // looks only at this element and one level up, to prevent recursion & needless stack searches
-        if let element = (node as? Element) {
+        if let element = (node as? HTMLElement) {
             return element.tag.preserveWhitespace() || element.parent != nil && element.parent!.tag.preserveWhitespace()
         }
         return false
@@ -1108,7 +1110,7 @@ open class Element: Node {
     /// - Returns: `self`for chaining.
     /// - Attention: All of children of this element will be removed.
     @discardableResult
-    public func setText(_ text: String) -> Element {
+    public func setText(_ text: String) -> HTMLElement {
         removeAll()
         let textNode: TextNode = TextNode(text, baseURI)
         appendChild(textNode)
@@ -1124,7 +1126,7 @@ open class Element: Node {
                 if !textNode.isBlank() {
                     return true
                 }
-            } else if let element = childNode as? Element {
+            } else if let element = childNode as? HTMLElement {
                 if element.hasText {
                     return true
                 }
@@ -1140,7 +1142,7 @@ open class Element: Node {
         for childNode: Node in childNodes {
             if let data = (childNode as? DataNode) {
                 stringBuilder.append(data.getWholeData())
-            } else if let element = (childNode as? Element) {
+            } else if let element = (childNode as? HTMLElement) {
                 let elementData: String = element.data
                 stringBuilder.append(elementData)
             }
@@ -1152,7 +1154,7 @@ open class Element: Node {
     ///
     /// This property represents the "class" attribute of this element. Multiple class names are separated by spaces. If there is no class attribute, this will be nil.
     public var className: String? {
-        return getAttribute(withKey: Element.classString)?.trim()
+        return getAttribute(withKey: HTMLElement.classString)?.trim()
     }
 
     /// A list of class names of this element.
@@ -1162,10 +1164,10 @@ open class Element: Node {
     /// - Tip: Modifications to this set are not refelected. Use ``setClass(names:)`` to modify class names.
     public var classNames: OrderedSet<String> {
         guard let className else { return [] }
-		let fitted = className.replaceAll(of: Element.classSplit, with: " ", options: .caseInsensitive)
+		let fitted = className.replaceAll(of: HTMLElement.classSplit, with: " ", options: .caseInsensitive)
         let names: [String] = fitted.components(separatedBy: " ")
 		let classNames = OrderedSet(sequence: names)
-		classNames.remove(Element.emptyString) // if classNames() was empty, would include an empty class
+		classNames.remove(HTMLElement.emptyString) // if classNames() was empty, would include an empty class
 		return classNames
 	}
 
@@ -1173,15 +1175,15 @@ open class Element: Node {
     ///
     /// This method combines the given class names and sets the "class" atrribute. Existing class attribute will be replaced.
     @discardableResult
-    public func setClass(names: OrderedSet<String>) -> Element {
-        try! attributes?.put(Element.classString, StringUtil.join(names, sep: " "))
+    public func setClass(names: OrderedSet<String>) -> HTMLElement {
+        try! attributes?.put(HTMLElement.classString, StringUtil.join(names, sep: " "))
         return self
     }
 
     // performance sensitive
     /// Check if this element has a class attribute with given name. Case insensitive.
     public func hasClass(named className: String) -> Bool {
-        let classAtt: String? = attributes?.get(key: Element.classString)
+        let classAtt: String? = attributes?.get(key: HTMLElement.classString)
         let len: Int = (classAtt != nil) ? classAtt!.count : 0
         let wantLen: Int = className.count
 
@@ -1232,7 +1234,7 @@ open class Element: Node {
     /// - Parameter className: A class name to add.
     /// - Returns: `self` for chaining.
     @discardableResult
-	public func addClass(named className: String) -> Element {
+	public func addClass(named className: String) -> HTMLElement {
 		let classes = classNames
 		classes.append(className)
 		setClass(names: classes)
@@ -1245,7 +1247,7 @@ open class Element: Node {
     /// - Parameter className: A class name to remove.
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func removeClass(named className: String) -> Element {
+    public func removeClass(named className: String) -> HTMLElement {
         let classes = classNames
 		classes.remove(className)
         setClass(names: classes)
@@ -1260,7 +1262,7 @@ open class Element: Node {
     /// - Parameter className: A class name to toggle.
     /// - Returns `self` for chaining.
     @discardableResult
-    public func toggleClass(named className: String) -> Element {
+    public func toggleClass(named className: String) -> HTMLElement {
         let classes = classNames
         if classes.contains(className) {
             classes.remove(className)
@@ -1290,7 +1292,7 @@ open class Element: Node {
     /// - Parameter value: A new value to set.
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func setValue(_ value: String) -> Element {
+    public func setValue(_ value: String) -> HTMLElement {
         if tagName == "textarea" {
             setText(value)
         } else {
@@ -1369,7 +1371,7 @@ open class Element: Node {
     // FIXME: Parse HTML first before clear html
     /// Set this element's inner HTML.
     ///
-    /// This method clears and sets the inner HTML. The given HTML string is first parsed as an ``Element`` and then replaces existing children with the parsed ``Element``.
+    /// This method clears and sets the inner HTML. The given HTML string is first parsed as an ``HTMLElement`` and then replaces existing children with the parsed ``HTMLElement``.
     ///
     /// - Parameter html: A HTML string to parse and set into this element.
     /// - Returns: `self` for chaining.
@@ -1378,26 +1380,26 @@ open class Element: Node {
     /// ## Throws
     /// * `SwiftSoupError.failedToParseHTML` if a parser failed to parse HTML.
     @discardableResult
-	public func setHTML(_ html: String) throws -> Element {
+	public func setHTML(_ html: String) throws -> HTMLElement {
 		removeAll()
 		try appendHTML(html)
 		return self
 	}
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Element(tag: tag, baseURI: baseURI!, attributes: attributes!)
+		let clone = HTMLElement(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Element(tag: tag, baseURI: baseURI!, attributes: attributes!)
+		let clone = HTMLElement(tag: tag, baseURI: baseURI!, attributes: attributes!)
 		return copy(clone: clone, parent: parent)
 	}
 	public override func copy(clone: Node, parent: Node?) -> Node {
 		return super.copy(clone: clone, parent: parent)
 	}
 
-    public static func ==(lhs: Element, rhs: Element) -> Bool {
+    public static func ==(lhs: HTMLElement, rhs: HTMLElement) -> Bool {
     	guard lhs as Node == rhs as Node else {
             return false
         }

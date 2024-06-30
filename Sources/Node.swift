@@ -10,7 +10,7 @@ import Foundation
 
 /// A node of tree that contains data of parsed HTML or XML.
 ///
-/// Basically, you use ``Element`` type, subclass of ``Node``, to access HTML elements rather than this type. ``Node`` object has information about a node that constitute a tree, like ``parent`` and ``getChildNodes()``. It also has information about the common elements of both HTML and XML like ``getAttributes()`` and ``absoluteURLPath(ofAttribute:)``.
+/// Basically, you use ``HTMLElement`` type, subclass of ``Node``, to access HTML elements rather than this type. ``Node`` object has information about a node that constitute a tree, like ``parent`` and ``getChildNodes()``. It also has information about the common elements of both HTML and XML like ``getAttributes()`` and ``absoluteURLPath(ofAttribute:)``.
 ///
 /// - Note: This class also contains members only for HTML such as ``insertHTMLAsPreviousSibling(_:)``. I believe this has an unclear role as an OOP object and is considered an anti-pattern. However, it will be left as is to minimize changes to the existing code.
 open class Node: Equatable, Hashable {
@@ -47,7 +47,7 @@ open class Node: Equatable, Hashable {
 
     /// The node name of this node.
     ///
-    /// This is an abstract property. Subclasses overrides this property. For example, ``Element`` returns tag name and ``HTMLDocument`` returns literal `"#document"`.
+    /// This is an abstract property. Subclasses overrides this property. For example, ``HTMLElement`` returns tag name and ``HTMLDocument`` returns literal `"#document"`.
     /// Call this method directly in ``Node`` instance will cause `fatalError`.
     public var nodeName: String {
         preconditionFailure("This method must be overridden")
@@ -324,7 +324,7 @@ open class Node: Equatable, Hashable {
             throw SwiftSoupError.noParentNode
         }
 
-        let context: Element? = parent as? Element
+        let context: HTMLElement? = parent as? HTMLElement
         let nodes: [Node] = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         parentNode.insertChildren(nodes, at: index)
     }
@@ -340,13 +340,13 @@ open class Node: Equatable, Hashable {
             throw SwiftSoupError.emptyHTML
         }
 
-        let context = parent as? Element
+        let context = parent as? HTMLElement
         var wrapChildren = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
-        guard wrapChildren.count > 0, let wrap = wrapChildren[0] as? Element else {
+        guard wrapChildren.count > 0, let wrap = wrapChildren[0] as? HTMLElement else {
             throw SwiftSoupError.noHTMLElementsToWrap
         }
 
-        let deepest: Element = getDeepChild(element: wrap)
+        let deepest: HTMLElement = getDeepChild(element: wrap)
         try parentNode?.replaceChildNode(self, with: wrap)
 		wrapChildren = wrapChildren.filter { $0 != wrap }
         deepest.appendChildren(self)
@@ -411,7 +411,7 @@ open class Node: Equatable, Hashable {
         return firstChild
     }
 
-    private func getDeepChild(element: Element) -> Element {
+    private func getDeepChild(element: HTMLElement) -> HTMLElement {
         let children = element.children
         if (children.count > 0) {
             return getDeepChild(element: children.get(index: 0)!)
@@ -660,7 +660,7 @@ open class Node: Equatable, Hashable {
     /// parent node. As a stand-alone object, any changes made to the clone or any of its children will not impact the
     /// original node.
     /// <p>
-    /// The cloned node may be adopted into another HTMLDocument or node structure using {@link Element#appendChild(Node)}.
+    /// The cloned node may be adopted into another HTMLDocument or node structure using {@link HTMLElement#appendChild(Node)}.
     /// @return stand-alone cloned node
     public func copy(with zone: NSZone? = nil) -> Any {
 		return copy(clone: Node())

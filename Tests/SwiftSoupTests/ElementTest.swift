@@ -52,14 +52,14 @@ class ElementTest: XCTestCase {
 
 	func testGetElementById() {
 		let doc: HTMLDocument = HTMLParser.parse(reference)!
-		let div: Element = doc.getElementById("div1")!
+		let div: HTMLElement = doc.getElementById("div1")!
 		XCTAssertEqual("div1", div.id)
 		XCTAssertNil(doc.getElementById("none"))
 
 		let doc2: HTMLDocument = HTMLParser.parse("<div id=1><div id=2><p>Hello <span id=2>world!</span></p></div></div>")!
-		let div2: Element = doc2.getElementById("2")!
+		let div2: HTMLElement = doc2.getElementById("2")!
 		XCTAssertEqual("div", div2.tagName) // not the span
-		let span: Element = div2.getChild(at: 0)!.getElementById("2")! // called from <p> context should be span
+		let span: HTMLElement = div2.getChild(at: 0)!.getElementById("2")! // called from <p> context should be span
 		XCTAssertEqual("span", span.tagName)
 	}
 
@@ -71,7 +71,7 @@ class ElementTest: XCTestCase {
 
 	func testGetChildText() {
 		let doc: HTMLDocument = HTMLParser.parse("<p>Hello <b>there</b> now")!
-		let p: Element = doc.select(cssQuery: "p").first!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
 		XCTAssertEqual("Hello there now", p.getText())
 		XCTAssertEqual("Hello now", p.ownText)
 	}
@@ -107,7 +107,7 @@ class ElementTest: XCTestCase {
 
 	func testGetSiblings() {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello<p id=1>there<p>this<p>is<p>an<p id=last>element</div>")!
-		let p: Element = doc.getElementById("1")!
+		let p: HTMLElement = doc.getElementById("1")!
 		XCTAssertEqual("there", p.getText())
 		XCTAssertEqual("Hello", p.previousSiblingElement?.getText())
 		XCTAssertEqual("this", p.nextSiblingElement?.getText())
@@ -117,7 +117,7 @@ class ElementTest: XCTestCase {
 
 	func testGetSiblingsWithDuplicateContent() {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello<p id=1>there<p>this<p>this<p>is<p>an<p id=last>element</div>")!
-		let p: Element = doc.getElementById("1")!
+		let p: HTMLElement = doc.getElementById("1")!
 		XCTAssertEqual("there", p.getText())
 		XCTAssertEqual("Hello", p.previousSiblingElement?.getText())
 		XCTAssertEqual("this", p.nextSiblingElement?.getText())
@@ -129,7 +129,7 @@ class ElementTest: XCTestCase {
 
 	func testGetAncestors() {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello <span>there</span></div>")!
-		let span: Element = doc.select(cssQuery: "span").first!
+		let span: HTMLElement = doc.select(cssQuery: "span").first!
 		let parents: Elements = span.ancestors
 
 		XCTAssertEqual(4, parents.count)
@@ -203,7 +203,7 @@ class ElementTest: XCTestCase {
 	func testClassDomMethods() {
 		let doc: HTMLDocument = HTMLParser.parse("<div><span class=' mellow yellow '>Hello <b>Yellow</b></span></div>")!
 		let els: Elements = doc.getElementsByAttribute(key: "class")
-		let span: Element = els.get(index: 0)!
+		let span: HTMLElement = els.get(index: 0)!
 		XCTAssertEqual("mellow yellow", span.className)
 		XCTAssertTrue(span.hasClass(named: "mellow"))
 		XCTAssertTrue(span.hasClass(named: "yellow"))
@@ -221,7 +221,7 @@ class ElementTest: XCTestCase {
     func testHasClassDomMethods()throws {
         let tag: Tag = try Tag.valueOf("a")
         let attribs: Attributes = Attributes()
-        let el: Element = Element(tag: tag, baseURI: "", attributes: attribs)
+        let el: HTMLElement = HTMLElement(tag: tag, baseURI: "", attributes: attribs)
 
         try attribs.put("class", "toto")
         var hasClass = el.hasClass(named: "toto")
@@ -274,7 +274,7 @@ class ElementTest: XCTestCase {
 
     func testClassUpdates()throws {
         let doc: HTMLDocument = HTMLParser.parse("<div class='mellow yellow'></div>")!
-        let div: Element = doc.select(cssQuery: "div").first!
+        let div: HTMLElement = doc.select(cssQuery: "div").first!
 
         div.addClass(named: "green")
         XCTAssertEqual("mellow yellow green", div.className)
@@ -318,7 +318,7 @@ class ElementTest: XCTestCase {
 		doc.outputSettings.prettyPrint(pretty: false)
 		XCTAssertEqual("<html><head></head><body><div>   \n<p>Hello\n there\n</p></div></body></html>", doc.html)
 
-		let div: Element? = doc.select(cssQuery: "div").first
+		let div: HTMLElement? = doc.select(cssQuery: "div").first
 		XCTAssertEqual("   \n<p>Hello\n there\n</p>", div?.html)
 	}
 
@@ -347,14 +347,14 @@ class ElementTest: XCTestCase {
 		XCTAssertEqual("Hello there now", doc.getText()) // need to sort out node whitespace
 		XCTAssertEqual("there now", doc.select(cssQuery: "p").get(index: 0)!.getText())
 
-		let div: Element? = doc.getElementById("1")?.setText("Gone")
+		let div: HTMLElement? = doc.getElementById("1")?.setText("Gone")
 		XCTAssertEqual("Gone", div?.getText())
 		XCTAssertEqual(0, doc.select(cssQuery: "p").count)
 	}
 
 	func testAddNewElement()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
-		let div: Element = doc.getElementById("1")!
+		let div: HTMLElement = doc.getElementById("1")!
         try div.appendElement(tagName: "p").setText("there")
 		try div.appendElement(tagName: "P").setAttribute(withKey: "CLASS", newValue: "second").setText("now")
 		// manually specifying tag and attributes should now preserve case, regardless of parse mode
@@ -369,7 +369,7 @@ class ElementTest: XCTestCase {
 	}
 
 	func testAddBooleanAttribute()throws {
-		let div: Element = try Element(tag: Tag.valueOf("div"), baseURI: "")
+		let div: HTMLElement = try HTMLElement(tag: Tag.valueOf("div"), baseURI: "")
 
 		try div.setAttribute(key: "true", value: true)
 
@@ -390,7 +390,7 @@ class ElementTest: XCTestCase {
 
 	func testAppendRowToTable()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<table><tr><td>1</td></tr></table>")!
-		let table: Element? = doc.select(cssQuery: "tbody").first
+		let table: HTMLElement? = doc.select(cssQuery: "tbody").first
         try table?.appendHTML("<tr><td>2</td></tr>")
 
 		XCTAssertEqual("<table><tbody><tr><td>1</td></tr><tr><td>2</td></tr></tbody></table>", TextUtil.stripNewlines(doc.body!.html!))
@@ -398,7 +398,7 @@ class ElementTest: XCTestCase {
 
 	func testPrependRowToTable()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<table><tr><td>1</td></tr></table>")!
-		let table: Element? = doc.select(cssQuery: "tbody").first
+		let table: HTMLElement? = doc.select(cssQuery: "tbody").first
 		try table?.prependHTML("<tr><td>2</td></tr>")
 
 		XCTAssertEqual("<table><tbody><tr><td>2</td></tr><tr><td>1</td></tr></tbody></table>", TextUtil.stripNewlines(doc.body!.html!))
@@ -412,7 +412,7 @@ class ElementTest: XCTestCase {
 
 	func testPrependElement()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
-		let div: Element? = doc.getElementById("1")
+		let div: HTMLElement? = doc.getElementById("1")
         try div?.prependElement(tagName: "p").setText("Before")
 		XCTAssertEqual("Before", div?.getChild(at: 0)?.text)
 		XCTAssertEqual("Hello", div?.getChild(at: 1)?.text)
@@ -420,14 +420,14 @@ class ElementTest: XCTestCase {
 
 	func testAddNewText()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
-		let div: Element = doc.getElementById("1")!
+		let div: HTMLElement = doc.getElementById("1")!
         div.appendText(" there & now >")
 		XCTAssertEqual("<p>Hello</p> there &amp; now &gt;", TextUtil.stripNewlines(div.html!))
 	}
 
 	func testPrependText()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
-		let div: Element = doc.getElementById("1")!
+		let div: HTMLElement = doc.getElementById("1")!
         div.prependText("there & now > ")
 		XCTAssertEqual("there & now > Hello", div.getText())
 		XCTAssertEqual("there &amp; now &gt; <p>Hello</p>", TextUtil.stripNewlines(div.html!))
@@ -436,20 +436,20 @@ class ElementTest: XCTestCase {
 	// nil not allower
 //	func testThrowsOnAddNullText()throws {
 //		let doc: HTMLDocument = try Jsoup.parse("<div id=1><p>Hello</p></div>");
-//		let div: Element = try doc.getElementById("1")!;
+//		let div: HTMLElement = try doc.getElementById("1")!;
 //		div.appendText(nil);
 //	}
 
 	// nil not allower
 //	@Test(expected = IllegalArgumentException.class)  public void testThrowsOnPrependNullText() {
 //	HTMLDocument doc = Jsoup.parse("<div id=1><p>Hello</p></div>");
-//	Element div = doc.getElementById("1");
+//	HTMLElement div = doc.getElementById("1");
 //	div.prependText(null);
 //	}
 
 	func testAddNewHtml()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
-		let div: Element = doc.getElementById("1")!
+		let div: HTMLElement = doc.getElementById("1")!
 		try div.appendHTML("<p>there</p><p>now</p>")
 		XCTAssertEqual("<p>Hello</p><p>there</p><p>now</p>", TextUtil.stripNewlines(div.html!))
 
@@ -462,7 +462,7 @@ class ElementTest: XCTestCase {
 
 	func testPrependNewHtml()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
-		let div: Element = doc.getElementById("1")!
+		let div: HTMLElement = doc.getElementById("1")!
 		try div.prependHTML("<p>there</p><p>now</p>")
 		XCTAssertEqual("<p>there</p><p>now</p><p>Hello</p>", TextUtil.stripNewlines(div.html!))
 
@@ -475,7 +475,7 @@ class ElementTest: XCTestCase {
 
 	func testSetHtml()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
-		let div: Element = doc.getElementById("1")!
+		let div: HTMLElement = doc.getElementById("1")!
 		try div.setHTML("<p>there</p><p>now</p>")
 		XCTAssertEqual("<p>there</p><p>now</p>", TextUtil.stripNewlines(div.html!))
 	}
@@ -483,24 +483,24 @@ class ElementTest: XCTestCase {
 	func testSetHtmlTitle()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<html><head id=2><title id=1></title></head></html>")!
 
-		let title: Element = doc.getElementById("1")!
+		let title: HTMLElement = doc.getElementById("1")!
 		try title.setHTML("good")
 		XCTAssertEqual("good", title.html)
 		try title.setHTML("<i>bad</i>")
 		XCTAssertEqual("&lt;i&gt;bad&lt;/i&gt;", title.html)
 
-		let head: Element = doc.getElementById("2")!
+		let head: HTMLElement = doc.getElementById("2")!
 		try head.setHTML("<title><i>bad</i></title>")
 		XCTAssertEqual("<title>&lt;i&gt;bad&lt;/i&gt;</title>", head.html)
 	}
 
 	func testWrap()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p><p>There</p></div>")!
-		let p: Element = doc.select(cssQuery: "p").first!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
 		try p.wrap(html: "<div class='head'></div>")
 		XCTAssertEqual("<div><div class=\"head\"><p>Hello</p></div><p>There</p></div>", TextUtil.stripNewlines(doc.body!.html!))
 
-		let ret: Element = try p.wrap(html: "<div><div class=foo></div><p>What?</p></div>")
+		let ret: HTMLElement = try p.wrap(html: "<div><div class=foo></div><p>What?</p></div>")
 		XCTAssertEqual("<div><div class=\"head\"><div><div class=\"foo\"><p>Hello</p></div><p>What?</p></div></div><p>There</p></div>",
                     TextUtil.stripNewlines(doc.body!.html!))
 
@@ -509,7 +509,7 @@ class ElementTest: XCTestCase {
 
 	func testBefore()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p><p>There</p></div>")!
-		let p1: Element = doc.select(cssQuery: "p").first!
+		let p1: HTMLElement = doc.select(cssQuery: "p").first!
 		try p1.insertHTMLAsPreviousSibling("<div>one</div><div>two</div>")
 		XCTAssertEqual("<div><div>one</div><div>two</div><p>Hello</p><p>There</p></div>", TextUtil.stripNewlines(doc.body!.html!))
 
@@ -519,7 +519,7 @@ class ElementTest: XCTestCase {
 
 	func testAfter()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p><p>There</p></div>")!
-		let p1: Element = doc.select(cssQuery: "p").first!
+		let p1: HTMLElement = doc.select(cssQuery: "p").first!
 		try p1.insertHTMLAsNextSibling("<div>one</div><div>two</div>")
 		XCTAssertEqual("<div><p>Hello</p><div>one</div><div>two</div><p>There</p></div>", TextUtil.stripNewlines(doc.body!.html!))
 
@@ -529,14 +529,14 @@ class ElementTest: XCTestCase {
 
 	func testWrapWithRemainder()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p></div>")!
-		let p: Element = doc.select(cssQuery: "p").first!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
 		try p.wrap(html: "<div class='head'></div><p>There!</p>")
 		XCTAssertEqual("<div><div class=\"head\"><p>Hello</p><p>There!</p></div></div>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
 	func testHasText()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p><p></p></div>")!
-		let div: Element = doc.select(cssQuery: "div").first!
+		let div: HTMLElement = doc.select(cssQuery: "div").first!
 		let ps: Elements = doc.select(cssQuery: "p")
 
 		XCTAssertTrue(div.hasText)
@@ -547,7 +547,7 @@ class ElementTest: XCTestCase {
 	//todo:datase is a simple dictionary but in java it's different
 	func testDataset()throws {
 //		let doc: HTMLDocument = try Jsoup.parse("<div id=1 data-name=jsoup class=new data-package=jar>Hello</div><p id=2>Hello</p>");
-//		let div: Element = try doc.select("div").first!;
+//		let div: HTMLElement = try doc.select("div").first!;
 //		var dataset = div.dataset();
 //		let attributes: Attributes = div.getAttributes()!;
 //		
@@ -574,14 +574,14 @@ class ElementTest: XCTestCase {
 //		try attributes.put("data-", "empty");
 //		XCTAssertEqual(nil, dataset[""]); // data- is not a data attribute
 //		
-//		let p: Element = try doc.select("p").first!;
+//		let p: HTMLElement = try doc.select("p").first!;
 //		XCTAssertEqual(0, p.dataset().count);
 
 	}
 
 	func testpParentlessToString()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<img src='foo'>")!
-		let img: Element = doc.select(cssQuery: "img").first!
+		let img: HTMLElement = doc.select(cssQuery: "img").first!
 		XCTAssertEqual("<img src=\"foo\">", img.outerHTML)
 
         img.remove() // lost its parent
@@ -591,8 +591,8 @@ class ElementTest: XCTestCase {
 	func testClone()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>One<p><span>Two</div>")!
 
-		let p: Element = doc.select(cssQuery: "p").get(index: 1)!
-		let clone: Element = p.copy() as! Element
+		let p: HTMLElement = doc.select(cssQuery: "p").get(index: 1)!
+		let clone: HTMLElement = p.copy() as! HTMLElement
 
 		XCTAssertNil(clone.parent) // should be orphaned
 		XCTAssertEqual(0, clone.siblingIndex)
@@ -610,13 +610,13 @@ class ElementTest: XCTestCase {
 
 	func testClonesClassnames()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div class='one two'></div>")!
-		let div: Element = doc.select(cssQuery: "div").first!
+		let div: HTMLElement = doc.select(cssQuery: "div").first!
 		let classes = div.classNames
 		XCTAssertEqual(2, classes.count)
 		XCTAssertTrue(classes.contains("one"))
 		XCTAssertTrue(classes.contains("two"))
 
-		let copy: Element = div.copy() as! Element
+		let copy: HTMLElement = div.copy() as! HTMLElement
 		let copyClasses: OrderedSet<String> = copy.classNames
 		XCTAssertEqual(2, copyClasses.count)
 		XCTAssertTrue(copyClasses.contains("one"))
@@ -655,7 +655,7 @@ class ElementTest: XCTestCase {
 
 	func testManipulateTextNodes()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<p>One <span>Two</span> Three <br> Four</p>")!
-		let p: Element = doc.select(cssQuery: "p").first!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
 		let textNodes: Array<TextNode> = p.textNodes
 
 		textNodes[1].text(" three-more ")
@@ -668,9 +668,9 @@ class ElementTest: XCTestCase {
 
 	func testGetDataNodes()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<script>One Two</script> <style>Three Four</style> <p>Fix Six</p>")!
-		let script: Element = doc.select(cssQuery: "script").first!
-		let style: Element = doc.select(cssQuery: "style").first!
-		let p: Element = doc.select(cssQuery: "p").first!
+		let script: HTMLElement = doc.select(cssQuery: "script").first!
+		let style: HTMLElement = doc.select(cssQuery: "style").first!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
 
 		let scriptData: Array<DataNode> = script.dataNodes
 		XCTAssertEqual(1, scriptData.count)
@@ -686,7 +686,7 @@ class ElementTest: XCTestCase {
 
 	func testElementIsNotASiblingOfItself()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>One<p>Two<p>Three</div>")!
-		let p2: Element = doc.select(cssQuery: "p").get(index: 1)!
+		let p2: HTMLElement = doc.select(cssQuery: "p").get(index: 1)!
 
 		XCTAssertEqual("Two", p2.getText())
 		let els: Elements = p2.siblingElements
@@ -697,7 +697,7 @@ class ElementTest: XCTestCase {
 
 	func testChildThrowsIndexOutOfBoundsOnMissing()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>One</p><p>Two</p></div>")!
-		let div: Element = doc.select(cssQuery: "div").first!
+		let div: HTMLElement = doc.select(cssQuery: "div").first!
 
 		XCTAssertEqual(2, div.children.count)
 		XCTAssertEqual("One", div.getChild(at: 0)?.text)
@@ -706,8 +706,8 @@ class ElementTest: XCTestCase {
 	func testMoveByAppend()throws {
 		// can empty an element and append its children to another element
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1>Text <p>One</p> Text <p>Two</p></div><div id=2></div>")!
-		let div1: Element = doc.select(cssQuery: "div").get(index: 0)!
-		let div2: Element = doc.select(cssQuery: "div").get(index: 1)!
+		let div1: HTMLElement = doc.select(cssQuery: "div").get(index: 0)!
+		let div2: HTMLElement = doc.select(cssQuery: "div").get(index: 1)!
 
 		XCTAssertEqual(4, div1.childNodeSize())
 		var children: Array<Node> = div1.getChildNodes()
@@ -724,9 +724,9 @@ class ElementTest: XCTestCase {
 
 	func testInsertChildrenAtPosition()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1>Text1 <p>One</p> Text2 <p>Two</p></div><div id=2>Text3 <p>Three</p></div>")!
-		let div1: Element = doc.select(cssQuery: "div").get(index: 0)!
+		let div1: HTMLElement = doc.select(cssQuery: "div").get(index: 0)!
 		let p1s: Elements = div1.select(cssQuery: "p")
-		let div2: Element = doc.select(cssQuery: "div").get(index: 1)!
+		let div2: HTMLElement = doc.select(cssQuery: "div").get(index: 1)!
 
 		XCTAssertEqual(2, div2.childNodeSize())
 		div2.insertChildren(p1s.toArray(), at: 0)
@@ -735,8 +735,8 @@ class ElementTest: XCTestCase {
 		XCTAssertEqual(1, p1s.get(index: 1)!.siblingIndex) // should be last
 
 		var els: Array<Node> = Array<Node>()
-        let el1: Element = try Element(tag: Tag.valueOf("span"), baseURI: "").setText("Span1")
-        let el2: Element = try Element(tag: Tag.valueOf("span"), baseURI: "").setText("Span2")
+        let el1: HTMLElement = try HTMLElement(tag: Tag.valueOf("span"), baseURI: "").setText("Span1")
+        let el2: HTMLElement = try HTMLElement(tag: Tag.valueOf("span"), baseURI: "").setText("Span2")
 		let tn1: TextNode = TextNode("Text4", "")
 		els.append(el1)
 		els.append(el2)
@@ -753,8 +753,8 @@ class ElementTest: XCTestCase {
 
 	func testInsertChildrenAsCopy()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1>Text <p>One</p> Text <p>Two</p></div><div id=2></div>")!
-		let div1: Element = doc.select(cssQuery: "div").get(index: 0)!
-		let div2: Element = doc.select(cssQuery: "div").get(index: 1)!
+		let div1: HTMLElement = doc.select(cssQuery: "div").get(index: 0)!
+		let div2: HTMLElement = doc.select(cssQuery: "div").get(index: 1)!
 		let ps: Elements = doc.select(cssQuery: "p").copy() as! Elements
 		ps.first!.setText("One cloned")
 		div2.insertChildren(ps.toArray(), at: 0)
@@ -767,9 +767,9 @@ class ElementTest: XCTestCase {
 
 	func testCssPath()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=\"id1\">A</div><div>B</div><div class=\"c1 c2\">C</div>")!
-		let divA: Element = doc.select(cssQuery: "div").get(index: 0)!
-		let divB: Element = doc.select(cssQuery: "div").get(index: 1)!
-		let divC: Element = doc.select(cssQuery: "div").get(index: 2)!
+		let divA: HTMLElement = doc.select(cssQuery: "div").get(index: 0)!
+		let divB: HTMLElement = doc.select(cssQuery: "div").get(index: 1)!
+		let divC: HTMLElement = doc.select(cssQuery: "div").get(index: 2)!
 		XCTAssertEqual(divA.cssSelector, "#id1")
 		XCTAssertEqual(divB.cssSelector, "html > body > div:nth-child(2)")
 		XCTAssertEqual(divC.cssSelector, "html > body > div.c1.c2")
@@ -781,7 +781,7 @@ class ElementTest: XCTestCase {
 
 	func testClassNames()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div class=\"c1 c2\">C</div>")!
-		let div: Element = doc.select(cssQuery: "div").get(index: 0)!
+		let div: HTMLElement = doc.select(cssQuery: "div").get(index: 0)!
 
 		XCTAssertEqual("c1 c2", div.className)
 
@@ -826,7 +826,7 @@ class ElementTest: XCTestCase {
 		let els: Elements = doc.select(cssQuery: "p")
 
 		/*
-		for (Element el : els) {
+		for (HTMLElement el : els) {
 		System.out.println(el.hashCode() + " - " + el.outerHTML);
 		}
 		
@@ -840,14 +840,14 @@ class ElementTest: XCTestCase {
 		7 1535455211 - <p class="two">One</p>
 		*/
 		XCTAssertEqual(8, els.count)
-		let e0: Element = els.get(index: 0)!
-		let e1: Element = els.get(index: 1)!
-		let e2: Element = els.get(index: 2)!
-		let e3: Element = els.get(index: 3)!
-		let e4: Element = els.get(index: 4)!
-		let e5: Element = els.get(index: 5)!
-		let e6: Element = els.get(index: 6)!
-		let e7: Element = els.get(index: 7)!
+		let e0: HTMLElement = els.get(index: 0)!
+		let e1: HTMLElement = els.get(index: 1)!
+		let e2: HTMLElement = els.get(index: 2)!
+		let e3: HTMLElement = els.get(index: 3)!
+		let e4: HTMLElement = els.get(index: 4)!
+		let e5: HTMLElement = els.get(index: 5)!
+		let e6: HTMLElement = els.get(index: 6)!
+		let e7: HTMLElement = els.get(index: 7)!
 
 		XCTAssertEqual(e0, e0)
 		XCTAssertTrue(e0.hasSameValue(e1))
@@ -880,14 +880,14 @@ class ElementTest: XCTestCase {
 
 	func testAppendMustCorrectlyMoveChildrenInsideOneParentElement()throws {
 		let doc: HTMLDocument = HTMLDocument(baseURI: "")
-		let body: Element = try doc.appendElement(tagName: "body")
+		let body: HTMLElement = try doc.appendElement(tagName: "body")
 		try body.appendElement(tagName: "div1")
 		try body.appendElement(tagName: "div2")
-		let div3: Element = try body.appendElement(tagName: "div3")
+		let div3: HTMLElement = try body.appendElement(tagName: "div3")
 		div3.setText("Check")
-		let div4: Element = try body.appendElement(tagName: "div4")
+		let div4: HTMLElement = try body.appendElement(tagName: "div4")
 
-		var toMove: Array<Element> = Array<Element>()
+		var toMove: Array<HTMLElement> = Array<HTMLElement>()
 		toMove.append(div3)
 		toMove.append(div4)
 
@@ -898,11 +898,11 @@ class ElementTest: XCTestCase {
 	}
 
 	func testHashcodeIsStableWithContentChanges()throws {
-		let root: Element = try Element(tag: Tag.valueOf("root"), baseURI: "")
-		let set = OrderedSet<Element>()
+		let root: HTMLElement = try HTMLElement(tag: Tag.valueOf("root"), baseURI: "")
+		let set = OrderedSet<HTMLElement>()
 		// Add root node:
 		set.append(root)
-		try root.appendChild(Element(tag: Tag.valueOf("a"), baseURI: ""))
+		try root.appendChild(HTMLElement(tag: Tag.valueOf("a"), baseURI: ""))
 		XCTAssertTrue(set.contains(root))
 	}
 
@@ -918,7 +918,7 @@ class ElementTest: XCTestCase {
     func testChainedRemoveAttributes()throws {
         let html = "<a one two three four>Text</a>"
         let doc = HTMLParser.parse(html)!
-        let a: Element = doc.select(cssQuery: "a").first!
+        let a: HTMLElement = doc.select(cssQuery: "a").first!
        try a.removeAttribute(withKey: "zero")
             .removeAttribute(withKey: "one")
             .removeAttribute(withKey: "two")
@@ -931,7 +931,7 @@ class ElementTest: XCTestCase {
     func testIs()throws {
         let html = "<div><p>One <a class=big>Two</a> Three</p><p>Another</p>"
         let doc: HTMLDocument = HTMLParser.parse(html)!
-        let p: Element = doc.select(cssQuery: "p").first!
+        let p: HTMLElement = doc.select(cssQuery: "p").first!
 
         XCTAssertTrue(p.isMatchedWith(cssQuery: "p"))
         XCTAssertFalse(p.isMatchedWith(cssQuery: "div"))
@@ -941,7 +941,7 @@ class ElementTest: XCTestCase {
         XCTAssertTrue(p.isMatchedWith(cssQuery: "*"))
         XCTAssertTrue(p.isMatchedWith(cssQuery: "div p"))
 
-        let q: Element = doc.select(cssQuery: "p").last!
+        let q: HTMLElement = doc.select(cssQuery: "p").last!
         XCTAssertTrue(q.isMatchedWith(cssQuery: "p"))
         XCTAssertTrue(q.isMatchedWith(cssQuery: "p ~ p"))
         XCTAssertTrue(q.isMatchedWith(cssQuery: "p + p"))

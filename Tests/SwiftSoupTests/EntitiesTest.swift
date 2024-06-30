@@ -122,7 +122,7 @@ class EntitiesTest: XCTestCase {
 		let html: String = "<p>&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;</p>"
 		let doc: HTMLDocument = HTMLParser.parse(html)!
 		doc.outputSettings.charset(.ascii)
-		let p: Element = doc.select(cssQuery: "p").first!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
 		XCTAssertEqual("&sup1;&sup2;&sup3;&frac14;&frac12;&frac34;", p.html)
 		XCTAssertEqual("¹²³¼½¾", p.getText())
 		doc.outputSettings.charset(.utf8)
@@ -139,7 +139,7 @@ class EntitiesTest: XCTestCase {
 
 		let docHtml: String = "<a title='<p>One</p>'>One</a>"
 		let doc: HTMLDocument = HTMLParser.parse(docHtml)!
-		let element: Element = doc.select(cssQuery: "a").first!
+		let element: HTMLElement = doc.select(cssQuery: "a").first!
 
 		doc.outputSettings.escapeMode(Entities.EscapeMode.base)
 		XCTAssertEqual("<a title=\"<p>One</p>\">One</a>", element.outerHTML)
