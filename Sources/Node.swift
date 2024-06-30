@@ -86,6 +86,9 @@ open class Node: Equatable, Hashable {
     ///     - value: The new value of an attribute with the given key.
     ///
     /// - Returns: `self` for chaining.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.emptyAttributeKey` if the given attributet key is an empty string.
     @discardableResult
     open func setAttribute(key attributeKey: String, value attributeValue: String) throws -> Node {
         try attributes?.put(attributeKey, attributeValue)
@@ -116,6 +119,9 @@ open class Node: Equatable, Hashable {
     ///     - key: The key of an attribute to remove. Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey`error.
     ///
     /// - Returns: `self` for chaining.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.emptyAttributeKey` if the given attributet key is an empty string.
     @discardableResult
     open func removeAttribute(withKey key: String) throws -> Node {
         try attributes?.removeIgnoreCase(key: key)
@@ -311,6 +317,10 @@ open class Node: Equatable, Hashable {
     /// - Parameters:
     ///     - html: HTML string to insert.
     ///     - index: The index at which to insert in the siblings.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node does not have a parent.
+    /// * `SwiftSoupError.failedToParseHTML` if parsing HTML is failed.
     open func insertSiblingHTML(_ html: String, at index: Int) throws {
         guard let parentNode else {
             throw SwiftSoupError.noParentNode
@@ -383,10 +393,11 @@ open class Node: Equatable, Hashable {
     /// ```
     /// In the codes above, `result` is a ``TextNode`` contains text "Two " which was the first child node of `span`.
     ///
-    /// - Returns: The first child of this node. It may be a ``TextNode``.
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if there's no parent node.
+    /// * `SwiftSoupError.noChildrenToUnwrap` if there's no children node.
     ///
-    /// - Throws: `SwiftSoupError.noParentNode` if there's no parent node.
-    /// `SwiftSoupError.noChildrenToUnwrap` if there's no children node.
+    /// - Returns: The first child of this node. It may be a ``TextNode``.
     @discardableResult
     open func unwrap() throws -> Node {
         guard let parentNode else {
@@ -431,7 +442,8 @@ open class Node: Equatable, Hashable {
 
     /// Replace the specified child node with the new node.
     ///
-    /// - Throws: `SwiftSoupError.notChildNode` if the given child node is not a child of this.
+    /// ## Throws
+    /// * `SwiftSoupError.notChildNode` if the given child node is not a child of this.
     public func replaceChildNode(_ childNode: Node, with newNode: Node) throws {
         guard childNode.parentNode === self else {
             throw SwiftSoupError.notChildNode
@@ -450,7 +462,8 @@ open class Node: Equatable, Hashable {
 
     /// Remove the sepcified child node.
     ///
-    /// - Throws: `SwiftSoupError.notChildNode` if the given child node is not a child of this.
+    /// ## Throws
+    /// *  `SwiftSoupError.notChildNode` if the given child node is not a child of this.
     public func removeChild(_ node: Node) throws {
         guard node.parentNode === self else {
             throw SwiftSoupError.notChildNode

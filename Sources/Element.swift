@@ -65,7 +65,9 @@ open class Element: Node {
     ///
     /// - Parameter tagName: A new tag name for this element.
     /// - Returns: `self` for chaining.
-    /// - Throws: `SwiftSoupError.emptyTagName` if given tag name is empty string.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.emptyTagName` if given tag name is an empty string.
     @discardableResult
     public func setTagName(_ tagName: String) throws -> Element {
         if tagName.isEmpty {
@@ -95,6 +97,9 @@ open class Element: Node {
     ///
     /// If an attribute with given key exists, set a new value of it. Otherwise, add a new attirbute with given key and value.
     ///
+    /// ## Throws
+    /// * `SwiftSoupError.emptyAttributeKey` if given key is an empty string.
+    ///
     /// - Parameters:
     ///     - key: The key of an attribute to set. Must not be empty otherwise throws an `SwiftSoupError.emptyAttributeKey` error.
     ///     - value: The new value of an attribute with the given key.
@@ -110,6 +115,9 @@ open class Element: Node {
     ///
     /// Setting to `true` sets the attribute value to "" and marks the attribute as boolean so no value is written out.
     /// Setting to `false` removes the attribute with the same key if it exists.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.emptyAttributeKey` if given key is an empty string.
     ///
     /// - Parameters:
     ///     - key: The key of an attribute to set. Must not be empty otherwise throws an `SwiftSoupError.emptyAttributeKey` error.
@@ -276,12 +284,14 @@ open class Element: Node {
     ///
     /// If the given nodes already exist on some trees, the nodes will be removed from trees before insertion.
     ///
+    /// ## Throws
+    /// * `SwiftSoupError.indexOutOfBounds` if the index is out of bound.
+    ///
     /// - Parameters:
     ///     - children: Nodes to insert as children.
     ///     - index: An index to insert children at.
     ///
     /// - Returns: `self` for chaining.
-    /// - Throws: `SwiftSoupError.indexOutOfBounds` if the index is out of bound.
     @discardableResult
     public func insertChildrenElements(_ children: [Node], at index: Int) throws -> Element {
         var index = index
@@ -306,7 +316,10 @@ open class Element: Node {
     ///         .setText("Hello, World!")
     /// ```
     ///
-    /// - Parameter tagName: The tag name of the new elemen . Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey`error.
+    /// ## Throws
+    /// * `SwiftSoupError.emptyTagName` if the given tag name is an empty string.
+    ///
+    /// - Parameter tagName: The tag name of the new elemen . Must not be empty, otherwise throws `SwiftSoupError.emptyTagName`error.
     /// - Returns: The created element. This allows you to start a builder chain.
     @discardableResult
     public func appendElement(tagName: String) throws -> Element {
@@ -324,7 +337,10 @@ open class Element: Node {
     ///         .setText("Hello, World!")
     /// ```
     ///
-    /// - Parameter tagName: The tag name of the new element. Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey`error.
+    /// ## Throws
+    /// * `SwiftSoupError.emptyTagName` if the given tag name is an empty string.
+    ///
+    /// - Parameter tagName: The tag name of the new element. Must not be empty, otherwise throws `SwiftSoupError.emptyTagName`error.
     /// - Returns: The created element. This allows you to start a builder chain.
     @discardableResult
     public func prependElement(tagName: String) throws -> Element {
@@ -363,9 +379,11 @@ open class Element: Node {
     ///
     /// Parse the given HTML string and create an ``Element``. Then, append it as the last child of this element.
     ///
+    /// ## Throws
+    /// * `SwiftSoupError.failedToParseHTML` if failed to parse HTML.
+    ///
     /// - Parameter html: HTML to append inside this element.
     /// - Returns: `self` for chaining.
-    /// - Throws: `SwiftSoupError.failedToParseHTML` if failed to parse HTML.
     @discardableResult
     public func appendHTML(_ html: String) throws -> Element {
         let nodes: [Node] = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
@@ -377,9 +395,11 @@ open class Element: Node {
     ///
     /// Parse the given HTML string and create an ``Element``. Then, prepend it as the first child of this element.
     ///
+    /// ## Throws
+    /// * `SwiftSoupError.failedToParseHTML` if failed to parse HTML.
+    ///
     /// - Parameter html: HTML to prepend inside this element.
     /// - Returns: `self` for chaining.
-    /// - Throws: `SwiftSoupError.failedToParseHTML` if failed to parse HTML.
     @discardableResult
     public func prependHTML(_ html: String) throws -> Element {
         let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)

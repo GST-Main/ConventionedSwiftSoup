@@ -35,8 +35,10 @@ public class Parser {
     ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: Parsed ``Document`` object.
     ///
-    /// If parsing is failed, throws ``SwiftSoupError/failedToParseHTML``. You can aslo track parse errors whereas static method ``parseHTML(_:baseURI:)-swift.type.method`` can't.
-    /// Static method ``parseHTML(_:baseURI:)-swift.type.method`` is more recommended.
+    /// You can track parse errors whereas static method ``parseHTML(_:baseURI:)-swift.type.method`` can't.
+    ///
+    /// ## Throws:
+    /// * `SwiftSoupError.failedToParseHTML`` if parsing is failed.
 	public func parseHTML(_ html: String, baseURI: String) throws -> Document {
 		errors = isTrackErrors ? ParseErrorList.tracking(maxErrors) : ParseErrorList.noTracking()
 		return try treeBuilder.parse(html, baseURI, errors, settings)
