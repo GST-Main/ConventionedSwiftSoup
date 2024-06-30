@@ -46,7 +46,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testSupplyParserToJsoupClass()throws {
 		let xml = "<doc><val>One<val>Two</val></bar>Three</doc>"
-        let doc = try HTMLParser.xmlParser().parseHTML(xml, baseURI: "http://foo.com/")
+        let doc = try HTMLParser.xmlParser().parse(xml, baseURI: "http://foo.com/")
 		XCTAssertEqual("<doc><val>One<val>Two</val>Three</val></doc>", TextUtil.stripNewlines(doc.html!))
 	}
 
@@ -85,13 +85,13 @@ class XmlTreeBuilderTest: XCTestCase {
 		let htmlDoc = HTMLParser.parseHTML("<br>one</br>")!
 		XCTAssertEqual("<br>one\n<br>", htmlDoc.body?.html)
 
-        let xmlDoc = try HTMLParser.xmlParser().parseHTML("<br>one</br>", baseURI: "")
+        let xmlDoc = try HTMLParser.xmlParser().parse("<br>one</br>", baseURI: "")
 		XCTAssertEqual("<br>one</br>", xmlDoc.html)
 	}
 
 	func testHandlesXmlDeclarationAsDeclaration()throws {
 		let html = "<?xml encoding='UTF-8' ?><body>One</body><!-- comment -->"
-        let doc = try HTMLParser.xmlParser().parseHTML(html, baseURI: "")
+        let doc = try HTMLParser.xmlParser().parse(html, baseURI: "")
 		XCTAssertEqual("<?xml encoding=\"UTF-8\"?> <body> One </body> <!-- comment -->",
                            StringUtil.normaliseWhitespace(doc.outerHTML!))
 		XCTAssertEqual("#declaration", doc.childNode(0).nodeName)
@@ -109,13 +109,13 @@ class XmlTreeBuilderTest: XCTestCase {
 	}
 
 	func testXmlParseDefaultsToHtmlOutputSyntax()throws {
-        let doc = try HTMLParser.xmlParser().parseHTML("x", baseURI: "")
+        let doc = try HTMLParser.xmlParser().parse("x", baseURI: "")
 		XCTAssertEqual(OutputSettings.Syntax.xml, doc.outputSettings.syntax())
 	}
 
 	func testDoesHandleEOFInTag()throws {
 		let html = "<img src=asdf onerror=\"alert(1)\" x="
-        let xmlDoc = try HTMLParser.xmlParser().parseHTML(html, baseURI: "")
+        let xmlDoc = try HTMLParser.xmlParser().parse(html, baseURI: "")
 		XCTAssertEqual("<img src=\"asdf\" onerror=\"alert(1)\" x=\"\" />", xmlDoc.html)
 	}
 	//todo:
@@ -130,7 +130,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testParseDeclarationAttributes()throws {
 		let xml = "<?xml version='1' encoding='UTF-8' something='else'?><val>One</val>"
-        let doc = try HTMLParser.xmlParser().parseHTML(xml, baseURI: "")
+        let doc = try HTMLParser.xmlParser().parse(xml, baseURI: "")
         guard let decl: XmlDeclaration =  doc.childNode(0) as? XmlDeclaration else {
             XCTAssertTrue(false)
             return
@@ -144,7 +144,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testCaseSensitiveDeclaration()throws {
 		let xml = "<?XML version='1' encoding='UTF-8' something='else'?>"
-        let doc = try HTMLParser.xmlParser().parseHTML(xml, baseURI: "")
+        let doc = try HTMLParser.xmlParser().parse(xml, baseURI: "")
 		XCTAssertEqual("<?XML version=\"1\" encoding=\"UTF-8\" something=\"else\"?>", doc.outerHTML)
 	}
 
@@ -161,7 +161,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testPreservesCaseByDefault()throws {
 		let xml = "<TEST ID=1>Check</TEST>"
-        let doc = try HTMLParser.xmlParser().parseHTML(xml, baseURI: "")
+        let doc = try HTMLParser.xmlParser().parse(xml, baseURI: "")
 		XCTAssertEqual("<TEST ID=\"1\">Check</TEST>", TextUtil.stripNewlines(doc.html!))
 	}
 
@@ -169,7 +169,7 @@ class XmlTreeBuilderTest: XCTestCase {
 		let xml = "<TEST ID=1>Check</TEST>"
         let parser = HTMLParser.xmlParser()
         parser.settings = ParseSettings.htmlDefault
-        let doc = try  parser.parseHTML(xml, baseURI: "")
+        let doc = try  parser.parse(xml, baseURI: "")
 		XCTAssertEqual("<test id=\"1\">Check</test>", TextUtil.stripNewlines(doc.html!))
 	}
 

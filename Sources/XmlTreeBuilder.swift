@@ -90,7 +90,7 @@ public class XmlTreeBuilder: TreeBuilder {
             let data: String = comment.getData()
             if (data.count > 1 && (data.startsWith("!") || data.startsWith("?"))) {
                 let parser = HTMLParser.xmlParser()
-                let doc: Document = try parser.parseHTML("<" + data.substring(1, data.count - 2) + ">", baseURI: baseUri)
+                let doc: Document = try parser.parse("<" + data.substring(1, data.count - 2) + ">", baseURI: baseUri)
                 let el: Element = doc.getChild(at: 0)!
                 insert = XmlDeclaration(settings.normalizeTag(el.tagName), comment.baseURI!, data.startsWith("!"))
                 insert.getAttributes()?.addAll(incoming: el.getAttributes())

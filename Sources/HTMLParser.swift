@@ -39,7 +39,7 @@ public class HTMLParser {
     ///
     /// ## Throws:
     /// * `SwiftSoupError.failedToParseHTML`` if parsing is failed.
-	public func parseHTML(_ html: String, baseURI: String) throws -> Document {
+	public func parse(_ html: String, baseURI: String) throws -> Document {
 		errors = isTrackErrors ? ParseErrorList.tracking(maxErrors) : ParseErrorList.noTracking()
 		return try treeBuilder.parse(html, baseURI, errors, settings)
 	}

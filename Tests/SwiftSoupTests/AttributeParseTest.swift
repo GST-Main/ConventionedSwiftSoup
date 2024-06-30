@@ -101,7 +101,7 @@ class AttributeParseTest: XCTestCase {
 		XCTAssertTrue(doc.select(cssQuery: "img[onerror]").count != 0, "SelfClosingStartTag ignores last character")
 		XCTAssertEqual("<img onerror=\"doMyJob\">", doc.body!.html)
 
-        doc = try HTMLParser.xmlParser().parseHTML(html, baseURI: "")
+        doc = try HTMLParser.xmlParser().parse(html, baseURI: "")
 		XCTAssertEqual("<img onerror=\"doMyJob\" />", doc.html)
 	}
 

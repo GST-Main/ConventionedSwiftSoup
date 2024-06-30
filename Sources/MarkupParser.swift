@@ -1,7 +1,7 @@
 import Foundation
 
 open class MarkupParser {
-    private static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
+    internal static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
 
     public var treeBuilder: TreeBuilder
     public var maxErrors: Int = DEFAULT_MAX_ERRORS
