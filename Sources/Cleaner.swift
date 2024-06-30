@@ -31,8 +31,8 @@ open class Cleaner {
     /// The original document is not modified. Only elements from the dirt document's `<body>` are used.
     /// - Parameter dirtyDocument: Untrusted base document to clean.
     /// - Returns: A cleaned document.
-	public func clean(_ dirtyDocument: Document) throws -> Document {
-		let clean = Document.createShell(baseURI: dirtyDocument.baseURI!)
+	public func clean(_ dirtyDocument: HTMLDocument) throws -> HTMLDocument {
+		let clean = HTMLDocument.createShell(baseURI: dirtyDocument.baseURI!)
         if let headWhitelist, let dirtHead = dirtyDocument.head, let cleanHead = clean.head { // frameset documents won't have a head. the clean doc will have empty head.
             try copySafeNodes(dirtHead, cleanHead, whitelist: headWhitelist)
         }
@@ -50,8 +50,8 @@ open class Cleaner {
     /// to ensure enforced attributes are set correctly, and that the output is tidied.
     /// - Parameter dirtyDocument: document to test
     /// - Returns: true if no tags or attributes need to be removed; false if they do
-	public func isValid(_ dirtyDocument: Document) throws -> Bool {
-        let clean = Document.createShell(baseURI: dirtyDocument.baseURI!)
+	public func isValid(_ dirtyDocument: HTMLDocument) throws -> Bool {
+        let clean = HTMLDocument.createShell(baseURI: dirtyDocument.baseURI!)
         let numDiscarded = try copySafeNodes(dirtyDocument.body!, clean.body!, whitelist: bodyWhitelist)
         return numDiscarded == 0
 	}

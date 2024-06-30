@@ -11,7 +11,7 @@ import Foundation
 public class TreeBuilder {
     public var reader: CharacterReader
     var tokeniser: Tokeniser
-    public var doc: Document // current doc we are building into
+    public var doc: HTMLDocument // current doc we are building into
     public var stack: Array<Element> // the stack of open elements
     public var baseUri: String // current base uri, for creating new elements
     public var currentToken: Token? // currentToken is used only for error tracking.
@@ -24,7 +24,7 @@ public class TreeBuilder {
     public func defaultSettings() -> ParseSettings {preconditionFailure("This method must be overridden")}
 
     public init() {
-        doc =  Document(baseURI: "")
+        doc =  HTMLDocument(baseURI: "")
         reader = CharacterReader("")
         tokeniser = Tokeniser(reader, nil)
         stack = Array<Element>()
@@ -34,7 +34,7 @@ public class TreeBuilder {
     }
 
     public func initialiseParse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings) {
-        doc = Document(baseURI: baseUri)
+        doc = HTMLDocument(baseURI: baseUri)
         self.settings = settings
         reader = CharacterReader(input)
         self.errors = errors
@@ -43,7 +43,7 @@ public class TreeBuilder {
         self.baseUri = baseUri
     }
 
-    func parse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->Document {
+    func parse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->HTMLDocument {
 		initialiseParse(input, baseUri, errors, settings)
         try runParser()
         return doc

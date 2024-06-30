@@ -82,7 +82,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     //tb.settings.normalizeTag(d.getName()), d.getPublicIdentifier(), d.getSystemIdentifier(), tb.getBaseUri())
                 tb.getDocument().appendChild(doctype)
                 if (d.isForceQuirks()) {
-                    tb.getDocument().quirksMode(Document.QuirksMode.quirks)
+                    tb.getDocument().quirksMode(HTMLDocument.QuirksMode.quirks)
                 }
                 tb.transition(.BeforeHtml)
             } else {
@@ -503,7 +503,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         tb.insertMarkerToFormattingElements()
                         tb.framesetOk(false)
                     } else if (name.equals("table")) {
-                        if (try tb.getDocument().quirksMode() != Document.QuirksMode.quirks && tb.inButtonScope("p")) {
+                        if (try tb.getDocument().quirksMode() != HTMLDocument.QuirksMode.quirks && tb.inButtonScope("p")) {
                             try tb.processEndTag("p")
                         }
                         try tb.insert(startTag)

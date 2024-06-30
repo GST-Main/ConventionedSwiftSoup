@@ -10,7 +10,7 @@ import XCTest
 import PrettySwiftSoup
 
 class CssTest: XCTestCase {
-	var html: Document!
+	var html: HTMLDocument!
 	private var htmlString: String!
 
 	override func setUp() {

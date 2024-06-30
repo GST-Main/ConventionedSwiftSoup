@@ -97,7 +97,7 @@ class AttributeParseTest: XCTestCase {
 
 	func testdropsSlashFromAttributeName()throws {
 		let html: String = "<img /onerror='doMyJob'/>"
-		var doc: Document = HTMLParser.parse(html)!
+		var doc: HTMLDocument = HTMLParser.parse(html)!
 		XCTAssertTrue(doc.select(cssQuery: "img[onerror]").count != 0, "SelfClosingStartTag ignores last character")
 		XCTAssertEqual("<img onerror=\"doMyJob\">", doc.body!.html)
 

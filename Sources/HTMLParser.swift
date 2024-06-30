@@ -18,9 +18,9 @@ public class HTMLParser: MarkupParser {
     }
 
 	// MARK: Static Methods
-    /// Parse HTML into a ``Document``.
+    /// Parse HTML into a ``HTMLDocument``.
     ///
-    /// ``Document`` is the main object of ``PrettySwiftSoup``. You can get ``Document`` object by calling this static method.
+    /// ``HTMLDocument`` is the main object of ``PrettySwiftSoup``. You can get ``HTMLDocument`` object by calling this static method.
     /// ```swift
     /// let url = URL(string: "https://www.swift.org")!
     /// let data = try! Data(contentsOf: url)
@@ -33,8 +33,8 @@ public class HTMLParser: MarkupParser {
     /// - Parameters:
     ///     - html: HTML string to parse.
     ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
-    /// - Returns: Parsed ``Document`` object. If parser failed to parse the HTML string, returns `nil` instead.
-    public static func parse(_ html: String, baseURI: String = "") -> Document? {
+    /// - Returns: Parsed ``HTMLDocument`` object. If parser failed to parse the HTML string, returns `nil` instead.
+    public static func parse(_ html: String, baseURI: String = "") -> HTMLDocument? {
         let treeBuilder: TreeBuilder = HtmlTreeBuilder()
         return try? treeBuilder.parse(html, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
@@ -56,14 +56,14 @@ public class HTMLParser: MarkupParser {
         return try treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
 
-    /// Parse a fragment of HTML into the ``Document/body`` of a ``Document``.
+    /// Parse a fragment of HTML into the ``HTMLDocument/body`` of a ``HTMLDocument``.
     ///
     /// - Parameters:
     ///     - bodyHTML: The fragment of HTML to parse.
     ///     - baseURI: Base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
-    /// - Returns: Parsed ``Document`` object, with empty ``Document/head``, and HTML parsed into ``Document/body``. If parser failed to parse HTML string, returns `nil` instead.
-    public static func parseBodyFragment(_ bodyHTML: String, baseURI: String = "") -> Document? {
-        let document = Document.createShell(baseURI: baseURI)
+    /// - Returns: Parsed ``HTMLDocument`` object, with empty ``HTMLDocument/head``, and HTML parsed into ``HTMLDocument/body``. If parser failed to parse HTML string, returns `nil` instead.
+    public static func parseBodyFragment(_ bodyHTML: String, baseURI: String = "") -> HTMLDocument? {
+        let document = HTMLDocument.createShell(baseURI: baseURI)
         if let body: Element = document.body, let nodes = parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI) {
             if nodes.count > 0 {
                 for i in 1..<nodes.count {
@@ -80,11 +80,11 @@ public class HTMLParser: MarkupParser {
     // TODO: More descriptions (later)
     /// Get safe HTML from untrusted input HTML, by parsing input HTML and filtering it through a whitelist of permitted tags and attributes.
     public class func cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) throws -> String {
-        guard let dirty: Document = parseBodyFragment(bodyHTML, baseURI: baseURI) else {
+        guard let dirty: HTMLDocument = parseBodyFragment(bodyHTML, baseURI: baseURI) else {
             throw SwiftSoupError.failedToParseHTML
         }
         let cleaner = Cleaner(whitelist)
-        let clean: Document = try cleaner.clean(dirty)
+        let clean: HTMLDocument = try cleaner.clean(dirty)
         if let settings {
             clean.outputSettings = settings
         }
@@ -109,7 +109,7 @@ public class HTMLParser: MarkupParser {
     /// * ``Cleaner``
     public static func validateBodyFragment(_ bodyHTML: String, whitelist: Whitelist) -> Bool {
         do {
-            guard let dirty: Document = parseBodyFragment(bodyHTML, baseURI: "") else {
+            guard let dirty: HTMLDocument = parseBodyFragment(bodyHTML, baseURI: "") else {
                 return false
             }
             let cleaner  = Cleaner(whitelist)

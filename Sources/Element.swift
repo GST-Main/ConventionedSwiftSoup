@@ -504,7 +504,7 @@ open class Element: Node {
             selector.append(classes)
         }
 
-        if (parent == nil || ((parent as? Document) != nil)) // don't add Document to selector, as will always have a html node
+        if (parent == nil || ((parent as? HTMLDocument) != nil)) // don't add HTMLDocument to selector, as will always have a html node
         {
             return selector
         }

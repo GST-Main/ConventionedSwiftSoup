@@ -57,7 +57,7 @@ class HtmlTreeBuilder: TreeBuilder {
         return ParseSettings.htmlDefault
     }
 
-    override func parse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->Document {
+    override func parse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->HTMLDocument {
         _state = HtmlTreeBuilderState.Initial
         baseUriSetFromDoc = false
         do {
@@ -165,7 +165,7 @@ class HtmlTreeBuilder: TreeBuilder {
         return _framesetOk
     }
 
-    func getDocument() -> Document {
+    func getDocument() -> HTMLDocument {
         return doc
     }
 

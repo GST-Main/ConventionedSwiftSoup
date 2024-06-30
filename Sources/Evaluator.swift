@@ -389,7 +389,7 @@ open class Evaluator {
 
             if let parent = element.parent {
                 let index = element.elementSiblingIndex
-                return !(parent is Document) && index == (parent.getChildNodes().count - 1)
+                return !(parent is HTMLDocument) && index == (parent.getChildNodes().count - 1)
             }
             return false
         }
@@ -432,7 +432,7 @@ open class Evaluator {
 
         open override func matches(_ root: Element, _ element: Element)throws->Bool {
             let p: Element? = element.parent
-            if (p == nil || (((p as? Document) != nil))) {return false}
+            if (p == nil || (((p as? HTMLDocument) != nil))) {return false}
 
             let pos: Int = try calculatePosition(root, element)
             if (a == 0) {return pos == b}
@@ -560,7 +560,7 @@ open class Evaluator {
     public final class IsFirstChild: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             let p = element.parent
-            if(p != nil && !(((p as? Document) != nil))) {
+            if(p != nil && !(((p as? HTMLDocument) != nil))) {
                 return element.elementSiblingIndex == 0
             }
             return false
@@ -578,7 +578,7 @@ open class Evaluator {
      */
     public final class IsRoot: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let r: Element = ((root as? Document) != nil) ? root.getChild(at: 0)! : root
+            let r: Element = ((root as? HTMLDocument) != nil) ? root.getChild(at: 0)! : root
             return element === r
         }
         public override func toString() -> String {
@@ -589,7 +589,7 @@ open class Evaluator {
     public final class IsOnlyChild: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             let p = element.parent
-            return p != nil && !((p as? Document) != nil) && element.siblingElements.count == 0
+            return p != nil && !((p as? HTMLDocument) != nil) && element.siblingElements.count == 0
         }
         public override func toString() -> String {
             return ":only-child"
@@ -599,7 +599,7 @@ open class Evaluator {
     public final class IsOnlyOfType: Evaluator {
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             let p = element.parent
-            if (p == nil || (p as? Document) != nil) {return false}
+            if (p == nil || (p as? HTMLDocument) != nil) {return false}
 
             var pos = 0
             if let family = p?.children {

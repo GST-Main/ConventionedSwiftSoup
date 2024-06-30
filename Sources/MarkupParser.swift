@@ -14,22 +14,22 @@ open class MarkupParser {
 
     /// Create a new ``MarkupParser`` using the specified ``TreeBuilder``
     /// - Parameters:
-    ///     - treeBuilder: A ``TreeBuilder`` object to use to parse input into ``Document``s.
+    ///     - treeBuilder: A ``TreeBuilder`` object to use to parse input into ``HTMLDocument``s.
     public init(_ treeBuilder: TreeBuilder) {
         self.treeBuilder = treeBuilder
         self.settings = treeBuilder.defaultSettings()
     }
 
-    /// Parse given markup code into a ``Document``.
+    /// Parse given markup code into a ``HTMLDocument``.
     ///
     /// - Parameters:
     ///     - source: A markup-based code to parse.
     ///     - baseURI: The base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
-    /// - Returns: Parsed ``Document`` object.
+    /// - Returns: Parsed ``HTMLDocument`` object.
     ///
     /// ## Throws:
     /// * `SwiftSoupError.failedToParseHTML` if parsing is failed.
-    public func parse(_ source: String, baseURI: String) throws -> Document {
+    public func parse(_ source: String, baseURI: String) throws -> HTMLDocument {
         errors = isTrackErrors ? ParseErrorList.tracking(maxErrors) : ParseErrorList.noTracking()
         return try treeBuilder.parse(source, baseURI, errors, settings)
     }

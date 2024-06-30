@@ -24,7 +24,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testParsesSimpleDocument()throws {
 		let html: String = "<html><head><title>First!</title></head><body><p>First post! <img src=\"foo.png\" /></p></body></html>"
-		let doc: Document = HTMLParser.parse(html)!
+		let doc: HTMLDocument = HTMLParser.parse(html)!
 		// need a better way to verify these:
         let p: Element = doc.body!.getChild(at: 0)!
 		XCTAssertEqual("p", p.tagName)
@@ -35,7 +35,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testParsesRoughAttributes()throws {
 		let html: String = "<html><head><title>First!</title></head><body><p class=\"foo > bar\">First post! <img src=\"foo.png\" /></p></body></html>"
-		let doc: Document = HTMLParser.parse(html)!
+		let doc: HTMLDocument = HTMLParser.parse(html)!
 
 		// need a better way to verify these:
 		let p: Element = doc.body!.getChild(at: 0)!
@@ -46,7 +46,7 @@ class HtmlParserTest: XCTestCase {
 	func testParsesQuiteRoughAttributes()throws {
 		let html: String = "<p =a>One<a <p>Something</p>Else"
 		// this gets a <p> with attr '=a' and an <a tag with an attribue named '<p'; and then auto-recreated
-		var doc: Document = HTMLParser.parse(html)!
+		var doc: HTMLDocument = HTMLParser.parse(html)!
 		XCTAssertEqual("<p =a>One<a <p>Something</a></p>\n" +
 			"<a <p>Else</a>", doc.body!.html)
 
@@ -68,7 +68,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testParsesUnterminatedComments()throws {
 		let html = "<p>Hello<!-- <tr><td>"
-		let doc: Document = HTMLParser.parse(html)!
+		let doc: HTMLDocument = HTMLParser.parse(html)!
 		let p: Element = doc.getElementsByTag("p").get(index: 0)!
 		XCTAssertEqual("Hello", p.getText())
 		let text: TextNode = p.childNode(0) as! TextNode
@@ -80,7 +80,7 @@ class HtmlParserTest: XCTestCase {
 	func testDropsUnterminatedTag()throws {
 		// swiftsoup used to parse this to <p>, but whatwg, webkit will drop.
 		let h1: String = "<p"
-		var doc: Document = HTMLParser.parse(h1)!
+		var doc: HTMLDocument = HTMLParser.parse(h1)!
 		XCTAssertEqual(0, doc.getElementsByTag("p").count)
 		XCTAssertEqual("", doc.getText())
 
@@ -92,13 +92,13 @@ class HtmlParserTest: XCTestCase {
 	func testDropsUnterminatedAttribute()throws {
 		// swiftsoup used to parse this to <p id="foo">, but whatwg, webkit will drop.
 		let h1: String = "<p id=\"foo"
-		let doc: Document = HTMLParser.parse(h1)!
+		let doc: HTMLDocument = HTMLParser.parse(h1)!
 		XCTAssertEqual("", doc.getText())
 	}
 
 	func testParsesUnterminatedTextarea()throws {
 		// don't parse right to end, but break on <p>
-		let doc: Document = HTMLParser.parse("<body><p><textarea>one<p>two")!
+		let doc: HTMLDocument = HTMLParser.parse("<body><p><textarea>one<p>two")!
 		let t: Element = doc.select(cssQuery: "textarea").first!
 		XCTAssertEqual("one", t.getText())
 		XCTAssertEqual("two", doc.select(cssQuery: "p").get(index: 1)!.getText())
@@ -106,7 +106,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testParsesUnterminatedOption()throws {
 		// bit weird this -- browsers and spec get stuck in select until there's a </select>
-		let doc: Document = HTMLParser.parse("<body><p><select><option>One<option>Two</p><p>Three</p>")!
+		let doc: HTMLDocument = HTMLParser.parse("<body><p><select><option>One<option>Two</p><p>Three</p>")!
 		let options: Elements = doc.select(cssQuery: "option")
 		XCTAssertEqual(2, options.count)
 		XCTAssertEqual("One", options.first!.getText())
@@ -114,7 +114,7 @@ class HtmlParserTest: XCTestCase {
 	}
 
 	func testSpaceAfterTag()throws {
-		let doc: Document = HTMLParser.parse("<div > <a name=\"top\"></a ><p id=1 >Hello</p></div>")!
+		let doc: HTMLDocument = HTMLParser.parse("<div > <a name=\"top\"></a ><p id=1 >Hello</p></div>")!
 		XCTAssertEqual("<div> <a name=\"top\"></a><p id=\"1\">Hello</p></div>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
@@ -161,19 +161,19 @@ class HtmlParserTest: XCTestCase {
 		XCTAssertEqual("", tels.get(index: 0)!.getText())
 
 		let s: String = "<p>Hello</p><script>obj.insert('<a rel=\"none\" />');\ni++;</script><p>There</p>"
-		let doc: Document = HTMLParser.parse(s)!
+		let doc: HTMLDocument = HTMLParser.parse(s)!
 		XCTAssertEqual("Hello There", doc.getText())
 		XCTAssertEqual("obj.insert('<a rel=\"none\" />');\ni++;", doc.data)
 	}
 
 	func testHandlesTextAfterData()throws {
 		let h: String = "<html><body>pre <script>inner</script> aft</body></html>"
-		let doc: Document = HTMLParser.parse(h)!
+		let doc: HTMLDocument = HTMLParser.parse(h)!
 		XCTAssertEqual("<html><head></head><body>pre <script>inner</script> aft</body></html>", TextUtil.stripNewlines(doc.html!))
 	}
 
 	func testHandlesTextArea()throws {
-		let doc: Document = HTMLParser.parse("<textarea>Hello</textarea>")!
+		let doc: HTMLDocument = HTMLParser.parse("<textarea>Hello</textarea>")!
 		let els: Elements = doc.select(cssQuery: "textarea")
 		XCTAssertEqual("Hello", els.text())
         XCTAssertEqual(1, els.count)
@@ -182,7 +182,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testPreservesSpaceInTextArea()throws {
 		// preserve because the tag is marked as preserve white space
-		let doc: Document = HTMLParser.parse("<textarea>\n\tOne\n\tTwo\n\tThree\n</textarea>")!
+		let doc: HTMLDocument = HTMLParser.parse("<textarea>\n\tOne\n\tTwo\n\tThree\n</textarea>")!
 		let expect: String = "One\n\tTwo\n\tThree" // the leading and trailing spaces are dropped as a convenience to authors
 		let el: Element = doc.select(cssQuery: "textarea").first!
 		XCTAssertEqual(expect, el.getText())
@@ -193,7 +193,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testPreservesSpaceInScript()throws {
 		// preserve because it's content is a data node
-		let doc: Document = HTMLParser.parse("<script>\nOne\n\tTwo\n\tThree\n</script>")!
+		let doc: HTMLDocument = HTMLParser.parse("<script>\nOne\n\tTwo\n\tThree\n</script>")!
 		let expect = "\nOne\n\tTwo\n\tThree\n"
 		let el: Element = doc.select(cssQuery: "script").first!
 		XCTAssertEqual(expect, el.data)
@@ -204,7 +204,7 @@ class HtmlParserTest: XCTestCase {
 	func testDoesNotCreateImplicitLists()throws {
 		// old SwiftSoup used to wrap this in <ul>, but that's not to spec
 		let h: String = "<li>Point one<li>Point two"
-		let doc: Document = HTMLParser.parse(h)!
+		let doc: HTMLDocument = HTMLParser.parse(h)!
 		let ol: Elements = doc.select(cssQuery: "ul") // should NOT have created a default ul.
 		XCTAssertEqual(0, ol.count)
 		let lis: Elements = doc.select(cssQuery: "li")
@@ -213,7 +213,7 @@ class HtmlParserTest: XCTestCase {
 
 		// no fiddling with non-implicit lists
 		let h2: String = "<ol><li><p>Point the first<li><p>Point the second"
-		let doc2: Document = HTMLParser.parse(h2)!
+		let doc2: HTMLDocument = HTMLParser.parse(h2)!
 
 		XCTAssertEqual(0, doc2.select(cssQuery: "ul").count)
 		XCTAssertEqual(1, doc2.select(cssQuery: "ol").count)
@@ -225,13 +225,13 @@ class HtmlParserTest: XCTestCase {
 	func testDiscardsNakedTds()throws {
 		// SwiftSoup used to make this into an implicit table; but browsers make it into a text run
 		let h: String = "<td>Hello<td><p>There<p>now"
-		let doc: Document = HTMLParser.parse(h)!
+		let doc: HTMLDocument = HTMLParser.parse(h)!
 		XCTAssertEqual("Hello<p>There</p><p>now</p>", TextUtil.stripNewlines(doc.body!.html!))
 		// <tbody> is introduced if no implicitly creating table, but allows tr to be directly under table
 	}
 
 	func testHandlesNestedImplicitTable()throws {
-		let doc: Document = HTMLParser.parse("<table><td>1</td></tr> <td>2</td></tr> <td> <table><td>3</td> <td>4</td></table> <tr><td>5</table>")!
+		let doc: HTMLDocument = HTMLParser.parse("<table><td>1</td></tr> <td>2</td></tr> <td> <table><td>3</td> <td>4</td></table> <tr><td>5</table>")!
 		XCTAssertEqual("<table><tbody><tr><td>1</td></tr> <tr><td>2</td></tr> <tr><td> <table><tbody><tr><td>3</td> <td>4</td></tr></tbody></table> </td></tr><tr><td>5</td></tr></tbody></table>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
@@ -242,7 +242,7 @@ class HtmlParserTest: XCTestCase {
 	}
 
 	func testHandlesTbodyTable()throws {
-		let doc: Document = HTMLParser.parse("<html><head></head><body><table><tbody><tr><td>aaa</td><td>bbb</td></tr></tbody></table></body></html>")!
+		let doc: HTMLDocument = HTMLParser.parse("<html><head></head><body><table><tbody><tr><td>aaa</td><td>bbb</td></tr></tbody></table></body></html>")!
 		XCTAssertEqual("<table><tbody><tr><td>aaa</td><td>bbb</td></tr></tbody></table>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
@@ -252,13 +252,13 @@ class HtmlParserTest: XCTestCase {
 	}
 
 	func testNoTableDirectInTable()throws {
-		let doc: Document = HTMLParser.parse("<table> <td>One <td><table><td>Two</table> <table><td>Three")!
+		let doc: HTMLDocument = HTMLParser.parse("<table> <td>One <td><table><td>Two</table> <table><td>Three")!
 		XCTAssertEqual("<table> <tbody><tr><td>One </td><td><table><tbody><tr><td>Two</td></tr></tbody></table> <table><tbody><tr><td>Three</td></tr></tbody></table></td></tr></tbody></table>",
 		               TextUtil.stripNewlines(doc.body!.html!))
 	}
 
 	func testIgnoresDupeEndTrTag()throws {
-		let doc: Document = HTMLParser.parse("<table><tr><td>One</td><td><table><tr><td>Two</td></tr></tr></table></td><td>Three</td></tr></table>")! // two </tr></tr>, must ignore or will close table
+		let doc: HTMLDocument = HTMLParser.parse("<table><tr><td>One</td><td><table><tr><td>Two</td></tr></tr></table></td><td>Three</td></tr></table>")! // two </tr></tr>, must ignore or will close table
 		XCTAssertEqual("<table><tbody><tr><td>One</td><td><table><tbody><tr><td>Two</td></tr></tbody></table></td><td>Three</td></tr></tbody></table>",
 		               TextUtil.stripNewlines(doc.body!.html!))
 	}
@@ -292,7 +292,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesCdata()throws {
 		// todo: as this is html namespace, should actually treat as bogus comment, not cdata. keep as cdata for now
 		let h = "<div id=1><![CDATA[<html>\n<foo><&amp;]]></div>" // the &amp; in there should remain literal
-		let doc: Document = HTMLParser.parse(h)!
+		let doc: HTMLDocument = HTMLParser.parse(h)!
 		let div: Element = doc.getElementById("1")!
 		XCTAssertEqual("<html> <foo><&amp;", div.getText())
 		XCTAssertEqual(0, div.children.count)
@@ -308,7 +308,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testHandlesInvalidStartTags()throws {
 		let h: String = "<div>Hello < There <&amp;></div>" // parse to <div {#text=Hello < There <&>}>
-		let doc: Document = HTMLParser.parse(h)!
+		let doc: HTMLDocument = HTMLParser.parse(h)!
 		XCTAssertEqual("Hello < There <&>", doc.select(cssQuery: "div").first!.getText())
 	}
 
@@ -324,14 +324,14 @@ class HtmlParserTest: XCTestCase {
 
 	func testHandlesUnknownInlineTags()throws {
 		let h = "<p><cust>Test</cust></p><p><cust><cust>Test</cust></cust></p>"
-		let doc: Document = HTMLParser.parseBodyFragment(h)!
+		let doc: HTMLDocument = HTMLParser.parseBodyFragment(h)!
 		let out: String = doc.body!.html!
 		XCTAssertEqual(h, TextUtil.stripNewlines(out))
 	}
 
 	func testParsesBodyFragment()throws {
 		let h = "<!-- comment --><p><a href='foo'>One</a></p>"
-        let doc: Document = HTMLParser.parseBodyFragment(h, baseURI: "http://example.com")!
+        let doc: HTMLDocument = HTMLParser.parseBodyFragment(h, baseURI: "http://example.com")!
 		XCTAssertEqual("<body><!-- comment --><p><a href=\"foo\">One</a></p></body>", TextUtil.stripNewlines(doc.body!.outerHTML!))
 		XCTAssertEqual("http://example.com/foo", doc.select(cssQuery: "a").first!.absoluteURLPath(ofAttribute: "href"))
 	}
@@ -339,7 +339,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesUnknownNamespaceTags()throws {
 		// note that the first foo:bar should not really be allowed to be self closing, if parsed in html mode.
 		let h = "<foo:bar id='1' /><abc:def id=2>Foo<p>Hello</p></abc:def><foo:bar>There</foo:bar>"
-		let doc: Document = HTMLParser.parse(h)!
+		let doc: HTMLDocument = HTMLParser.parse(h)!
 		XCTAssertEqual("<foo:bar id=\"1\" /><abc:def id=\"2\">Foo<p>Hello</p></abc:def><foo:bar>There</foo:bar>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
@@ -377,7 +377,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testHandlesMultiClosingBody()throws {
 		let h = "<body><p>Hello</body><p>there</p></body></body></html><p>now"
-		let doc: Document = HTMLParser.parse(h)!
+		let doc: HTMLDocument = HTMLParser.parse(h)!
 		XCTAssertEqual(3, doc.select(cssQuery: "p").count)
 		XCTAssertEqual(3, doc.body!.children.count)
 	}

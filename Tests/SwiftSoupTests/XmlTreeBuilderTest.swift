@@ -23,7 +23,7 @@ class XmlTreeBuilderTest: XCTestCase {
 	func testSimpleXmlParse()throws {
 		let xml = "<doc id=2 href='/bar'>Foo <br /><link>One</link><link>Two</link></doc>"
 		let treeBuilder: XmlTreeBuilder = XmlTreeBuilder()
-		let doc: Document = try treeBuilder.parse(xml, "http://foo.com/")
+		let doc: HTMLDocument = try treeBuilder.parse(xml, "http://foo.com/")
 		XCTAssertEqual("<doc id=\"2\" href=\"/bar\">Foo <br /><link>One</link><link>Two</link></doc>",
                        TextUtil.stripNewlines(doc.html!))
 		XCTAssertEqual(doc.getElementById("2")?.absoluteURLPath(ofAttribute: "href"), "http://foo.com/bar")
@@ -55,9 +55,9 @@ class XmlTreeBuilderTest: XCTestCase {
 	//	String xmlUrl = "http://direct.infohound.net/tools/jsoup-xml-test.xml";
 	//
 	//	// parse with both xml and html parser, ensure different
-	//	Document xmlDoc = Jsoup.connect(xmlUrl).parser(XMLParser()).get();
-	//	Document htmlDoc = Jsoup.connect(xmlUrl).parser(HTMLParser.htmlParser()).get();
-	//	Document autoXmlDoc = Jsoup.connect(xmlUrl).get(); // check connection auto detects xml, uses xml parser
+	//	HTMLDocument xmlDoc = Jsoup.connect(xmlUrl).parser(XMLParser()).get();
+	//	HTMLDocument htmlDoc = Jsoup.connect(xmlUrl).parser(HTMLParser.htmlParser()).get();
+	//	HTMLDocument autoXmlDoc = Jsoup.connect(xmlUrl).get(); // check connection auto detects xml, uses xml parser
 	//
 	//	XCTAssertEqual("<doc><val>One<val>Two</val>Three</val></doc>",
 	//	TextUtil.stripNewlines(xmlDoc.html));
@@ -149,7 +149,7 @@ class XmlTreeBuilderTest: XCTestCase {
 	}
 
 	func testCreatesValidProlog()throws {
-		let document = Document.createShell(baseURI: "")
+		let document = HTMLDocument.createShell(baseURI: "")
 		document.outputSettings.syntax(syntax: OutputSettings.Syntax.xml)
         document.charset = .utf8
 		XCTAssertEqual("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

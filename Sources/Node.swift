@@ -47,7 +47,7 @@ open class Node: Equatable, Hashable {
 
     /// The node name of this node.
     ///
-    /// This is an abstract property. Subclasses overrides this property. For example, ``Element`` returns tag name and ``Document`` returns literal `"#Document"`.
+    /// This is an abstract property. Subclasses overrides this property. For example, ``Element`` returns tag name and ``HTMLDocument`` returns literal `"#document"`.
     /// Call this method directly in ``Node`` instance will cause `fatalError`.
     public var nodeName: String {
         preconditionFailure("This method must be overridden")
@@ -151,7 +151,7 @@ open class Node: Equatable, Hashable {
     ///
     /// Get a URL string from an attribute of this node. The URL path will be resolved if the retrieved URL is relative.
     /// ```swift
-    /// let wiki: Document = ... // Parsed HTML of "https://en.wikipedia.org/wiki/Swift"
+    /// let wiki: HTMLDocument = ... // Parsed HTML of "https://en.wikipedia.org/wiki/Swift"
     /// wiki.baseURI = "https://en.wikipedia.org/"
     /// let link = wiki.getElementsContainingText("Swift (programming language)").first!
     /// let href = link.getAttribute(key: "href")!
@@ -217,11 +217,11 @@ open class Node: Equatable, Hashable {
         return parentNode
     }
 
-    /// Get the Document associated with this node.
+    /// Get the HTMLDocument associated with this node.
     ///
-    /// - Returns: A ``Document`` object associated with this node. If there's no such document, returns `nil`.
-    open func ownerDocument() -> Document? {
-        if let this = self as? Document {
+    /// - Returns: A ``HTMLDocument`` object associated with this node. If there's no such document, returns `nil`.
+    open func ownerDocument() -> HTMLDocument? {
+        if let this = self as? HTMLDocument {
             return this
         } else if let parentNode {
             return parentNode.ownerDocument()
@@ -608,7 +608,7 @@ open class Node: Equatable, Hashable {
 
     // if this node has no document (or parent), retrieve the default output settings
     func getOutputSettings() -> OutputSettings {
-        return ownerDocument() != nil ? ownerDocument()!.outputSettings : (Document(baseURI: Node.empty)).outputSettings
+        return ownerDocument() != nil ? ownerDocument()!.outputSettings : (HTMLDocument(baseURI: Node.empty)).outputSettings
     }
 
     /**
@@ -660,7 +660,7 @@ open class Node: Equatable, Hashable {
     /// parent node. As a stand-alone object, any changes made to the clone or any of its children will not impact the
     /// original node.
     /// <p>
-    /// The cloned node may be adopted into another Document or node structure using {@link Element#appendChild(Node)}.
+    /// The cloned node may be adopted into another HTMLDocument or node structure using {@link Element#appendChild(Node)}.
     /// @return stand-alone cloned node
     public func copy(with zone: NSZone? = nil) -> Any {
 		return copy(clone: Node())

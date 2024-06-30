@@ -1,5 +1,5 @@
 //
-//  Document.swift
+//  HTMLDocument.swift
 //  SwifSoup
 //
 //  Created by Nabil Chatbi on 29/09/16.
@@ -10,8 +10,8 @@ import Foundation
 
 /// An ``Element`` representing an HTML document.
 ///
-/// ``Document`` is a main object of ``PrettySwiftSoup``.
-/// In most cases, an HTML document is first parsed into a ``Document`` instance
+/// ``HTMLDocument`` is a main object of ``PrettySwiftSoup``.
+/// In most cases, an HTML document is first parsed into a ``HTMLDocument`` instance
 /// using the static method ``HTMLParser/parse(_:baseURI:)`` of ``HTMLParser``.
 /// Then, you manipulate the document with members of its superclasses or itself.
 /// ```swift
@@ -23,7 +23,7 @@ import Foundation
 /// }
 /// ```
 ///
-/// A ``Document`` is commonly treated as an ``Element`` since it is a subclass of ``Element``. Useful methods from ``Element`` (or even ``Node``), such as ``Element/getElementById(_:)`` or ``Element/getChild(at:)``, are also essential for ``Document``. For more information, please check ``Element`` documentation.
+/// A ``HTMLDocument`` is commonly treated as an ``Element`` since it is a subclass of ``Element``. Useful methods from ``Element`` (or even ``Node``), such as ``Element/getElementById(_:)`` or ``Element/getChild(at:)``, are also essential for ``HTMLDocument``. For more information, please check ``Element`` documentation.
 /// ```swift
 /// // Get an element with id "soup"
 /// let soupElement: Element? = document.getElementById("soup")
@@ -37,16 +37,16 @@ import Foundation
 /// let htmlString: String = document.html ?? ""
 /// ```
 ///
-/// ``Document`` contains members specifically useful for an HTML document. 
+/// ``HTMLDocument`` contains members specifically useful for an HTML document. 
 /// For example, you can get ``head`` and ``body`` from a document.
 /// The property ``charset`` represents which text-encoding is used to represent a document.
-open class Document: Element {
+open class HTMLDocument: Element {
     public enum QuirksMode {
         case noQuirks, quirks, limitedQuirks
     }
 
     public var outputSettings = OutputSettings()
-    private var _quirksMode: Document.QuirksMode = QuirksMode.noQuirks
+    private var _quirksMode: HTMLDocument.QuirksMode = QuirksMode.noQuirks
     /// An alias of a document's base URI.
     public let location: String
 
@@ -57,8 +57,8 @@ open class Document: Element {
     }
 
     /// Create a valid and empty shell of a document suitable for adding more elements to.
-    static public func createShell(baseURI: String) -> Document {
-        let doc: Document = Document(baseURI: baseURI)
+    static public func createShell(baseURI: String) -> HTMLDocument {
+        let doc: HTMLDocument = HTMLDocument(baseURI: baseURI)
         let html: Element = try! doc.appendElement(tagName: "html")
         try! html.appendElement(tagName: "head")
         try! html.appendElement(tagName: "body")
@@ -120,7 +120,7 @@ open class Document: Element {
     ///
     /// - Returns: This document after normalization.
     @discardableResult
-    public func normalise() throws -> Document {
+    public func normalise() throws -> HTMLDocument {
         var htmlElement = findFirstElementByTagName("html", self)
         if htmlElement == nil {
             htmlElement = try! appendElement(tagName: "html")
@@ -220,7 +220,7 @@ open class Document: Element {
 
     /// The node name of this node.
     ///
-    /// In ``Document``, this is the literal "#document".
+    /// In ``HTMLDocument``, this is the literal "#document".
     open override var nodeName: String {
         return "#document"
     }
@@ -301,28 +301,28 @@ open class Document: Element {
         }
     }
 
-    public func quirksMode() -> Document.QuirksMode {
+    public func quirksMode() -> HTMLDocument.QuirksMode {
         return _quirksMode
     }
 
     @discardableResult
-    public func quirksMode(_ quirksMode: Document.QuirksMode) -> Document {
+    public func quirksMode(_ quirksMode: HTMLDocument.QuirksMode) -> HTMLDocument {
         self._quirksMode = quirksMode
         return self
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Document(baseURI: location)
+		let clone = HTMLDocument(baseURI: location)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Document(baseURI: location)
+		let clone = HTMLDocument(baseURI: location)
 		return copy(clone: clone, parent: parent)
 	}
 
 	public override func copy(clone: Node, parent: Node?) -> Node {
-		let clone = clone as! Document
+		let clone = clone as! HTMLDocument
 		clone.outputSettings = outputSettings.copy() as! OutputSettings
 		clone._quirksMode = _quirksMode
 		return super.copy(clone: clone, parent: parent)
