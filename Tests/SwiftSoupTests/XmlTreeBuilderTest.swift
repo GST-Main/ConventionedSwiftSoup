@@ -46,7 +46,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testSupplyParserToJsoupClass()throws {
 		let xml = "<doc><val>One<val>Two</val></bar>Three</doc>"
-        let doc = try HTMLParser.xmlParser().parse(xml, baseURI: "http://foo.com/")
+        let doc = try XMLParser().parse(xml, baseURI: "http://foo.com/")
 		XCTAssertEqual("<doc><val>One<val>Two</val>Three</val></doc>", TextUtil.stripNewlines(doc.html!))
 	}
 
@@ -55,7 +55,7 @@ class XmlTreeBuilderTest: XCTestCase {
 	//	String xmlUrl = "http://direct.infohound.net/tools/jsoup-xml-test.xml";
 	//
 	//	// parse with both xml and html parser, ensure different
-	//	Document xmlDoc = Jsoup.connect(xmlUrl).parser(HTMLParser.xmlParser()).get();
+	//	Document xmlDoc = Jsoup.connect(xmlUrl).parser(XMLParser()).get();
 	//	Document htmlDoc = Jsoup.connect(xmlUrl).parser(HTMLParser.htmlParser()).get();
 	//	Document autoXmlDoc = Jsoup.connect(xmlUrl).get(); // check connection auto detects xml, uses xml parser
 	//
@@ -74,7 +74,7 @@ class XmlTreeBuilderTest: XCTestCase {
 //		let fileURL = testBundle.url(forResource: "xml-test", withExtension: "xml")
 //		File xmlFile = new File(XmlTreeBuilder.class.getResource("/htmltests/xml-test.xml").toURI());
 //		InputStream inStream = new FileInputStream(xmlFile);
-//		let doc = Jsoup.parse(inStream, null, "http://foo.com", HTMLParser.xmlParser());
+//		let doc = Jsoup.parse(inStream, null, "http://foo.com", XMLParser());
 //		XCTAssertEqual("<doc><val>One<val>Two</val>Three</val></doc>",
 //		               TextUtil.stripNewlines(doc.html));
 //	}
@@ -85,13 +85,13 @@ class XmlTreeBuilderTest: XCTestCase {
 		let htmlDoc = HTMLParser.parse("<br>one</br>")!
 		XCTAssertEqual("<br>one\n<br>", htmlDoc.body?.html)
 
-        let xmlDoc = try HTMLParser.xmlParser().parse("<br>one</br>", baseURI: "")
+        let xmlDoc = try XMLParser().parse("<br>one</br>", baseURI: "")
 		XCTAssertEqual("<br>one</br>", xmlDoc.html)
 	}
 
 	func testHandlesXmlDeclarationAsDeclaration()throws {
 		let html = "<?xml encoding='UTF-8' ?><body>One</body><!-- comment -->"
-        let doc = try HTMLParser.xmlParser().parse(html, baseURI: "")
+        let doc = try XMLParser().parse(html, baseURI: "")
 		XCTAssertEqual("<?xml encoding=\"UTF-8\"?> <body> One </body> <!-- comment -->",
                            StringUtil.normaliseWhitespace(doc.outerHTML!))
 		XCTAssertEqual("#declaration", doc.childNode(0).nodeName)
@@ -100,7 +100,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testXmlFragment()throws {
 		let xml = "<one src='/foo/' />Two<three><four /></three>"
-        let nodes: [Node] = HTMLParser.parseXMLFragment(xml, baseURI: "http://example.com/")!
+        let nodes: [Node] = XMLParser.parseXMLFragment(xml, baseURI: "http://example.com/")!
 		XCTAssertEqual(3, nodes.count)
 
 		XCTAssertEqual("http://example.com/foo/", nodes[0].absoluteURLPath(ofAttribute: "src"))
@@ -109,20 +109,20 @@ class XmlTreeBuilderTest: XCTestCase {
 	}
 
 	func testXmlParseDefaultsToHtmlOutputSyntax()throws {
-        let doc = try HTMLParser.xmlParser().parse("x", baseURI: "")
+        let doc = try XMLParser().parse("x", baseURI: "")
 		XCTAssertEqual(OutputSettings.Syntax.xml, doc.outputSettings.syntax())
 	}
 
 	func testDoesHandleEOFInTag()throws {
 		let html = "<img src=asdf onerror=\"alert(1)\" x="
-        let xmlDoc = try HTMLParser.xmlParser().parse(html, baseURI: "")
+        let xmlDoc = try XMLParser().parse(html, baseURI: "")
 		XCTAssertEqual("<img src=\"asdf\" onerror=\"alert(1)\" x=\"\" />", xmlDoc.html)
 	}
 	//todo:
 //		func testDetectCharsetEncodingDeclaration()throws{
 //		File xmlFile = new File(XmlTreeBuilder.class.getResource("/htmltests/xml-charset.xml").toURI());
 //		InputStream inStream = new FileInputStream(xmlFile);
-//		let doc = Jsoup.parse(inStream, null, "http://example.com/", HTMLParser.xmlParser());
+//		let doc = Jsoup.parse(inStream, null, "http://example.com/", XMLParser());
 //		XCTAssertEqual("ISO-8859-1", doc.charset().name());
 //		XCTAssertEqual("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> <data>äöåéü</data>",
 //		TextUtil.stripNewlines(doc.html));
@@ -130,7 +130,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testParseDeclarationAttributes()throws {
 		let xml = "<?xml version='1' encoding='UTF-8' something='else'?><val>One</val>"
-        let doc = try HTMLParser.xmlParser().parse(xml, baseURI: "")
+        let doc = try XMLParser().parse(xml, baseURI: "")
         guard let decl: XmlDeclaration =  doc.childNode(0) as? XmlDeclaration else {
             XCTAssertTrue(false)
             return
@@ -144,7 +144,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testCaseSensitiveDeclaration()throws {
 		let xml = "<?XML version='1' encoding='UTF-8' something='else'?>"
-        let doc = try HTMLParser.xmlParser().parse(xml, baseURI: "")
+        let doc = try XMLParser().parse(xml, baseURI: "")
 		XCTAssertEqual("<?XML version=\"1\" encoding=\"UTF-8\" something=\"else\"?>", doc.outerHTML)
 	}
 
@@ -161,13 +161,13 @@ class XmlTreeBuilderTest: XCTestCase {
 
 	func testPreservesCaseByDefault()throws {
 		let xml = "<TEST ID=1>Check</TEST>"
-        let doc = try HTMLParser.xmlParser().parse(xml, baseURI: "")
+        let doc = try XMLParser().parse(xml, baseURI: "")
 		XCTAssertEqual("<TEST ID=\"1\">Check</TEST>", TextUtil.stripNewlines(doc.html!))
 	}
 
 	func testCanNormalizeCase()throws {
 		let xml = "<TEST ID=1>Check</TEST>"
-        let parser = HTMLParser.xmlParser()
+        let parser = XMLParser()
         parser.settings = ParseSettings.htmlDefault
         let doc = try  parser.parse(xml, baseURI: "")
 		XCTAssertEqual("<test id=\"1\">Check</test>", TextUtil.stripNewlines(doc.html!))

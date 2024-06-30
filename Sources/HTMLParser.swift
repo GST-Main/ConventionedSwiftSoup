@@ -83,17 +83,6 @@ public class HTMLParser {
         return try treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
 
-    /// Parse a fragment of XML into a list of nodes.
-    ///
-    /// - Parameters:
-    ///     - fragmentXML: The fragment of XML to parse.
-    ///     - baseURI: Base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
-    /// - Returns: An array of nodes parsed from the input XML. If parser failed to parse the XML string, returns `nil` instead.
-    public static func parseXMLFragment(_ fragmentXML: String, baseURI: String = "") -> [Node]? {
-        let treeBuilder: XmlTreeBuilder = XmlTreeBuilder()
-        return try? treeBuilder.parseFragment(fragmentXML, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
-    }
-
     /// Parse a fragment of HTML into the ``Document/body`` of a ``Document``.
     ///
     /// - Parameters:
@@ -169,24 +158,5 @@ public class HTMLParser {
 	public static func unescapeEntities(_ string: String, _ inAttribute: Bool) throws -> String {
 		let tokeniser: Tokeniser = Tokeniser(CharacterReader(string), ParseErrorList.noTracking())
 		return try tokeniser.unescapeEntities(inAttribute)
-	}
-
-	// MARK: Builders
-    /// Create a new HTML parser.
-    ///
-    /// This parser treats input as HTML5, and enforces the creation of a normalised document based on a knowledge of the semantics of the incoming tags.
-    ///
-    /// - Returns: A new HTML parser.
-	public static func htmlParser() -> HTMLParser {
-		return HTMLParser(HtmlTreeBuilder())
-	}
-
-    /// Create a new XML parser.
-    ///
-    /// This parser assumes no knowledge of the incoming tags and does not treat it as HTML rather creates a simple tree directly from the input.
-    ///
-    /// - Returns: A new simple XML parser.
-	public static func xmlParser() -> HTMLParser {
-		return HTMLParser(XmlTreeBuilder())
 	}
 }
