@@ -10,7 +10,7 @@ import Foundation
 
 /// Parses HTML into a ``Document``.
 ///
-/// Generally, static method ``parseHTML(_:baseURI:)-swift.type.method`` is mostly recommended.
+/// Generally, static method ``parse(_:baseURI:)-swift.type.method`` is mostly recommended.
 public class HTMLParser {
 	private static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
 
@@ -35,7 +35,7 @@ public class HTMLParser {
     ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: Parsed ``Document`` object.
     ///
-    /// You can track parse errors whereas static method ``parseHTML(_:baseURI:)-swift.type.method`` can't.
+    /// You can track parse errors whereas static method ``parse(_:baseURI:)-swift.type.method`` can't.
     ///
     /// ## Throws:
     /// * `SwiftSoupError.failedToParseHTML`` if parsing is failed.
@@ -52,7 +52,7 @@ public class HTMLParser {
     /// let url = URL(string: "https://www.swift.org")!
     /// let data = try! Data(contentsOf: url)
     /// let html = String(data: data, encoding: .utf8)!
-    /// if let document = HTMLParser.parseHTML(html) {
+    /// if let document = HTMLParser.parse(html) {
     ///     // do something with document...
     /// }
     /// ```
@@ -61,7 +61,7 @@ public class HTMLParser {
     ///     - html: HTML string to parse.
     ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: Parsed ``Document`` object. If parser failed to parse the HTML string, returns `nil` instead.
-    public static func parseHTML(_ html: String, baseURI: String = "") -> Document? {
+    public static func parse(_ html: String, baseURI: String = "") -> Document? {
         let treeBuilder: TreeBuilder = HtmlTreeBuilder()
         return try? treeBuilder.parse(html, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }

@@ -28,7 +28,7 @@ class DocumentTest: XCTestCase {
 //				"</body>" +
 //			"</html>";
 //			
-//			let doc: Document = HTMLParser.parseHTML(html)!
+//			let doc: Document = HTMLParser.parse(html)!
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
@@ -61,7 +61,7 @@ class DocumentTest: XCTestCase {
     }
 
 	func testSetTextPreservesDocumentStructure() {
-        let doc: Document = HTMLParser.parseHTML("<p>Hello</p>")!
+        let doc: Document = HTMLParser.parse("<p>Hello</p>")!
         doc.setText("Replaced")
         XCTAssertEqual("Replaced", doc.getText())
         XCTAssertEqual("Replaced", doc.body!.getText())
@@ -69,8 +69,8 @@ class DocumentTest: XCTestCase {
 	}
 
 	func testTitles() {
-        let noTitle: Document = HTMLParser.parseHTML("<p>Hello</p>")!
-        let withTitle: Document = HTMLParser.parseHTML("<title>First</title><title>Ignore</title><p>Hello</p>")!
+        let noTitle: Document = HTMLParser.parse("<p>Hello</p>")!
+        let withTitle: Document = HTMLParser.parse("<title>First</title><title>Ignore</title><p>Hello</p>")!
         
         XCTAssertEqual(nil, noTitle.title)
         noTitle.title = "Hello"
@@ -82,12 +82,12 @@ class DocumentTest: XCTestCase {
         XCTAssertEqual("Hello", withTitle.title)
         XCTAssertEqual("Hello", withTitle.select(cssQuery: "title").first?.getText())
         
-        let normaliseTitle: Document = HTMLParser.parseHTML("<title>   Hello\nthere   \n   now   \n")!
+        let normaliseTitle: Document = HTMLParser.parse("<title>   Hello\nthere   \n   now   \n")!
         XCTAssertEqual("Hello there now", normaliseTitle.title)
 	}
 
 	func testOutputEncoding() {
-        let doc: Document = HTMLParser.parseHTML("<p title=π>π & < > </p>")!
+        let doc: Document = HTMLParser.parse("<p title=π>π & < > </p>")!
         // default is utf-8
         XCTAssertEqual("<p title=\"π\">π &amp; &lt; &gt; </p>", doc.body?.html)
         XCTAssertEqual("UTF-8", doc.outputSettings.charset().displayName())
@@ -101,18 +101,18 @@ class DocumentTest: XCTestCase {
 	}
 
 	func testXhtmlReferences() {
-		let doc: Document = HTMLParser.parseHTML("&lt; &gt; &amp; &quot; &apos; &times;")!
+		let doc: Document = HTMLParser.parse("&lt; &gt; &amp; &quot; &apos; &times;")!
 		doc.outputSettings.escapeMode(Entities.EscapeMode.xhtml)
 		XCTAssertEqual("&lt; &gt; &amp; \" ' ×", doc.body?.html)
 	}
 
 	func testNormalisesStructure() {
-		let doc: Document = HTMLParser.parseHTML("<html><head><script>one</script><noscript><p>two</p></noscript></head><body><p>three</p></body><p>four</p></html>")!
+		let doc: Document = HTMLParser.parse("<html><head><script>one</script><noscript><p>two</p></noscript></head><body><p>three</p></body><p>four</p></html>")!
 		XCTAssertEqual("<html><head><script>one</script><noscript>&lt;p&gt;two</noscript></head><body><p>three</p><p>four</p></body></html>", TextUtil.stripNewlines(doc.html!))
 	}
 
 	func testClone() {
-		let doc: Document = HTMLParser.parseHTML("<title>Hello</title> <p>One<p>Two")!
+		let doc: Document = HTMLParser.parse("<title>Hello</title> <p>One<p>Two")!
 		let clone: Document = doc.copy() as! Document
 
         XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", TextUtil.stripNewlines(clone.html!))
@@ -123,7 +123,7 @@ class DocumentTest: XCTestCase {
 	}
 
 	func testClonesDeclarations() {
-		let doc: Document = HTMLParser.parseHTML("<!DOCTYPE html><html><head><title>Doctype test")!
+		let doc: Document = HTMLParser.parse("<!DOCTYPE html><html><head><title>Doctype test")!
 		let clone: Document = doc.copy() as! Document
 
 		XCTAssertEqual(doc.html, clone.html)
@@ -149,7 +149,7 @@ class DocumentTest: XCTestCase {
 
 	func testHtmlAndXmlSyntax() {
 		let h: String = "<!DOCTYPE html><body><img async checked='checked' src='&<>\"'>&lt;&gt;&amp;&quot;<foo />bar"
-		let doc: Document = HTMLParser.parseHTML(h)!
+		let doc: Document = HTMLParser.parse(h)!
 
 		doc.outputSettings.syntax(syntax: OutputSettings.Syntax.html)
 		XCTAssertEqual("<!doctype html>\n" +
@@ -173,13 +173,13 @@ class DocumentTest: XCTestCase {
 	}
 
 	func testHtmlParseDefaultsToHtmlOutputSyntax() {
-		let doc: Document = HTMLParser.parseHTML("x")!
+		let doc: Document = HTMLParser.parse("x")!
 		XCTAssertEqual(OutputSettings.Syntax.html, doc.outputSettings.syntax())
 	}
 
 	func testHtmlAppendable() {
 		let htmlContent: String = "<html><head><title>Hello</title></head><body><p>One</p><p>Two</p></body></html>"
-		let document: Document = HTMLParser.parseHTML(htmlContent)!
+		let document: Document = HTMLParser.parse(htmlContent)!
 		let outputSettings: OutputSettings = OutputSettings()
 
 		outputSettings.prettyPrint(pretty: false)
@@ -200,9 +200,9 @@ class DocumentTest: XCTestCase {
 	//	}
 
 	func testDocumentsWithSameContentAreEqual() throws {
-		let docA: Document = HTMLParser.parseHTML("<div/>One")!
-		let docB: Document = HTMLParser.parseHTML("<div/>One")!
-		_ = HTMLParser.parseHTML("<div/>Two")!
+		let docA: Document = HTMLParser.parse("<div/>One")!
+		let docB: Document = HTMLParser.parse("<div/>One")!
+		_ = HTMLParser.parse("<div/>Two")!
 
 		XCTAssertFalse(docA.equals(docB))
 		XCTAssertTrue(docA.equals(docA))
@@ -212,9 +212,9 @@ class DocumentTest: XCTestCase {
 	}
 
 	func testDocumentsWithSameContentAreVerifialbe() throws {
-		let docA: Document = HTMLParser.parseHTML("<div/>One")!
-		let docB: Document = HTMLParser.parseHTML("<div/>One")!
-		let docC: Document = HTMLParser.parseHTML("<div/>Two")!
+		let docA: Document = HTMLParser.parse("<div/>One")!
+		let docB: Document = HTMLParser.parse("<div/>One")!
+		let docC: Document = HTMLParser.parse("<div/>Two")!
 
 		XCTAssertTrue(docA.hasSameValue(docB))
 		XCTAssertFalse(docA.hasSameValue(docC))
@@ -415,7 +415,7 @@ class DocumentTest: XCTestCase {
 
     func testThai() {
         let str = "บังคับ"
-        guard let doc = HTMLParser.parseHTML(str) else {
+        guard let doc = HTMLParser.parse(str) else {
             XCTFail()
             return}
         guard let txt = doc.html else {
@@ -450,7 +450,7 @@ class DocumentTest: XCTestCase {
     func testNewLine() {
         let h = "<html><body><div>\r\n<div dir=\"ltr\">\r\n<div id=\"divtagdefaultwrapper\"><font face=\"Calibri,Helvetica,sans-serif\" size=\"3\" color=\"black\"><span style=\"font-size:12pt;\" id=\"divtagdefaultwrapper\">\r\n<div style=\"margin-top:0;margin-bottom:0;\">&nbsp;TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n</span></font></div>\r\n</div>\r\n</div>\r\n</body></html>"
 
-        let doc: Document = HTMLParser.parseHTML(h)!
+        let doc: Document = HTMLParser.parse(h)!
         let text = doc.getText()
         XCTAssertEqual(text, "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST")
     }

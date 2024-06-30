@@ -233,7 +233,7 @@ class CleanerTest: XCTestCase {
         let clean = try HTMLParser.cleanBodyFragment(dirty, whitelist: Whitelist.basic())
         XCTAssertEqual("", clean) // nothing good can come out of that
 
-        let dirtyDoc: Document = HTMLParser.parseHTML(dirty)!
+        let dirtyDoc: Document = HTMLParser.parse(dirty)!
         let cleanDoc: Document? = try Cleaner(Whitelist.basic()).clean(dirtyDoc)
         XCTAssertFalse(cleanDoc == nil)
         XCTAssertEqual(0, cleanDoc?.body?.childNodeSize())
@@ -246,7 +246,7 @@ class CleanerTest: XCTestCase {
         let headWhitelist = try Whitelist.none()
             .addTags("title")
 
-        let dirtyDoc = HTMLParser.parseHTML(dirty)!
+        let dirtyDoc = HTMLParser.parse(dirty)!
         let cleanDoc = try Cleaner(headWhitelist: headWhitelist, bodyWhitelist: .relaxed()).clean(dirtyDoc)
 
         let cleanHead = cleanDoc.head

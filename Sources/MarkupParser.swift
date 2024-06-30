@@ -24,7 +24,7 @@ open class MarkupParser {
     ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: Parsed ``Document`` object.
     ///
-    /// You can track parse errors whereas static method ``parseHTML(_:baseURI:)-swift.type.method`` can't.
+    /// You can track parse errors whereas static method ``parse(_:baseURI:)-swift.type.method`` can't.
     ///
     /// ## Throws:
     /// * `SwiftSoupError.failedToParseHTML`` if parsing is failed.

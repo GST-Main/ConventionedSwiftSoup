@@ -24,7 +24,7 @@ class FormElementTest: XCTestCase {
 		//"button", "fieldset", "input", "keygen", "object", "output", "select", "textarea"
 		let html = "<form id=1><button id=1><fieldset id=2 /><input id=3><keygen id=4><object id=5><output id=6>" +
 		"<select id=7><option></select><textarea id=8><p id=9>"
-        guard let doc: Document = HTMLParser.parseHTML(html) else {
+        guard let doc: Document = HTMLParser.parse(html) else {
             XCTFail()
             return
         }
@@ -104,7 +104,7 @@ class FormElementTest: XCTestCase {
 //	}
 
 	func testFormsAddedAfterParseAreFormElements()throws {
-		let doc: Document = HTMLParser.parseHTML("<body />")!
+		let doc: Document = HTMLParser.parse("<body />")!
 		try doc.body?.setHTML("<form action='http://example.com/search'><input name='q' value='search'>")
 		let formEl: Element = doc.select(cssQuery: "form").first!
 		XCTAssertNotNil(formEl as? FormElement)
@@ -114,7 +114,7 @@ class FormElementTest: XCTestCase {
 	}
 
 	func testControlsAddedAfterParseAreLinkedWithForms()throws {
-		let doc: Document = HTMLParser.parseHTML("<body />")!
+		let doc: Document = HTMLParser.parse("<body />")!
 		try doc.body?.setHTML("<form />")
 
 		let formEl: Element = doc.select(cssQuery: "form").first!

@@ -2,7 +2,7 @@ import Foundation
 
 /// Parses HTML into a ``Document``.
 ///
-/// Generally, static method ``parseHTML(_:baseURI:)-swift.type.method`` is mostly recommended.
+/// Generally, static method ``parse(_:baseURI:)-swift.type.method`` is mostly recommended.
 public class XMLParser: MarkupParser {
     public init() {
         super.init(XmlTreeBuilder())

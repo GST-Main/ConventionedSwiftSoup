@@ -196,7 +196,7 @@ open class Element: Node {
     ///     Four
     /// </p>
     /// """
-    /// let element = HTMLParser.parseHTML(html)!.body!
+    /// let element = HTMLParser.parse(html)!.body!
     /// let childNodes = element.childNodes
     /// let textNodes = element.textNodes
     ///
@@ -964,7 +964,7 @@ open class Element: Node {
     ///     <br>  Four
     /// </p>
     /// """
-    /// let document = HTMLParser.parseHTML(html)!
+    /// let document = HTMLParser.parse(html)!
     /// let p = document.getElementsByTag("p").first!
     ///
     /// print(p.getText(trimAndNormaliseWhitespace: true))
@@ -1011,7 +1011,7 @@ open class Element: Node {
     ///     <br>  Four
     /// </p>
     /// """
-    /// let document = HTMLParser.parseHTML(html)!
+    /// let document = HTMLParser.parse(html)!
     /// let p = document.getElementsByTag("p").first!
     ///
     /// print(p.text)
@@ -1047,7 +1047,7 @@ open class Element: Node {
     ///     <br>  Four
     /// </p>
     /// """
-    /// let document = HTMLParser.parseHTML(html)!
+    /// let document = HTMLParser.parse(html)!
     /// let p = document.getElementsByTag("p").first!
     ///
     /// print(p.text)

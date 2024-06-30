@@ -377,7 +377,7 @@ open class Node: Equatable, Hashable {
     ///     </span>
     /// </div>
     /// """
-    /// let document = HTMLParser.parseHTML(html)!
+    /// let document = HTMLParser.parse(html)!
     /// let span = document.getElementsByTag("span").first!
     /// let result = try! span.unwrap()
     ///

@@ -82,7 +82,7 @@ class XmlTreeBuilderTest: XCTestCase {
 	func testDoesNotForceSelfClosingKnownTags()throws {
 		// html will force "<br>one</br>" to logically "<br />One<br />".
         // XML should be stay "<br>one</br> -- don't recognise tag.
-		let htmlDoc = HTMLParser.parseHTML("<br>one</br>")!
+		let htmlDoc = HTMLParser.parse("<br>one</br>")!
 		XCTAssertEqual("<br>one\n<br>", htmlDoc.body?.html)
 
         let xmlDoc = try HTMLParser.xmlParser().parse("<br>one</br>", baseURI: "")
@@ -175,7 +175,7 @@ class XmlTreeBuilderTest: XCTestCase {
 
     func testNilReplaceInQueue()throws {
         let html: String = "<TABLE><TBODY><TR><TD></TD><TD><FONT color=#000000 size=1><I><FONT size=5><P align=center></FONT></I></FONT>&nbsp;</P></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></DIV></DIV></DIV><BLOCKQUOTE></BLOCKQUOTE><DIV style=\"FONT: 10pt Courier New\"><BR><BR>&nbsp;</DIV></BODY></HTML>"
-        _ = HTMLParser.parseHTML(html)!
+        _ = HTMLParser.parse(html)!
     }
 
 	static var allTests = {

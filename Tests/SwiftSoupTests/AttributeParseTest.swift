@@ -27,7 +27,7 @@ class AttributeParseTest: XCTestCase {
 		let html: String = "<a id=\"123\" class=\"baz = 'bar'\" style = 'border: 2px'qux zim foo = 12 mux=18 />"
 		// should be: <id=123>, <class=baz = 'bar'>, <qux=>, <zim=>, <foo=12>, <mux.=18>
 
-		let el: Element = HTMLParser.parseHTML(html)!.getElementsByTag("a").get(index: 0)!
+		let el: Element = HTMLParser.parse(html)!.getElementsByTag("a").get(index: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(7, attr.size())
 		XCTAssertEqual("123", attr.get(key: "id"))
@@ -41,7 +41,7 @@ class AttributeParseTest: XCTestCase {
 
 	func testhandlesNewLinesAndReturns()throws {
 		let html: String = "<a\r\nfoo='bar\r\nqux'\r\nbar\r\n=\r\ntwo>One</a>"
-		let el: Element = HTMLParser.parseHTML(html)!.select(cssQuery: "a").first!
+		let el: Element = HTMLParser.parse(html)!.select(cssQuery: "a").first!
 		XCTAssertEqual(2, el.getAttributes()?.size())
 		XCTAssertEqual("bar\r\nqux", el.getAttribute(withKey: "foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
 		XCTAssertEqual("two", el.getAttribute(withKey: "bar"))
@@ -49,14 +49,14 @@ class AttributeParseTest: XCTestCase {
 
 	func testparsesEmptyString()throws {
 		let html: String = "<a />"
-		let el: Element = HTMLParser.parseHTML(html)!.getElementsByTag("a").get(index: 0)!
+		let el: Element = HTMLParser.parse(html)!.getElementsByTag("a").get(index: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(0, attr.size())
 	}
 
 	func testcanStartWithEq()throws {
 		let html: String = "<a =empty />"
-		let el: Element = HTMLParser.parseHTML(html)!.getElementsByTag("a").get(index: 0)!
+		let el: Element = HTMLParser.parse(html)!.getElementsByTag("a").get(index: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(1, attr.size())
 		XCTAssertTrue(attr.hasKey(key: "=empty"))
@@ -65,20 +65,20 @@ class AttributeParseTest: XCTestCase {
 
 	func teststrictAttributeUnescapes()throws {
 		let html: String = "<a id=1 href='?foo=bar&mid&lt=true'>One</a> <a id=2 href='?foo=bar&lt;qux&lg=1'>Two</a>"
-		let els: Elements = HTMLParser.parseHTML(html)!.select(cssQuery: "a")
+		let els: Elements = HTMLParser.parse(html)!.select(cssQuery: "a")
 		XCTAssertEqual("?foo=bar&mid&lt=true", els.first!.getAttribute(withKey: "href"))
 		XCTAssertEqual("?foo=bar<qux&lg=1", els.last!.getAttribute(withKey: "href"))
 	}
 
 	func testmoreAttributeUnescapes()throws {
 		let html: String = "<a href='&wr_id=123&mid-size=true&ok=&wr'>Check</a>"
-		let els: Elements = HTMLParser.parseHTML(html)!.select(cssQuery: "a")
+		let els: Elements = HTMLParser.parse(html)!.select(cssQuery: "a")
 		XCTAssertEqual("&wr_id=123&mid-size=true&ok=&wr",  els.first!.getAttribute(withKey: "href"))
 	}
 
 	func testparsesBooleanAttributes()throws {
 		let html: String = "<a normal=\"123\" boolean empty=\"\"></a>"
-		let el: Element = HTMLParser.parseHTML(html)!.select(cssQuery: "a").first!
+		let el: Element = HTMLParser.parse(html)!.select(cssQuery: "a").first!
 
 		XCTAssertEqual("123", el.getAttribute(withKey: "normal"))
 		XCTAssertEqual(nil, el.getAttribute(withKey: "boolean"))
@@ -97,7 +97,7 @@ class AttributeParseTest: XCTestCase {
 
 	func testdropsSlashFromAttributeName()throws {
 		let html: String = "<img /onerror='doMyJob'/>"
-		var doc: Document = HTMLParser.parseHTML(html)!
+		var doc: Document = HTMLParser.parse(html)!
 		XCTAssertTrue(doc.select(cssQuery: "img[onerror]").count != 0, "SelfClosingStartTag ignores last character")
 		XCTAssertEqual("<img onerror=\"doMyJob\">", doc.body!.html)
 

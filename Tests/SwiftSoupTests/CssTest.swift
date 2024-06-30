@@ -42,7 +42,7 @@ class CssTest: XCTestCase {
 
 		sb.append("</body></html>")
 		htmlString = sb.toString()
-		html = HTMLParser.parseHTML(htmlString)
+		html = HTMLParser.parse(htmlString)
 	}
 
     func testLinuxTestSuiteIncludesAllTests() {

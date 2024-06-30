@@ -35,7 +35,7 @@ class TextNodeTest: XCTestCase {
 	}
 
 	func testTextBean()throws {
-		let doc = HTMLParser.parseHTML("<p>One <span>two &amp;</span> three &amp;</p>")!
+		let doc = HTMLParser.parse("<p>One <span>two &amp;</span> three &amp;</p>")!
 		let p: Element = doc.select(cssQuery: "p").first!
 
 		let span: Element = doc.select(cssQuery: "span").first!
@@ -55,7 +55,7 @@ class TextNodeTest: XCTestCase {
 	}
 
 	func testSplitText()throws {
-		let doc: Document = HTMLParser.parseHTML("<div>Hello there</div>")!
+		let doc: Document = HTMLParser.parse("<div>Hello there</div>")!
 		let div: Element = doc.select(cssQuery: "div").first!
 		let tn: TextNode =  div.childNode(0) as! TextNode
 		let tail: TextNode = try tn.splitText(6)
@@ -67,7 +67,7 @@ class TextNodeTest: XCTestCase {
 	}
 
 	func testSplitAnEmbolden()throws {
-		let doc: Document = HTMLParser.parseHTML("<div>Hello there</div>")!
+		let doc: Document = HTMLParser.parse("<div>Hello there</div>")!
 		let div: Element = doc.select(cssQuery: "div").first!
 		let tn: TextNode = div.childNode(0) as! TextNode
 		let tail: TextNode = try  tn.splitText(6)
@@ -78,7 +78,7 @@ class TextNodeTest: XCTestCase {
 
 	func testWithSupplementaryCharacter()throws {
 		#if !os(Linux)
-			let doc: Document = HTMLParser.parseHTML(String(Character(UnicodeScalar(135361)!)))!
+			let doc: Document = HTMLParser.parse(String(Character(UnicodeScalar(135361)!)))!
 			let t: TextNode = doc.body!.textNodes[0]
 			XCTAssertEqual(String(Character(UnicodeScalar(135361)!)), t.outerHTML!.trim())
 		#endif
