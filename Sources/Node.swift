@@ -327,7 +327,7 @@ open class Node: Equatable, Hashable {
         }
 
         let context: Element? = parent as? Element
-        let nodes: [Node] = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
+        let nodes: [Node] = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         parentNode.insertChildren(nodes, at: index)
     }
 
@@ -343,7 +343,7 @@ open class Node: Equatable, Hashable {
         }
 
         let context = parent as? Element
-        var wrapChildren = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
+        var wrapChildren = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         guard wrapChildren.count > 0, let wrap = wrapChildren[0] as? Element else {
             throw SwiftSoupError.noHTMLElementsToWrap
         }
@@ -377,7 +377,7 @@ open class Node: Equatable, Hashable {
     ///     </span>
     /// </div>
     /// """
-    /// let document = Parser.parseHTML(html)!
+    /// let document = HTMLParser.parseHTML(html)!
     /// let span = document.getElementsByTag("span").first!
     /// let result = try! span.unwrap()
     ///

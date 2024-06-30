@@ -27,7 +27,7 @@ class ParserBenchmark: XCTestCase {
         measure {
             for htmlDoc in Const.corpusHTMLData {
                 for _ in 1...Const.repetitions {
-                    let _ = Parser.parseHTML(htmlDoc)
+                    let _ = HTMLParser.parseHTML(htmlDoc)
                     count += 1
                 }
             }

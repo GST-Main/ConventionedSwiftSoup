@@ -1,5 +1,5 @@
 //
-//  Parser.swift
+//  HTMLParser.swift
 //  SwifSoup
 //
 //  Created by Nabil Chatbi on 29/09/16.
@@ -11,7 +11,7 @@ import Foundation
 /// Parses HTML into a ``Document``.
 ///
 /// Generally, static method ``parseHTML(_:baseURI:)-swift.type.method`` is mostly recommended.
-public class Parser {
+public class HTMLParser {
 	private static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
 
 	public var treeBuilder: TreeBuilder
@@ -20,7 +20,7 @@ public class Parser {
     public var isTrackErrors: Bool { maxErrors > 0 }
 	public var settings: ParseSettings
 
-    /// Create a new ``Parser`` using the specified ``TreeBuilder``
+    /// Create a new ``HTMLParser`` using the specified ``TreeBuilder``
     /// - Parameters:
     ///     - treeBuilder: A ``TreeBuilder`` object to use to parse input into ``Document``s.
 	init(_ treeBuilder: TreeBuilder) {
@@ -52,7 +52,7 @@ public class Parser {
     /// let url = URL(string: "https://www.swift.org")!
     /// let data = try! Data(contentsOf: url)
     /// let html = String(data: data, encoding: .utf8)!
-    /// if let document = Parser.parseHTML(html) {
+    /// if let document = HTMLParser.parseHTML(html) {
     ///     // do something with document...
     /// }
     /// ```
@@ -117,9 +117,9 @@ public class Parser {
     
     /// Get safe HTML from untrusted input HTML, by parsing input HTML and filtering it through a whitelist of permitted tags and attributes.
     ///
-    /// This is legacy and throwing version of ``Parser/cleanBodyFragment(_:baseURI:whitelist:settings:)``.
+    /// This is legacy and throwing version of ``HTMLParser/cleanBodyFragment(_:baseURI:whitelist:settings:)``.
     ///
-    /// - Note: As this method throws ``SwiftSoupError/failedToParseHTML`` error only, use the new method ``Parser/cleanBodyFragment(_:baseURI:whitelist:settings:)`` instead.
+    /// - Note: As this method throws ``SwiftSoupError/failedToParseHTML`` error only, use the new method ``HTMLParser/cleanBodyFragment(_:baseURI:whitelist:settings:)`` instead.
     public class func cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) throws -> String {
         guard let dirty: Document = parseBodyFragment(bodyHTML, baseURI: baseURI) else {
             throw SwiftSoupError.failedToParseHTML
@@ -177,8 +177,8 @@ public class Parser {
     /// This parser treats input as HTML5, and enforces the creation of a normalised document based on a knowledge of the semantics of the incoming tags.
     ///
     /// - Returns: A new HTML parser.
-	public static func htmlParser() -> Parser {
-		return Parser(HtmlTreeBuilder())
+	public static func htmlParser() -> HTMLParser {
+		return HTMLParser(HtmlTreeBuilder())
 	}
 
     /// Create a new XML parser.
@@ -186,7 +186,7 @@ public class Parser {
     /// This parser assumes no knowledge of the incoming tags and does not treat it as HTML rather creates a simple tree directly from the input.
     ///
     /// - Returns: A new simple XML parser.
-	public static func xmlParser() -> Parser {
-		return Parser(XmlTreeBuilder())
+	public static func xmlParser() -> HTMLParser {
+		return HTMLParser(XmlTreeBuilder())
 	}
 }

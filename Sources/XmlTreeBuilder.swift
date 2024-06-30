@@ -11,7 +11,7 @@ import Foundation
 /**
  * Use the {@code XmlTreeBuilder} when you want to parse XML without any of the HTML DOM rules being applied to the
  * document.
- * <p>Usage example: {@code Document xmlDoc = Jsoup.parse(html, baseUrl, Parser.xmlParser())}</p>
+ * <p>Usage example: {@code Document xmlDoc = Jsoup.parse(html, baseUrl, HTMLParser.xmlParser())}</p>
  *
  */
 public class XmlTreeBuilder: TreeBuilder {
@@ -89,7 +89,7 @@ public class XmlTreeBuilder: TreeBuilder {
             // so we do a bit of a hack and parse the data as an element to pull the attributes out
             let data: String = comment.getData()
             if (data.count > 1 && (data.startsWith("!") || data.startsWith("?"))) {
-                let parser = Parser.xmlParser()
+                let parser = HTMLParser.xmlParser()
                 let doc: Document = try parser.parseHTML("<" + data.substring(1, data.count - 2) + ">", baseURI: baseUri)
                 let el: Element = doc.getChild(at: 0)!
                 insert = XmlDeclaration(settings.normalizeTag(el.tagName), comment.baseURI!, data.startsWith("!"))

@@ -196,7 +196,7 @@ open class Element: Node {
     ///     Four
     /// </p>
     /// """
-    /// let element = Parser.parseHTML(html)!.body!
+    /// let element = HTMLParser.parseHTML(html)!.body!
     /// let childNodes = element.childNodes
     /// let textNodes = element.textNodes
     ///
@@ -386,7 +386,7 @@ open class Element: Node {
     /// - Returns: `self` for chaining.
     @discardableResult
     public func appendHTML(_ html: String) throws -> Element {
-        let nodes: [Node] = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
+        let nodes: [Node] = try HTMLParser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
         appendChildren(nodes)
         return self
     }
@@ -402,7 +402,7 @@ open class Element: Node {
     /// - Returns: `self` for chaining.
     @discardableResult
     public func prependHTML(_ html: String) throws -> Element {
-        let nodes: Array<Node> = try Parser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
+        let nodes: Array<Node> = try HTMLParser._parseHTMLFragment(html, context: self, baseURI: baseURI!)
         super.insertChildren(nodes, at: 0)
         return self
     }
@@ -964,7 +964,7 @@ open class Element: Node {
     ///     <br>  Four
     /// </p>
     /// """
-    /// let document = Parser.parseHTML(html)!
+    /// let document = HTMLParser.parseHTML(html)!
     /// let p = document.getElementsByTag("p").first!
     ///
     /// print(p.getText(trimAndNormaliseWhitespace: true))
@@ -1011,7 +1011,7 @@ open class Element: Node {
     ///     <br>  Four
     /// </p>
     /// """
-    /// let document = Parser.parseHTML(html)!
+    /// let document = HTMLParser.parseHTML(html)!
     /// let p = document.getElementsByTag("p").first!
     ///
     /// print(p.text)
@@ -1047,7 +1047,7 @@ open class Element: Node {
     ///     <br>  Four
     /// </p>
     /// """
-    /// let document = Parser.parseHTML(html)!
+    /// let document = HTMLParser.parseHTML(html)!
     /// let p = document.getElementsByTag("p").first!
     ///
     /// print(p.text)
