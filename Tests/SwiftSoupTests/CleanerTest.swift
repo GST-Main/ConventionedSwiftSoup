@@ -236,7 +236,7 @@ class CleanerTest: XCTestCase {
         let dirtyDoc: HTMLDocument = HTMLParser.parse(dirty)!
         let cleanDoc: HTMLDocument? = try Cleaner(Whitelist.basic()).clean(dirtyDoc)
         XCTAssertFalse(cleanDoc == nil)
-        XCTAssertEqual(0, cleanDoc?.body?.childNodeSize())
+        XCTAssertEqual(0, cleanDoc?.body?.childNodes.count)
     }
 
     func testCleanHeadAndBody() throws {
@@ -251,7 +251,7 @@ class CleanerTest: XCTestCase {
 
         let cleanHead = cleanDoc.head
         XCTAssertNotNil(cleanHead)
-        XCTAssertEqual(1, cleanHead?.childNodeSize())
+        XCTAssertEqual(1, cleanHead?.childNodes.count)
         let title = cleanHead?.select(cssQuery: "title").first
         XCTAssertNotNil(title)
         XCTAssertEqual("title", title?.tagName)

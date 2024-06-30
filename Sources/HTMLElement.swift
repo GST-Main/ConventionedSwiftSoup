@@ -297,7 +297,7 @@ open class HTMLElement: Node {
     @discardableResult
     public func insertChildrenElements(_ children: [Node], at index: Int) throws -> HTMLElement {
         var index = index
-        let currentSize = childNodeSize()
+        let currentSize = childNodes.count
         if index < 0 {
             index += currentSize + 1
         } // roll around

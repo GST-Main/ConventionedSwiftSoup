@@ -142,6 +142,6 @@ public class XmlTreeBuilder: TreeBuilder {
     func parseFragment(_ inputFragment: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->Array<Node> {
 		initialiseParse(inputFragment, baseUri, errors, settings)
         try runParser()
-        return doc.getChildNodes()
+        return doc.childNodes
     }
 }

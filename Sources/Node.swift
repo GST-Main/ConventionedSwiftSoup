@@ -18,7 +18,7 @@ open class Node: Equatable, Hashable {
     fileprivate static let empty = ""
     private static let EMPTY_NODES = Array<Node>()
     weak var parentNode: Node?
-    public var childNodes: [Node]
+    public internal(set) var childNodes: [Node]
     var attributes: Attributes?
     /// Base URI of this node.
     public internal(set) var baseURI: String?
@@ -178,20 +178,6 @@ open class Node: Equatable, Hashable {
         return StringUtil.resolve(baseURI, relUrl: uriComponent)
     }
 
-    /// Get a child node by given index.
-    ///
-    /// Get a child by its 0-based index.
-    ///
-    /// - Attention: This method doesn't check if the index is in safe range. If the index out of bounds, it will cause a runtime error.
-    open func childNode(_ index: Int) -> Node {
-        return childNodes[index]
-    }
-
-    /// Get this node's children
-    open func getChildNodes() -> [Node] {
-        return childNodes
-    }
-
     /// Get a deep copy of this node's children.
     ///
     /// Get a deep copy of this node's children. Changes made to these nodes will not be reflected in the original nodes.
@@ -201,15 +187,6 @@ open class Node: Equatable, Hashable {
 			children.append(node.copy() as! Node)
 		}
 		return children
-    }
-
-    /// Get the number of this node's children.
-    public func childNodeSize() -> Int {
-        return childNodes.count
-    }
-
-    final func childNodesAsArray() -> [Node] {
-        return childNodes as Array
     }
 
     /// The parent node of this node.
@@ -405,7 +382,7 @@ open class Node: Equatable, Hashable {
             throw SwiftSoupError.noChildrenToUnwrap
         }
         
-        parentNode.insertChildren(self.childNodesAsArray(), at: siblingIndex)
+        parentNode.insertChildren(childNodes, at: siblingIndex)
         self.remove()
 
         return firstChild

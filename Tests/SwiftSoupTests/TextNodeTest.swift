@@ -40,10 +40,10 @@ class TextNodeTest: XCTestCase {
 
 		let span: HTMLElement = doc.select(cssQuery: "span").first!
 		XCTAssertEqual("two &", span.getText())
-		let spanText: TextNode =  span.childNode(0) as! TextNode
+		let spanText: TextNode =  span.childNodes[0] as! TextNode
 		XCTAssertEqual("two &", spanText.text())
 
-		let tn: TextNode = p.childNode(2) as! TextNode
+		let tn: TextNode = p.childNodes[2] as! TextNode
 		XCTAssertEqual(" three &", tn.text())
 
 		tn.text(" POW!")
@@ -57,7 +57,7 @@ class TextNodeTest: XCTestCase {
 	func testSplitText()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div>Hello there</div>")!
 		let div: HTMLElement = doc.select(cssQuery: "div").first!
-		let tn: TextNode =  div.childNode(0) as! TextNode
+		let tn: TextNode =  div.childNodes[0] as! TextNode
 		let tail: TextNode = try tn.splitText(6)
 		XCTAssertEqual("Hello ", tn.getWholeText())
 		XCTAssertEqual("there", tail.getWholeText())
@@ -69,7 +69,7 @@ class TextNodeTest: XCTestCase {
 	func testSplitAnEmbolden()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div>Hello there</div>")!
 		let div: HTMLElement = doc.select(cssQuery: "div").first!
-		let tn: TextNode = div.childNode(0) as! TextNode
+		let tn: TextNode = div.childNodes[0] as! TextNode
 		let tail: TextNode = try  tn.splitText(6)
 		try tail.wrap(html: "<b></b>")
 

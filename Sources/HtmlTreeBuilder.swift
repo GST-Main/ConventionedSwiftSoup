@@ -123,9 +123,9 @@ class HtmlTreeBuilder: TreeBuilder {
             throw error
         }
         if context != nil && root != nil {
-            return root!.getChildNodes()
+            return root!.childNodes
         } else {
-            return doc.getChildNodes()
+            return doc.childNodes
         }
     }
 

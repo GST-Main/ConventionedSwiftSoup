@@ -389,7 +389,7 @@ open class Evaluator {
 
             if let parent = element.parent {
                 let index = element.elementSiblingIndex
-                return !(parent is HTMLDocument) && index == (parent.getChildNodes().count - 1)
+                return !(parent is HTMLDocument) && index == (parent.childNodes.count - 1)
             }
             return false
         }
@@ -617,7 +617,7 @@ open class Evaluator {
 
     public final class IsEmpty: Evaluator {
         public override func matches(_ root: HTMLElement, _ element: HTMLElement)throws->Bool {
-            let family: Array<Node> = element.getChildNodes()
+            let family: Array<Node> = element.childNodes
             for n in family {
                 if (!((n as? Comment) != nil || (n as? XmlDeclaration) != nil || (n as? DocumentType) != nil)) {return false}
             }

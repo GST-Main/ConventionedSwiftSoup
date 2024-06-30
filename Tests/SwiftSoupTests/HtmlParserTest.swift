@@ -59,10 +59,10 @@ class HtmlParserTest: XCTestCase {
 		let doc = HTMLParser.parse(html)!
 
 		let body: HTMLElement = doc.body!
-		let comment: Comment =  body.childNode(1)as! Comment // comment should not be sub of img, as it's an empty tag
+		let comment: Comment =  body.childNodes[1]as! Comment // comment should not be sub of img, as it's an empty tag
 		XCTAssertEqual(" <table><tr><td></table> ", comment.getData())
 		let p: HTMLElement = body.getChild(at: 1)!
-		let text: TextNode = p.childNode(0)as! TextNode
+		let text: TextNode = p.childNodes[0]as! TextNode
 		XCTAssertEqual("Hello", text.getWholeText())
 	}
 
@@ -71,9 +71,9 @@ class HtmlParserTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse(html)!
 		let p: HTMLElement = doc.getElementsByTag("p").get(index: 0)!
 		XCTAssertEqual("Hello", p.getText())
-		let text: TextNode = p.childNode(0) as! TextNode
+		let text: TextNode = p.childNodes[0] as! TextNode
 		XCTAssertEqual("Hello", text.getWholeText())
-		let comment: Comment = p.childNode(1)as! Comment
+		let comment: Comment = p.childNodes[1]as! Comment
 		XCTAssertEqual(" <tr><td>", comment.getData())
 	}
 
@@ -296,14 +296,14 @@ class HtmlParserTest: XCTestCase {
 		let div: HTMLElement = doc.getElementById("1")!
 		XCTAssertEqual("<html> <foo><&amp;", div.getText())
 		XCTAssertEqual(0, div.children.count)
-		XCTAssertEqual(1, div.childNodeSize()) // no elements, one text node
+		XCTAssertEqual(1, div.childNodes.count) // no elements, one text node
 	}
 
 	func testHandlesUnclosedCdataAtEOF()throws {
 		// https://github.com/jhy/jsoup/issues/349 would crash, as character reader would to seek past EOF
 		let h = "<![CDATA[]]"
 		let doc = HTMLParser.parse(h)!
-		XCTAssertEqual(1, doc.body!.childNodeSize())
+		XCTAssertEqual(1, doc.body!.childNodes.count)
 	}
 
 	func testHandlesInvalidStartTags()throws {

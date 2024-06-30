@@ -278,7 +278,7 @@ open class HTMLDocument: HTMLElement {
             s.forEach{ $0.remove() }
             
         } else if syntax == .xml {
-            let node: Node = getChildNodes()[0]
+            let node: Node = childNodes[0]
             if let decl = (node as? XmlDeclaration) {
                 if (decl.name()=="xml") {
                     try! decl.setAttribute(withKey: "encoding", newValue: charset.displayName())
