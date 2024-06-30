@@ -166,7 +166,7 @@ open class Evaluator {
 
         public override func matches(_ root: Element, _ element: Element) throws -> Bool {
             if element.hasAttribute(withKey: key) {
-                let string = element.getAttribute(key: key)
+                let string = element.getAttribute(withKey: key)
                 return value.equalsIgnoreCase(string: string?.trim())
             }
             return false
@@ -187,7 +187,7 @@ open class Evaluator {
         }
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
-            let string = element.getAttribute(key: key)
+            let string = element.getAttribute(withKey: key)
             return !value.equalsIgnoreCase(string: string)
         }
 
@@ -207,7 +207,7 @@ open class Evaluator {
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             if element.hasAttribute(withKey: key) {
-                return element.getAttribute(key: key)?.lowercased().hasPrefix(value) == true  // value is lower case already
+                return element.getAttribute(withKey: key)?.lowercased().hasPrefix(value) == true  // value is lower case already
             }
             return false
         }
@@ -228,7 +228,7 @@ open class Evaluator {
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             if element.hasAttribute(withKey: key) {
-                return element.getAttribute(key: key)?.lowercased().hasSuffix(value) == true // value is lower case
+                return element.getAttribute(withKey: key)?.lowercased().hasSuffix(value) == true // value is lower case
             }
             return false
         }
@@ -249,7 +249,7 @@ open class Evaluator {
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             if element.hasAttribute(withKey: key) {
-                return element.getAttribute(key: key)?.lowercased().contains(value) == true // value is lower case
+                return element.getAttribute(withKey: key)?.lowercased().contains(value) == true // value is lower case
             }
             return false
         }
@@ -275,7 +275,7 @@ open class Evaluator {
 
         public override func matches(_ root: Element, _ element: Element)throws->Bool {
             if element.hasAttribute(withKey: key) {
-                guard let string = element.getAttribute(key: key) else {
+                guard let string = element.getAttribute(withKey: key) else {
                     return false
                 }
                 return pattern.matcher(in: string).find()

@@ -512,7 +512,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                     } else if (name.equals("input")) {
                         try tb.reconstructFormattingElements()
                         let el: Element = try tb.insertEmpty(startTag)
-                        if let attribute = el.getAttribute(key: "type") {
+                        if let attribute = el.getAttribute(withKey: "type") {
                             if (!attribute.equalsIgnoreCase(string: "hidden")) {
                                 tb.framesetOk(false)
                             }
@@ -542,7 +542,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         try tb.processStartTag("form")
                         if (startTag._attributes.hasKey(key: "action")) {
                             if let form: Element = tb.getFormElement() {
-                                try form.setAttribute(key: "action", value: startTag._attributes.get(key: "action"))
+                                try form.setAttribute(withKey: "action", newValue: startTag._attributes.get(key: "action"))
                             }
                         }
                         try tb.processStartTag("hr")

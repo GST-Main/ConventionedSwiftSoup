@@ -36,7 +36,7 @@ class ElementTest: XCTestCase {
 		XCTAssertEqual(ps, ps2)
 
 		let imgs = doc.getElementsByTag("img")
-		XCTAssertEqual("foo.png", imgs.get(index: 0)!.getAttribute(key: "src"))
+		XCTAssertEqual("foo.png", imgs.get(index: 0)!.getAttribute(withKey: "src"))
 
 		let empty = doc.getElementsByTag("wtf")
 		XCTAssertEqual(0, empty.count)
@@ -356,7 +356,7 @@ class ElementTest: XCTestCase {
 		let doc: Document = Parser.parseHTML("<div id=1><p>Hello</p></div>")!
 		let div: Element = doc.getElementById("1")!
         try div.appendElement(tagName: "p").setText("there")
-		try div.appendElement(tagName: "P").setAttribute(key: "CLASS", value: "second").setText("now")
+		try div.appendElement(tagName: "P").setAttribute(withKey: "CLASS", newValue: "second").setText("now")
 		// manually specifying tag and attributes should now preserve case, regardless of parse mode
 		XCTAssertEqual("<html><head></head><body><div id=\"1\"><p>Hello</p><p>there</p><P CLASS=\"second\">now</P></div></body></html>",
 		             TextUtil.stripNewlines(doc.html!))
@@ -373,11 +373,11 @@ class ElementTest: XCTestCase {
 
 		try div.setAttribute(key: "true", value: true)
 
-		try div.setAttribute(key: "false", value: "value")
+		try div.setAttribute(withKey: "false", newValue: "value")
 		try div.setAttribute(key: "false", value: false)
 
 		XCTAssertTrue(div.hasAttribute(withKey: "true"))
-		XCTAssertEqual(nil, div.getAttribute(key: "true"))
+		XCTAssertEqual(nil, div.getAttribute(withKey: "true"))
 
 		let attributes: Array<Attribute> = div.getAttributes()!.asList()
 		XCTAssertEqual(1, attributes.count)

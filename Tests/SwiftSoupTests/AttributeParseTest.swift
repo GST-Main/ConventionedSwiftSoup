@@ -43,8 +43,8 @@ class AttributeParseTest: XCTestCase {
 		let html: String = "<a\r\nfoo='bar\r\nqux'\r\nbar\r\n=\r\ntwo>One</a>"
 		let el: Element = Parser.parseHTML(html)!.select(cssQuery: "a").first!
 		XCTAssertEqual(2, el.getAttributes()?.size())
-		XCTAssertEqual("bar\r\nqux", el.getAttribute(key: "foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
-		XCTAssertEqual("two", el.getAttribute(key: "bar"))
+		XCTAssertEqual("bar\r\nqux", el.getAttribute(withKey: "foo")) // currently preserves newlines in quoted attributes. todo confirm if should.
+		XCTAssertEqual("two", el.getAttribute(withKey: "bar"))
 	}
 
 	func testparsesEmptyString()throws {
@@ -66,23 +66,23 @@ class AttributeParseTest: XCTestCase {
 	func teststrictAttributeUnescapes()throws {
 		let html: String = "<a id=1 href='?foo=bar&mid&lt=true'>One</a> <a id=2 href='?foo=bar&lt;qux&lg=1'>Two</a>"
 		let els: Elements = Parser.parseHTML(html)!.select(cssQuery: "a")
-		XCTAssertEqual("?foo=bar&mid&lt=true", els.first!.getAttribute(key: "href"))
-		XCTAssertEqual("?foo=bar<qux&lg=1", els.last!.getAttribute(key: "href"))
+		XCTAssertEqual("?foo=bar&mid&lt=true", els.first!.getAttribute(withKey: "href"))
+		XCTAssertEqual("?foo=bar<qux&lg=1", els.last!.getAttribute(withKey: "href"))
 	}
 
 	func testmoreAttributeUnescapes()throws {
 		let html: String = "<a href='&wr_id=123&mid-size=true&ok=&wr'>Check</a>"
 		let els: Elements = Parser.parseHTML(html)!.select(cssQuery: "a")
-		XCTAssertEqual("&wr_id=123&mid-size=true&ok=&wr",  els.first!.getAttribute(key: "href"))
+		XCTAssertEqual("&wr_id=123&mid-size=true&ok=&wr",  els.first!.getAttribute(withKey: "href"))
 	}
 
 	func testparsesBooleanAttributes()throws {
 		let html: String = "<a normal=\"123\" boolean empty=\"\"></a>"
 		let el: Element = Parser.parseHTML(html)!.select(cssQuery: "a").first!
 
-		XCTAssertEqual("123", el.getAttribute(key: "normal"))
-		XCTAssertEqual(nil, el.getAttribute(key: "boolean"))
-		XCTAssertEqual(nil, el.getAttribute(key: "empty"))
+		XCTAssertEqual("123", el.getAttribute(withKey: "normal"))
+		XCTAssertEqual(nil, el.getAttribute(withKey: "boolean"))
+		XCTAssertEqual(nil, el.getAttribute(withKey: "empty"))
 
 		let attributes: Array<Attribute> = el.getAttributes()!.asList()
 		XCTAssertEqual(3, attributes.count, "There should be 3 attribute present")

@@ -74,26 +74,26 @@ class SelectorTest: XCTestCase {
 
 		let dataName: Elements = doc.select(cssQuery: "[data-name=\"with spaces\"]")
 		XCTAssertEqual(1, dataName.count)
-		XCTAssertEqual("with spaces", dataName.first?.getAttribute(key: "data-name"))
+		XCTAssertEqual("with spaces", dataName.first?.getAttribute(withKey: "data-name"))
 
 		let not: Elements = doc.select(cssQuery: "div[title!=bar]")
 		XCTAssertEqual(5, not.count)
-		XCTAssertEqual("Foo", not.first?.getAttribute(key: "title"))
+		XCTAssertEqual("Foo", not.first?.getAttribute(withKey: "title"))
 
 		let starts: Elements = doc.select(cssQuery: "[title^=ba]")
 		XCTAssertEqual(2, starts.count)
-		XCTAssertEqual("Bar", starts.first?.getAttribute(key: "title"))
-		XCTAssertEqual("Bam", starts.last?.getAttribute(key: "title"))
+		XCTAssertEqual("Bar", starts.first?.getAttribute(withKey: "title"))
+		XCTAssertEqual("Bam", starts.last?.getAttribute(withKey: "title"))
 
 		let ends: Elements = doc.select(cssQuery: "[title$=am]")
 		XCTAssertEqual(2, ends.count)
-		XCTAssertEqual("Bam", ends.first?.getAttribute(key: "title"))
-		XCTAssertEqual("SLAM", ends.last?.getAttribute(key: "title"))
+		XCTAssertEqual("Bam", ends.first?.getAttribute(withKey: "title"))
+		XCTAssertEqual("SLAM", ends.last?.getAttribute(withKey: "title"))
 
 		let contains: Elements = doc.select(cssQuery: "[title*=a]")
 		XCTAssertEqual(3, contains.count)
-		XCTAssertEqual("Bar", contains.first?.getAttribute(key: "title"))
-		XCTAssertEqual("SLAM", contains.last?.getAttribute(key: "title"))
+		XCTAssertEqual("Bar", contains.first?.getAttribute(withKey: "title"))
+		XCTAssertEqual("SLAM", contains.last?.getAttribute(withKey: "title"))
 	}
 
 	func testNamespacedTag()throws {
@@ -206,11 +206,11 @@ class SelectorTest: XCTestCase {
 
 		XCTAssertEqual(5, els.count)
 		XCTAssertEqual("div", els.get(index: 0)!.tagName)
-		XCTAssertEqual("foo", els.get(index: 0)!.getAttribute(key: "title"))
+		XCTAssertEqual("foo", els.get(index: 0)!.getAttribute(withKey: "title"))
 		XCTAssertEqual("div", els.get(index: 1)!.tagName)
-		XCTAssertEqual("bar", els.get(index: 1)!.getAttribute(key: "title"))
+		XCTAssertEqual("bar", els.get(index: 1)!.getAttribute(withKey: "title"))
 		XCTAssertEqual("div", els.get(index: 2)!.tagName)
-        XCTAssertTrue(els.get(index: 2)!.getAttribute(key: "title") == nil) // missing attributes come back as empty string
+        XCTAssertTrue(els.get(index: 2)!.getAttribute(withKey: "title") == nil) // missing attributes come back as empty string
 		XCTAssertFalse(els.get(index: 2)!.hasAttribute(withKey: "title"))
 		XCTAssertEqual("p", els.get(index: 3)!.tagName)
 		XCTAssertEqual("span", els.get(index: 4)!.tagName)
@@ -223,7 +223,7 @@ class SelectorTest: XCTestCase {
 		XCTAssertEqual(3, els.count)
 		XCTAssertEqual("1", els.get(index: 0)!.id)
 		XCTAssertEqual("2", els.get(index: 1)!.id)
-		XCTAssertEqual("foo", els.get(index: 2)!.getAttribute(key: "title"))
+		XCTAssertEqual("foo", els.get(index: 2)!.getAttribute(withKey: "title"))
 	}
 
 	func testDescendant()throws {
