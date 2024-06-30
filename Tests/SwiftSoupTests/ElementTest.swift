@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import SwiftSoup
+@testable import PrettySwiftSoup
 class ElementTest: XCTestCase {
 
 	private let reference = "<div id=div1><p>Hello</p><p>Another <b>element</b></p><div id=div2><img src=foo.png></div></div>"

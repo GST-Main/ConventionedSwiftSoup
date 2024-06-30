@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@testable import SwiftSoup
+@testable import PrettySwiftSoup
 
 class TextUtil {
 	public static func stripNewlines(_ text: String) -> String {

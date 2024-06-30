@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 
 class SelectorTest: XCTestCase {
 

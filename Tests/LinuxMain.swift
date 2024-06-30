@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import SwiftSoupTests
+@testable import PrettySwiftSoupTests
 
 XCTMain([
 	testCase(CssTest.allTests),

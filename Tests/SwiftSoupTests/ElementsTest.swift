@@ -9,7 +9,7 @@
 Tests for ElementList.
 */
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 class ElementsTest: XCTestCase {
 
     func testLinuxTestSuiteIncludesAllTests() {

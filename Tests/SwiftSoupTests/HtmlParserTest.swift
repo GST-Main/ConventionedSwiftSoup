@@ -10,7 +10,7 @@ Tests for the Parser
 */
 
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 
 class HtmlParserTest: XCTestCase {
     func testLinuxTestSuiteIncludesAllTests() {

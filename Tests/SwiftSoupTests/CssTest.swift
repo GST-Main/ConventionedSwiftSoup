@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 
 class CssTest: XCTestCase {
 	var html: Document!

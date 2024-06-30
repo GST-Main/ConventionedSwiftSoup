@@ -10,7 +10,7 @@ Test suite for attribute parser.
 */
 
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 
 class AttributeParseTest: XCTestCase {
 

@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BD3B5B681FBED933001FDB3B"
-               BuildableName = "SwiftSoup.framework"
-               BlueprintName = "SwiftSoup-macOS"
-               ReferencedContainer = "container:SwiftSoup.xcodeproj">
+               BlueprintIdentifier = "8CE418151DAA54A900240B42"
+               BuildableName = "PrettySwiftSoup.framework"
+               BlueprintName = "PrettySwiftSoup-iOS"
+               ReferencedContainer = "container:PrettySwiftSoup.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -28,26 +28,26 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BB57C2CD222CAF8E008933AA"
-               BuildableName = "SwiftSoupTests-macOS.xctest"
-               BlueprintName = "SwiftSoupTests-macOS"
-               ReferencedContainer = "container:SwiftSoup.xcodeproj">
+               BlueprintIdentifier = "8CE4181E1DAA54A900240B42"
+               BuildableName = "PrettySwiftSoupTests.xctest"
+               BlueprintName = "PrettySwiftSoupTests"
+               ReferencedContainer = "container:PrettySwiftSoup.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BD3B5B681FBED933001FDB3B"
-            BuildableName = "SwiftSoup.framework"
-            BlueprintName = "SwiftSoup-macOS"
-            ReferencedContainer = "container:SwiftSoup.xcodeproj">
+            BlueprintIdentifier = "8CE418151DAA54A900240B42"
+            BuildableName = "PrettySwiftSoup.framework"
+            BlueprintName = "PrettySwiftSoup-iOS"
+            ReferencedContainer = "container:PrettySwiftSoup.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -55,10 +55,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BB57C2CD222CAF8E008933AA"
-               BuildableName = "SwiftSoupTests-macOS.xctest"
-               BlueprintName = "SwiftSoupTests-macOS"
-               ReferencedContainer = "container:SwiftSoup.xcodeproj">
+               BlueprintIdentifier = "8CE4181E1DAA54A900240B42"
+               BuildableName = "PrettySwiftSoupTests.xctest"
+               BlueprintName = "PrettySwiftSoupTests"
+               ReferencedContainer = "container:PrettySwiftSoup.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -76,10 +76,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BD3B5B681FBED933001FDB3B"
-            BuildableName = "SwiftSoup.framework"
-            BlueprintName = "SwiftSoup-macOS"
-            ReferencedContainer = "container:SwiftSoup.xcodeproj">
+            BlueprintIdentifier = "8CE418151DAA54A900240B42"
+            BuildableName = "PrettySwiftSoup.framework"
+            BlueprintName = "PrettySwiftSoup-iOS"
+            ReferencedContainer = "container:PrettySwiftSoup.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </LaunchAction>
@@ -92,10 +92,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BD3B5B681FBED933001FDB3B"
-            BuildableName = "SwiftSoup.framework"
-            BlueprintName = "SwiftSoup-macOS"
-            ReferencedContainer = "container:SwiftSoup.xcodeproj">
+            BlueprintIdentifier = "8CE418151DAA54A900240B42"
+            BuildableName = "PrettySwiftSoup.framework"
+            BlueprintName = "PrettySwiftSoup-iOS"
+            ReferencedContainer = "container:PrettySwiftSoup.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

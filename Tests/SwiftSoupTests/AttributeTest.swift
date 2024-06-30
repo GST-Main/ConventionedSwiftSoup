@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import SwiftSoup
+@testable import PrettySwiftSoup
 class AttributeTest: XCTestCase {
 
     func testLinuxTestSuiteIncludesAllTests() {

@@ -8,7 +8,7 @@
 
 import Foundation
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 
 class EntitiesTest: XCTestCase {
 
