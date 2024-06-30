@@ -157,7 +157,7 @@ class CssTest: XCTestCase {
 	}
 
 	func testEmpty()throws {
-		let sel: Elements = html.select(cssQuery: ":empty")
+		let sel: HTMLElements = html.select(cssQuery: ":empty")
 		XCTAssertEqual(3, sel.count)
 		XCTAssertEqual("head", sel.get(index: 0)?.tagName)
 		XCTAssertEqual("br", sel.get(index: 1)?.tagName)
@@ -165,7 +165,7 @@ class CssTest: XCTestCase {
 	}
 
 	func testOnlyChild()throws {
-		let sel: Elements = html.select(cssQuery: "span :only-child")
+		let sel: HTMLElements = html.select(cssQuery: "span :only-child")
 		XCTAssertEqual(1, sel.count)
 		XCTAssertEqual("br", sel.get(index: 0)?.tagName)
 
@@ -173,7 +173,7 @@ class CssTest: XCTestCase {
 	}
 
 	func testOnlyOfType()throws {
-		let sel: Elements = html.select(cssQuery: ":only-of-type")
+		let sel: HTMLElements = html.select(cssQuery: ":only-of-type")
 		XCTAssertEqual(6, sel.count)
 		XCTAssertEqual("head", sel.get(index: 0)?.tagName)
 		XCTAssertEqual("body", sel.get(index: 1)?.tagName)
@@ -184,11 +184,11 @@ class CssTest: XCTestCase {
 		XCTAssertEqual("em", sel.get(index: 5)?.tagName)
 	}
 
-	func check(_ resut: Elements, _ expectedContent: String... ) {
+	func check(_ resut: HTMLElements, _ expectedContent: String... ) {
 		check(resut, expectedContent)
 	}
 
-	func check(_ result: Elements, _ expectedContent: [String] ) {
+	func check(_ result: HTMLElements, _ expectedContent: [String] ) {
 		XCTAssertEqual(expectedContent.count, result.count)
 		for i in 0..<expectedContent.count {
             XCTAssertNotNil(result.get(index: i))
@@ -197,12 +197,12 @@ class CssTest: XCTestCase {
 	}
 
 	func testRoot()throws {
-		let sel: Elements = html.select(cssQuery: ":root")
+		let sel: HTMLElements = html.select(cssQuery: ":root")
 		XCTAssertEqual(1, sel.count)
 		XCTAssertNotNil(sel.get(index: 0)!)
         try XCTAssertEqual(Tag.valueOf("html"), sel.get(index: 0)?.tag)
 
-		let sel2: Elements = html.select(cssQuery: "body").select(cssQuery: ":root")
+		let sel2: HTMLElements = html.select(cssQuery: "body").select(cssQuery: ":root")
 		XCTAssertEqual(1, sel2.count)
 		XCTAssertNotNil(sel2.get(index: 0)!)
 		try XCTAssertEqual(Tag.valueOf("body"), sel2.get(index: 0)?.tag)

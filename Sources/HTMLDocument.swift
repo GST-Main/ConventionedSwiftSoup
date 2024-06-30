@@ -173,7 +173,7 @@ open class HTMLDocument: HTMLElement {
 
     // merge multiple <head> or <body> contents into one, delete the remainder, and ensure they are owned by <html>
     private func normaliseStructure(_ tag: String, _ htmlEl: HTMLElement) {
-        let elements: Elements = self.getElementsByTag(tag)
+        let elements: HTMLElements = self.getElementsByTag(tag)
         let master: HTMLElement? = elements.first // will always be available as created above if not existent
         if (elements.count > 1) { // dupes, move contents to master
             var toMove: Array<Node> = Array<Node>()
@@ -250,7 +250,7 @@ open class HTMLDocument: HTMLElement {
      * <li>Obsolete elements are removed</li>
      * </ul>
      *
-     * <p><b>Elements used:</b></p>
+     * <p><b>HTMLElements used:</b></p>
      *
      * <ul>
      * <li><b>Html:</b> <i>&lt;meta charset="CHARSET"&gt;</i></li>

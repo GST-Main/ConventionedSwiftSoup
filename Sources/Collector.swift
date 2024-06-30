@@ -23,8 +23,8 @@ open class Collector {
      @param root root of tree to descend
      @return list of matches; empty if none
      */
-    public static func collect (_ eval: Evaluator, _ root: HTMLElement)throws->Elements {
-        let elements: Elements = Elements()
+    public static func collect (_ eval: Evaluator, _ root: HTMLElement)throws->HTMLElements {
+        let elements: HTMLElements = HTMLElements()
         try NodeTraversor(Accumulator(root, elements, eval)).traverse(root)
         return elements
     }
@@ -33,10 +33,10 @@ open class Collector {
 
 private final class Accumulator: NodeVisitor {
     private let root: HTMLElement
-    private let elements: Elements
+    private let elements: HTMLElements
     private let eval: Evaluator
 
-    init(_ root: HTMLElement, _ elements: Elements, _ eval: Evaluator) {
+    init(_ root: HTMLElement, _ elements: HTMLElements, _ eval: Evaluator) {
         self.root = root
         self.elements = elements
         self.eval = eval

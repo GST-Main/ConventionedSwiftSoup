@@ -107,7 +107,7 @@ class HtmlParserTest: XCTestCase {
 	func testParsesUnterminatedOption()throws {
 		// bit weird this -- browsers and spec get stuck in select until there's a </select>
 		let doc: HTMLDocument = HTMLParser.parse("<body><p><select><option>One<option>Two</p><p>Three</p>")!
-		let options: Elements = doc.select(cssQuery: "option")
+		let options: HTMLElements = doc.select(cssQuery: "option")
 		XCTAssertEqual(2, options.count)
 		XCTAssertEqual("One", options.first!.getText())
 		XCTAssertEqual("TwoThree", options.last!.getText())
@@ -156,7 +156,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testHandlesDataOnlyTags()throws {
 		let t: String = "<style>font-family: bold</style>"
-		let tels: Elements = HTMLParser.parse(t)!.getElementsByTag("style")
+		let tels: HTMLElements = HTMLParser.parse(t)!.getElementsByTag("style")
 		XCTAssertEqual("font-family: bold", tels.get(index: 0)!.data)
 		XCTAssertEqual("", tels.get(index: 0)!.getText())
 
@@ -174,7 +174,7 @@ class HtmlParserTest: XCTestCase {
 
 	func testHandlesTextArea()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<textarea>Hello</textarea>")!
-		let els: Elements = doc.select(cssQuery: "textarea")
+		let els: HTMLElements = doc.select(cssQuery: "textarea")
 		XCTAssertEqual("Hello", els.text())
         XCTAssertEqual(1, els.count)
         XCTAssertEqual("Hello", els.first?.value)
@@ -205,9 +205,9 @@ class HtmlParserTest: XCTestCase {
 		// old SwiftSoup used to wrap this in <ul>, but that's not to spec
 		let h: String = "<li>Point one<li>Point two"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let ol: Elements = doc.select(cssQuery: "ul") // should NOT have created a default ul.
+		let ol: HTMLElements = doc.select(cssQuery: "ul") // should NOT have created a default ul.
 		XCTAssertEqual(0, ol.count)
-		let lis: Elements = doc.select(cssQuery: "li")
+		let lis: HTMLElements = doc.select(cssQuery: "li")
 		XCTAssertEqual(2, lis.count)
 		XCTAssertEqual("body", lis.first!.parent!.tagName)
 
@@ -269,7 +269,7 @@ class HtmlParserTest: XCTestCase {
 		let doc = HTMLParser.parse(h, baseURI: "http://foo/")!
 		XCTAssertEqual("http://foo/2/", doc.baseURI) // gets set once, so doc and descendants have first only
 
-		let anchors: Elements = doc.getElementsByTag("a")
+		let anchors: HTMLElements = doc.getElementsByTag("a")
 		XCTAssertEqual(3, anchors.count)
 
 		XCTAssertEqual("http://foo/2/", anchors.get(index: 0)!.baseURI)
@@ -315,7 +315,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesUnknownTags()throws {
 		let h = "<div><foo title=bar>Hello<foo title=qux>there</foo></div>"
 		let doc = HTMLParser.parse(h)!
-        let foos: Elements = doc.select(cssQuery: "foo")
+        let foos: HTMLElements = doc.select(cssQuery: "foo")
 		XCTAssertEqual(2, foos.count)
 		XCTAssertEqual("bar", foos.first!.getAttribute(withKey: "title"))
 		XCTAssertEqual("qux", foos.last!.getAttribute(withKey: "title"))
@@ -388,7 +388,7 @@ class HtmlParserTest: XCTestCase {
 		let doc = HTMLParser.parse(h)!
 		XCTAssertEqual(0, doc.select(cssQuery: "dl").count) // no auto dl
 		XCTAssertEqual(4, doc.select(cssQuery: "dt, dd").count)
-		let dts: Elements = doc.select(cssQuery: "dt")
+		let dts: HTMLElements = doc.select(cssQuery: "dt")
 		XCTAssertEqual(2, dts.count)
 		XCTAssertEqual("Zug",  dts.get(index: 1)!.nextSiblingElement?.getText())
 	}

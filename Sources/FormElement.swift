@@ -13,7 +13,7 @@ import Foundation
  * form to easily be submitted.
  */
 public class FormElement: HTMLElement {
-    private let _elements: Elements = Elements()
+    private let _elements: HTMLElements = HTMLElements()
 
     /**
      * Create a new, standalone form element.
@@ -30,7 +30,7 @@ public class FormElement: HTMLElement {
      * Get the list of form control elements associated with this form.
      * @return form controls associated with this element.
      */
-    public func elements() -> Elements {
+    public func elements() -> HTMLElements {
         return _elements
     }
 
@@ -82,7 +82,7 @@ public class FormElement: HTMLElement {
 //            String type = el.attr("type");
 //            
 //            if ("select".equals(el.tagName())) {
-//                Elements options = el.select("option[selected]");
+//                HTMLElements options = el.select("option[selected]");
 //                boolean set = false;
 //                for (HTMLElement option: options) {
 //                    data.add(HttpConnection.KeyVal.create(name, option.val()));

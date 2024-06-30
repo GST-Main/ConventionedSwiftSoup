@@ -1,5 +1,5 @@
 //
-//  Elements.swift
+//  HTMLElements.swift
 //  SwiftSoup
 //
 //  Created by Nabil Chatbi on 20/10/16.
@@ -8,24 +8,26 @@
 
 import Foundation
 
-/// A list of `Elements`.
+/// A list of `HTMLElement`.
 ///
-/// `Elements` is a sequence that exclusively contains ``HTMLElement`` instances. This is a reference type whereas most of Swift's collection types are value types.
+/// `HTMLElements` is a sequence that exclusively contains ``HTMLElement`` instances. This is a reference type whereas most of Swift's collection types are value types.
 ///
 /// Typically, users do not directly instantiate this object; instead, it is often returned as the result of methods from ``HTMLElement``.
-/// For example, ``HTMLElement/getElementsByClass(_:)`` returns an instance of ``Elements`` containing elements with a specified class name.
+/// For example, ``HTMLElement/getElementsByClass(_:)`` returns an instance of ``HTMLElements`` containing elements with a specified class name.
 ///
 /// You can use Array-like members to manipulate a list of elements. This is the list of them:
-/// * Use ``append(_:)``, ``append(contentsOf:)``, ``insert(_:at:)``, ``insert(contensOf:at:)`` to add new elements to `Elements`.
+/// * Use ``append(_:)``, ``append(contentsOf:)``, ``insert(_:at:)``, ``insert(contensOf:at:)`` to add new elements to `HTMLElements`.
 /// * Like `Array`, access an element in the list using the subscript. You can also use ``get(index:)`` method for safe access.
 /// * To avoid out-of-bound index error, check information such as ``startIndex``, ``endIndex`` and``count``.
 /// * Many other sequence methods and properties are supported: `forEach(_:)`, `map(_:)`, `first`, `reduce(_:_:)`, etc.
 ///
-/// `Elements` has `HTMLElement` specialized methods and properties:
+/// `HTMLElements` has `HTMLElement` specialized methods and properties:
 /// * ``text(trimAndNormaliseWhitespace:)``, ``texts``, ``html`` and ``outerHtml`` combines the list's element.
 /// * You can simply check if any element meet specific conditions with "has-method"s: ``hasClass(named:)``, ``hasAttribute(key:)``, ``hasElementMatchedWithCSSQuery(_:)``, ``hasText``
 /// * Filter the list using CSS queries: ``select(cssQuery:)``, ``selectNot(cssQuery:)``
-open class Elements: NSCopying {
+///
+/// - todo: This object also contains XML elements as ``HTMLElement`` also represents XML element. This is temporary and will be refactored into a more object-oriented structure in the future.
+open class HTMLElements: NSCopying {
 	fileprivate var _elements: [HTMLElement] = []
 
 	/// Create an empty element list
@@ -41,7 +43,7 @@ open class Elements: NSCopying {
 	}
 
 	public func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Elements()
+		let clone = HTMLElements()
 		for element in self {
 			clone.append(element.copy() as! HTMLElement)
 		}
@@ -153,11 +155,11 @@ open class Elements: NSCopying {
     ///
     /// - Parameter cssQuery: A CSS selector to filter elements.
     /// - Returns: A new filtered list of elements.
-	open func select(cssQuery: String) -> Elements {
+	open func select(cssQuery: String) -> HTMLElements {
         do {
             return try CssSelector.select(cssQuery, _elements)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
 	}
 
@@ -167,12 +169,12 @@ open class Elements: NSCopying {
     ///
     /// - Parameter cssQuery: A CSS selector to filter elements.
     /// - Returns: A new filtered list of elements that do not match the given CSS query.
-	open func selectNot(cssQuery: String) -> Elements {
+	open func selectNot(cssQuery: String) -> HTMLElements {
         do {
             let out = try CssSelector.select(cssQuery, _elements)
             return CssSelector.filterOut(_elements, out._elements)
         } catch {
-            return self.copy() as! Elements
+            return self.copy() as! HTMLElements
         }
 	}
 
@@ -192,7 +194,7 @@ open class Elements: NSCopying {
 
     /// Perform a depth-first traversal on each of the selected elements.
     @discardableResult
-	open func traverse(_ nodeVisitor: NodeVisitor) throws -> Elements {
+	open func traverse(_ nodeVisitor: NodeVisitor) throws -> HTMLElements {
 		let traversor: NodeTraversor = NodeTraversor(nodeVisitor)
 		for element in self {
 			try traversor.traverse(element)
@@ -229,7 +231,7 @@ open class Elements: NSCopying {
     /// to an array of integers.
     ///
     /// ```swift
-    /// let elements = Elements()
+    /// let elements = HTMLElements()
     /// let divs = document.getElementsByTag("div")
     /// let spans = document.getElementsByTag("span")
     /// elements.append(contentsOf: divs)
@@ -311,7 +313,7 @@ open class Elements: NSCopying {
     }
 }
 
-extension Elements: Equatable {
+extension HTMLElements: Equatable {
 	/// Returns a Boolean value indicating whether two values are equal.
 	///
 	/// Equality is the inverse of inequality. For any values `a` and `b`,
@@ -320,12 +322,12 @@ extension Elements: Equatable {
 	/// - Parameters:
 	///   - lhs: A value to compare.
 	///   - rhs: Another value to compare.
-	public static func ==(lhs: Elements, rhs: Elements) -> Bool {
+	public static func ==(lhs: HTMLElements, rhs: HTMLElements) -> Bool {
 		return lhs._elements == rhs._elements
 	}
 }
 
-extension Elements: RandomAccessCollection {
+extension HTMLElements: RandomAccessCollection {
 	public subscript(position: Int) -> HTMLElement {
 		return _elements[position]
 	}
@@ -353,7 +355,7 @@ extension Elements: RandomAccessCollection {
 }
 
 
-extension Elements: Sequence {
+extension HTMLElements: Sequence {
     /// Returns an iterator over the elements of this sequence.
     public func makeIterator() -> ElementsIterator {
         return ElementsIterator(self)
@@ -361,12 +363,12 @@ extension Elements: Sequence {
     
     public struct ElementsIterator: IteratorProtocol {
         /// Elements reference
-        let elements: Elements
+        let elements: HTMLElements
         //current element index
         var index = 0
 
         /// Initializer
-        init(_ countdown: Elements) {
+        init(_ countdown: HTMLElements) {
             self.elements = countdown
         }
 

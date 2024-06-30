@@ -33,7 +33,7 @@ class DocumentTest: XCTestCase {
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
-//			let els: Elements = try doc.getElementsByClass("special")
+//			let els: HTMLElements = try doc.getElementsByClass("special")
 //			let special: HTMLElement? = els.first//get first element
 //			print(try special?.text())//"this is in bold"
 //			print(special?.tagName())//"p"

@@ -24,7 +24,7 @@ class ElementsTest: XCTestCase {
 	func testFilter()throws {
 		let h: String = "<p>Excl</p><div class=headline><p>Hello</p><p>There</p></div><div class=headline><h1>Headline</h1></div>"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let els: Elements = doc.select(cssQuery: ".headline").select(cssQuery: "p")
+		let els: HTMLElements = doc.select(cssQuery: ".headline").select(cssQuery: "p")
 		XCTAssertEqual(2, els.count)
         XCTAssertEqual("Hello", els.get(index: 0)!.getText())
         XCTAssertEqual("There", els.get(index: 1)!.getText())
@@ -33,7 +33,7 @@ class ElementsTest: XCTestCase {
 	func testRandomAccessCollection()throws {
 		let h: String = "<div><p>one</p><div class=headline><p>two</p><p>three</p></div><p>four</p></div>"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let els: Elements = doc.select(cssQuery: "p")
+		let els: HTMLElements = doc.select(cssQuery: "p")
 		XCTAssertEqual(els.count, 4)
 		for i in (els.startIndex ..< els.endIndex).shuffled() {
 			let el = els[i]
@@ -44,7 +44,7 @@ class ElementsTest: XCTestCase {
 	func testAttributes()throws {
 		let h = "<p title=foo><p title=bar><p class=foo><p class=bar>"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let withTitle: Elements = doc.select(cssQuery: "p[title]")
+		let withTitle: HTMLElements = doc.select(cssQuery: "p[title]")
 		XCTAssertEqual(2, withTitle.count)
         XCTAssertTrue(withTitle.hasAttribute(key: "title"))
 		XCTAssertFalse(withTitle.hasAttribute(key: "class"))
@@ -52,16 +52,16 @@ class ElementsTest: XCTestCase {
 
 	func testHasAttr()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<p title=foo><p title=bar><p class=foo><p class=bar>")!
-		let ps: Elements = doc.select(cssQuery: "p")
+		let ps: HTMLElements = doc.select(cssQuery: "p")
 		XCTAssertTrue(ps.hasAttribute(key: "class"))
 		XCTAssertFalse(ps.hasAttribute(key: "style"))
 	}
 
 	func testHasAbsAttr()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<a id=1 href='/foo'>One</a> <a id=2 href='https://google.com'>Two</a>")!
-		let one: Elements = doc.select(cssQuery: "#1")
-		let two: Elements = doc.select(cssQuery: "#2")
-		let both: Elements = doc.select(cssQuery: "a")
+		let one: HTMLElements = doc.select(cssQuery: "#1")
+		let two: HTMLElements = doc.select(cssQuery: "#2")
+		let both: HTMLElements = doc.select(cssQuery: "a")
 		XCTAssertFalse(one.hasAttribute(key: "abs:href"))
 		XCTAssertTrue(two.hasAttribute(key: "abs:href"))
 		XCTAssertTrue(both.hasAttribute(key: "abs:href")) // hits on #2
@@ -70,7 +70,7 @@ class ElementsTest: XCTestCase {
 	func testClasses()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p class='mellow yellow'></p><p class='red green'></p>")!
 
-		let els: Elements = doc.select(cssQuery: "p")
+		let els: HTMLElements = doc.select(cssQuery: "p")
         XCTAssertTrue(els.hasClass(named: "red"))
         XCTAssertFalse(els.hasClass(named: "blue"))
 	}
@@ -85,20 +85,20 @@ class ElementsTest: XCTestCase {
 
 	func testHasText()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p></div><div><p></p></div>")!
-		let divs: Elements = doc.select(cssQuery: "div")
+		let divs: HTMLElements = doc.select(cssQuery: "div")
 		XCTAssertTrue(divs.hasText)
 		XCTAssertFalse(doc.select(cssQuery: "div + div").hasText)
 	}
 
 	func testHtml()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p></div><div><p>There</p></div>")!
-		let divs: Elements = doc.select(cssQuery: "div")
+		let divs: HTMLElements = doc.select(cssQuery: "div")
 		XCTAssertEqual("<p>Hello</p>\n<p>There</p>", divs.html)
 	}
 
 	func testOuterHtml()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p></div><div><p>There</p></div>")!
-		let divs: Elements = doc.select(cssQuery: "div")
+		let divs: HTMLElements = doc.select(cssQuery: "div")
 		XCTAssertEqual("<div><p>Hello</p></div><div><p>There</p></div>", TextUtil.stripNewlines(divs.outerHtml!))
 	}
 
@@ -108,7 +108,7 @@ class ElementsTest: XCTestCase {
             return
         }
 
-        let els: Elements = doc.select(cssQuery: "input, textarea")
+        let els: HTMLElements = doc.select(cssQuery: "input, textarea")
 		XCTAssertEqual(2, els.count)
 		XCTAssertEqual("two", els.last?.value)
 	}
@@ -116,7 +116,7 @@ class ElementsTest: XCTestCase {
 	func testIs()throws {
 		let h = "<p>Hello<p title=foo>there<p>world"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let ps: Elements = doc.select(cssQuery: "p")
+		let ps: HTMLElements = doc.select(cssQuery: "p")
 		XCTAssertTrue(ps.hasElementMatchedWithCSSQuery("[title=foo]"))
 		XCTAssertFalse(ps.hasElementMatchedWithCSSQuery("[title=bar]"))
 	}
@@ -124,11 +124,11 @@ class ElementsTest: XCTestCase {
 	func testNot()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>One</p></div> <div id=2><p><span>Two</span></p></div>")!
 
-		let div1: Elements = doc.select(cssQuery: "div").selectNot(cssQuery: ":has(p > span)")
+		let div1: HTMLElements = doc.select(cssQuery: "div").selectNot(cssQuery: ":has(p > span)")
 		XCTAssertEqual(1, div1.count)
 		XCTAssertEqual("1", div1.first?.id)
 
-		let div2: Elements = doc.select(cssQuery: "div").selectNot(cssQuery: "#1")
+		let div2: HTMLElements = doc.select(cssQuery: "div").selectNot(cssQuery: "#1")
 		XCTAssertEqual(1, div2.count)
 		XCTAssertEqual("2", div2.first?.id)
 	}
@@ -155,7 +155,7 @@ class ElementsTest: XCTestCase {
 
 	func testForms()throws {
         let doc: HTMLDocument = HTMLParser.parse("<form id=1><input name=q></form><div /><form id=2><input name=f></form>")!
-		let els: Elements = doc.select(cssQuery: "*")
+		let els: HTMLElements = doc.select(cssQuery: "*")
 		XCTAssertEqual(9, els.count)
 
 		let forms: Array<FormElement> = els.forms()
@@ -168,7 +168,7 @@ class ElementsTest: XCTestCase {
 
 	func testClassWithHyphen()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<p class='tab-nav'>Check</p>")!
-		let els: Elements = doc.getElementsByClass("tab-nav")
+		let els: HTMLElements = doc.getElementsByClass("tab-nav")
 		XCTAssertEqual(1, els.count)
 		XCTAssertEqual("Check", els.text())
 	}
@@ -181,7 +181,7 @@ class ElementsTest: XCTestCase {
         XCTAssertEqual("7 8 9 10 11 12", divText[1]);
         
         let pText: Array<String> = doc.select(cssQuery: "p").texts;
-        let ps: Elements = doc.select(cssQuery: "p");
+        let ps: HTMLElements = doc.select(cssQuery: "p");
         XCTAssertEqual(13, ps.count);
         XCTAssertEqual(12, pText.count); // not 13, as last doesn't have text
         XCTAssertEqual("1", pText[0]);

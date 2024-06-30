@@ -65,14 +65,14 @@ class AttributeParseTest: XCTestCase {
 
 	func teststrictAttributeUnescapes()throws {
 		let html: String = "<a id=1 href='?foo=bar&mid&lt=true'>One</a> <a id=2 href='?foo=bar&lt;qux&lg=1'>Two</a>"
-		let els: Elements = HTMLParser.parse(html)!.select(cssQuery: "a")
+		let els: HTMLElements = HTMLParser.parse(html)!.select(cssQuery: "a")
 		XCTAssertEqual("?foo=bar&mid&lt=true", els.first!.getAttribute(withKey: "href"))
 		XCTAssertEqual("?foo=bar<qux&lg=1", els.last!.getAttribute(withKey: "href"))
 	}
 
 	func testmoreAttributeUnescapes()throws {
 		let html: String = "<a href='&wr_id=123&mid-size=true&ok=&wr'>Check</a>"
-		let els: Elements = HTMLParser.parse(html)!.select(cssQuery: "a")
+		let els: HTMLElements = HTMLParser.parse(html)!.select(cssQuery: "a")
 		XCTAssertEqual("&wr_id=123&mid-size=true&ok=&wr",  els.first!.getAttribute(withKey: "href"))
 	}
 

@@ -14,7 +14,7 @@ import Foundation
 /// This is a subclass of ``Node`` that contains information about a HTML element. Access this information with properties or methods like ``className``, ``tagName``, ``text``, ``Node/getAttribute(key:)``, etc.
 ///
 /// Use methods of this object to get elements with specific id, tag name, attirbute, etc.
-/// For example, ``getElementById(_:)`` retrieves an ``Elements`` object consisting of ``HTMLElement`` objects whose id matches the specified id.
+/// For example, ``getElementById(_:)`` retrieves an ``HTMLElements`` object consisting of ``HTMLElement`` objects whose id matches the specified id.
 ///
 /// You can modify an element using methods like ``setAttribute(key:value:)-5p0uc``, ``setClass(names:)``, ``setHTML(_:)``, etc.
 ///
@@ -142,16 +142,16 @@ open class HTMLElement: Node {
         return parentNode as? HTMLElement
     }
 
-    /// An ``Elements`` object contains this element's parent and ancestors up to the document root.
+    /// An ``HTMLElements`` object contains this element's parent and ancestors up to the document root.
     ///
     /// This property represent this element's stack of parents by closest first.
-    open var ancestors: Elements {
-        let ancestors: Elements = Elements()
+    open var ancestors: HTMLElements {
+        let ancestors: HTMLElements = HTMLElements()
         HTMLElement.accumulateParents(self, ancestors)
         return ancestors
     }
 
-    private static func accumulateParents(_ el: HTMLElement, _ parents: Elements) {
+    private static func accumulateParents(_ el: HTMLElement, _ parents: HTMLElements) {
         let parent: HTMLElement? = el.parent
         if (parent != nil && !(parent!.tagName == HTMLElement.rootString)) {
             parents.append(parent!)
@@ -175,10 +175,10 @@ open class HTMLElement: Node {
     }
 
     /// This element's child elements.
-    open var children: Elements {
+    open var children: HTMLElements {
         // create on the fly rather than maintaining two lists. if gets slow, memoize, and mark dirty on change
         let elements = childNodes.compactMap { $0 as? HTMLElement }
-        return Elements(elements)
+        return HTMLElements(elements)
     }
     
     /// The first child of this element.
@@ -220,11 +220,11 @@ open class HTMLElement: Node {
     ///
     /// - Parameter cssQuery: A css selector to find element
     /// - Returns: Elements that match the query. Returns empty if none match.
-    public func select(cssQuery: String) -> Elements {
+    public func select(cssQuery: String) -> HTMLElements {
         do {
             return try CssSelector.select(cssQuery, self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 
@@ -522,16 +522,16 @@ open class HTMLElement: Node {
     /// Elements of siblings.
     ///
     /// An element is not a sibling of itself, so is excluded in the this property.
-    public var siblingElements: Elements {
+    public var siblingElements: HTMLElements {
         if parentNode == nil {
-            return Elements()
+            return HTMLElements()
         }
 
         if let elements = parent?.children {
             let selfExcluded = elements.filter { $0 != self }
-            return Elements(selfExcluded)
+            return HTMLElements(selfExcluded)
         } else {
-            return Elements()
+            return HTMLElements()
         }
     }
 
@@ -592,12 +592,12 @@ open class HTMLElement: Node {
     ///
     /// - Parameter tagName: The tag name to search for. Case insensitive.
     /// - Returns: A matching list of elements.
-    public func getElementsByTag(_ tagName: String) -> Elements {
-        guard !tagName.isEmpty else { return Elements() }
+    public func getElementsByTag(_ tagName: String) -> HTMLElements {
+        guard !tagName.isEmpty else { return HTMLElements() }
         let tagName = tagName.lowercased().trim()
 
         let result = try? Collector.collect(Evaluator.Tag(tagName), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get an element by ID.
@@ -609,7 +609,7 @@ open class HTMLElement: Node {
     public func getElementById(_ id: String) -> HTMLElement? {
         guard !id.isEmpty else { return nil }
 
-        guard let elements: Elements = try? Collector.collect(Evaluator.Id(id), self) else {
+        guard let elements: HTMLElements = try? Collector.collect(Evaluator.Id(id), self) else {
             return nil
         }
         if (elements.count > 0) {
@@ -625,9 +625,9 @@ open class HTMLElement: Node {
     ///
     /// - Parameter className: A class name to search for.
     /// - Returns: A matching list of elements.
-    public func getElementsByClass(_ className: String) -> Elements {
+    public func getElementsByClass(_ className: String) -> HTMLElements {
         let result = try? Collector.collect(Evaluator.Class(className), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get a list of elements that have an attribute with the given key.
@@ -636,12 +636,12 @@ open class HTMLElement: Node {
     ///
     /// - Parameter key: An attribute key to search for. Case insensitive.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttribute(key: String) -> Elements {
-        guard !key.isEmpty else { return Elements() }
+    public func getElementsByAttribute(key: String) -> HTMLElements {
+        guard !key.isEmpty else { return HTMLElements() }
         let key = key.trim()
 
         let result = try? Collector.collect(Evaluator.Attribute(key), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get a list of elements whose attribute keys start with supplied prefix.
@@ -650,12 +650,12 @@ open class HTMLElement: Node {
     ///
     /// - Parameter keyPrefix: A prefix of attribute key to search for.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttribute(keyPrefix: String) -> Elements {
-        guard !keyPrefix.isEmpty else { return Elements() }
+    public func getElementsByAttribute(keyPrefix: String) -> HTMLElements {
+        guard !keyPrefix.isEmpty else { return HTMLElements() }
         let keyPrefix = keyPrefix.trim()
 
         let result = try? Collector.collect(Evaluator.AttributeStarting(keyPrefix), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get a list of elements whose attributes have the specific value.
@@ -666,12 +666,12 @@ open class HTMLElement: Node {
     ///     - key: A attribute key to search for.
     ///     - value: A value that an attribute's value with the given key should have.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttribute(key: String, value: String) -> Elements {
-        guard !key.isEmpty else { return Elements() }
+    public func getElementsByAttribute(key: String, value: String) -> HTMLElements {
+        guard !key.isEmpty else { return HTMLElements() }
         let key = key.trim()
 
         let result = try? Collector.collect(Evaluator.AttributeWithValue(key, value), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get a list of elements which either do not have attribute with the given key or with a different value.
@@ -682,12 +682,12 @@ open class HTMLElement: Node {
     ///     - key: A attribute key to search for.
     ///     - value: A value that an attribute's value with the given key should not have.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttributeNotMatching(key: String, value: String) -> Elements {
-        guard !key.isEmpty else { return Elements() }
+    public func getElementsByAttributeNotMatching(key: String, value: String) -> HTMLElements {
+        guard !key.isEmpty else { return HTMLElements() }
         let key = key.trim()
 
         let result = try? Collector.collect(Evaluator.AttributeWithValueNot(key, value), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get a list of elements whose attribute value start with the given prefix.
@@ -698,12 +698,12 @@ open class HTMLElement: Node {
     ///     - key: An attribute key to search for.
     ///     - valuePrefix: A prefix that an attribute's value with the given key should start with.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttribute(key: String, valueStartingWith valuePrefix: String) -> Elements {
-        guard !key.isEmpty else { return Elements() }
+    public func getElementsByAttribute(key: String, valueStartingWith valuePrefix: String) -> HTMLElements {
+        guard !key.isEmpty else { return HTMLElements() }
         let key = key.trim()
         
         let result = try? Collector.collect(Evaluator.AttributeWithValueStarting(key, valuePrefix), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get a list of elements whose attribute values end with the given suffix.
@@ -714,12 +714,12 @@ open class HTMLElement: Node {
     ///     - key: An attribute key to search for.
     ///     - valueSuffix: A suffix that an attribute's value with the given key should end with.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttribute(key: String, valueEndingWith valueSuffix: String) -> Elements {
-        guard !key.isEmpty else { return Elements() }
+    public func getElementsByAttribute(key: String, valueEndingWith valueSuffix: String) -> HTMLElements {
+        guard !key.isEmpty else { return HTMLElements() }
         let key = key.trim()
         
         let result = try? Collector.collect(Evaluator.AttributeWithValueEnding(key, valueSuffix), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get a list of elements whose attribute values contain the given keyword.
@@ -730,12 +730,12 @@ open class HTMLElement: Node {
     ///     - key: An attribute key to search for.
     ///     - match: A substring that an attribute's value with the given key should contains.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttribute(key: String, valueMatchingWith match: String) -> Elements {
-        guard !key.isEmpty else { return Elements() }
+    public func getElementsByAttribute(key: String, valueMatchingWith match: String) -> HTMLElements {
+        guard !key.isEmpty else { return HTMLElements() }
         let key = key.trim()
         
         let result = try? Collector.collect(Evaluator.AttributeWithValueContaining(key, match), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /**
@@ -746,12 +746,12 @@ open class HTMLElement: Node {
      */
     
     ///
-    public func getElementsByAttribute(key: String, valueMatchingWith pattern: Pattern) -> Elements {
-        guard !key.isEmpty else { return Elements() }
+    public func getElementsByAttribute(key: String, valueMatchingWith pattern: Pattern) -> HTMLElements {
+        guard !key.isEmpty else { return HTMLElements() }
         let key = key.trim()
 
         let result = try? Collector.collect(Evaluator.AttributeWithValueMatching(key, pattern), self)
-        return result ?? Elements()
+        return result ?? HTMLElements()
     }
 
     /// Get a list of elements whose attribute values match the supplied regular expression.
@@ -762,8 +762,8 @@ open class HTMLElement: Node {
     ///     - key: An attribute key to search for.
     ///     - match: A substring that an attribute's value with the given key should contains.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttribute(key: String, valueRegex regex: String) -> Elements {
-        guard !key.isEmpty else { return Elements() }
+    public func getElementsByAttribute(key: String, valueRegex regex: String) -> HTMLElements {
+        guard !key.isEmpty else { return HTMLElements() }
         let key = key.trim()
 
         var pattern: Pattern
@@ -771,7 +771,7 @@ open class HTMLElement: Node {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            return Elements()
+            return HTMLElements()
         }
         return getElementsByAttribute(key: key, valueMatchingWith: pattern)
     }
@@ -781,33 +781,33 @@ open class HTMLElement: Node {
     /// Get a list of elements whose sibling index is less than the supplied index.
     ///
     /// Find elements whose sibling index is less than the given index. Starting with this element, it searches all descendants including itself.
-    public func getElementsByIndex(lessThan index: Int) -> Elements {
+    public func getElementsByIndex(lessThan index: Int) -> HTMLElements {
         do {
             return try Collector.collect(Evaluator.IndexLessThan(index), self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 
     /// Get a list of elements whose sibling index is greater than the supplied index.
     ///
     /// Find elements whose sibling index is greater than the given index. Starting with this element, it searches all descendants including itself.
-    public func getElementsByIndex(greaterThan index: Int) -> Elements {
+    public func getElementsByIndex(greaterThan index: Int) -> HTMLElements {
         do {
             return try Collector.collect(Evaluator.IndexGreaterThan(index), self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 
     /// Get a list of elements whose sibling index is equal to the supplied index.
     ///
     /// Find elements whose sibling index is equalt to the supplied index. Starting with this element, it searches all descendants including itself.
-    public func getElementsByIndex(equals index: Int) -> Elements {
+    public func getElementsByIndex(equals index: Int) -> HTMLElements {
         do {
             return try Collector.collect(Evaluator.IndexEquals(index), self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 
@@ -817,11 +817,11 @@ open class HTMLElement: Node {
     ///
     /// - Parameter searchText: A search text to look for in the element's text.
     /// - Returns: Elements that contain the search text.
-    public func getElementsContainingText(_ searchText: String) -> Elements {
+    public func getElementsContainingText(_ searchText: String) -> HTMLElements {
         do {
             return try Collector.collect(Evaluator.ContainsText(searchText), self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 
@@ -831,11 +831,11 @@ open class HTMLElement: Node {
     ///
     /// - Parameter searchText: A search text to look for in the element's own text.
     /// - Returns: Elements that contain the search text directly.
-    public func getElementsContainingOwnText(_ searchText: String) -> Elements {
+    public func getElementsContainingOwnText(_ searchText: String) -> HTMLElements {
         do {
             return try Collector.collect(Evaluator.ContainsOwnText(searchText), self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 
@@ -847,11 +847,11 @@ open class HTMLElement: Node {
      */
     
     ///
-    public func getElementsMatchingText(_ pattern: Pattern) -> Elements {
+    public func getElementsMatchingText(_ pattern: Pattern) -> HTMLElements {
         do {
             return try Collector.collect(Evaluator.Matches(pattern), self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 
@@ -861,13 +861,13 @@ open class HTMLElement: Node {
     ///
     /// - Parameter regex: Regular expression to match text against.
     /// - Returns: Elements that match the supplied regualr expression.
-    public func getElementsMatchingText(_ regex: String) -> Elements {
+    public func getElementsMatchingText(_ regex: String) -> HTMLElements {
         let pattern: Pattern
         do {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            return Elements()
+            return HTMLElements()
         }
         return getElementsMatchingText(pattern)
     }
@@ -880,11 +880,11 @@ open class HTMLElement: Node {
      */
     
     ///
-    public func getElementsMatchingOwnText(_ pattern: Pattern) -> Elements {
+    public func getElementsMatchingOwnText(_ pattern: Pattern) -> HTMLElements {
         do {
             return try Collector.collect(Evaluator.MatchesOwn(pattern), self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 
@@ -894,13 +894,13 @@ open class HTMLElement: Node {
     ///
     /// - Parameter regex: Regular expression to match text against.
     /// - Returns: Elements that match the supplied regualr expression.
-    public func getElementsMatchingOwnText(_ regex: String) -> Elements {
+    public func getElementsMatchingOwnText(_ regex: String) -> HTMLElements {
         let pattern: Pattern
         do {
             pattern = Pattern.compile(regex)
             try pattern.validate()
         } catch {
-            return Elements()
+            return HTMLElements()
         }
         return getElementsMatchingOwnText(pattern)
     }
@@ -908,11 +908,11 @@ open class HTMLElement: Node {
     /// Elements of all elements under this element.
     ///
     /// This property represents all descendants of this element and also itself.
-    public var allElements: Elements {
+    public var allElements: HTMLElements {
         do {
             return try Collector.collect(Evaluator.AllElements(), self)
         } catch {
-            return Elements()
+            return HTMLElements()
         }
     }
 

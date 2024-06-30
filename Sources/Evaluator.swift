@@ -513,7 +513,7 @@ open class Evaluator {
 
         open override func calculatePosition(_ root: HTMLElement, _ element: HTMLElement) -> Int {
             var pos = 0
-            let family: Elements? = element.parent?.children
+            let family: HTMLElements? = element.parent?.children
             if let array = family {
                 for el in array {
                     if (el.tag == element.tag) {pos+=1}
