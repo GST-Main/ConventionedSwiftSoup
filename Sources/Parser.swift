@@ -62,16 +62,8 @@ public class Parser {
     ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: Parsed ``Document`` object. If parser failed to parse the HTML string, returns `nil` instead.
     public static func parseHTML(_ html: String, baseURI: String = "") -> Document? {
-        return try? _parseHTML(html, baseURI: baseURI)
-    }
-    /// Parse HTML into a ``Document``.
-    ///
-    /// This is legacy and throwing version of ``Parser/parseHTML(_:baseURI:)-swift.type.method``.
-    ///
-    /// - Note: As this method throws ``SwiftSoupError/failedToParseHTML`` error only, use the new method ``Parser/parseHTML(_:baseURI:)-swift.type.method`` instead.
-    public class func _parseHTML(_ html: String, baseURI: String = "") throws -> Document {
         let treeBuilder: TreeBuilder = HtmlTreeBuilder()
-        return try treeBuilder.parse(html, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
+        return try? treeBuilder.parse(html, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
 
     /// Parse a fragment of HTML into a list of nodes. The context element, if supplied, supplies parsing context.
@@ -82,14 +74,11 @@ public class Parser {
     ///     - baseURI: Base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: An array of nodes parsed from the given HTML. If parser failed to parse the HTML string, returns `nil` instead. Note that the context element, if supplied, is not modified.
     public static func parseHTMLFragment(_ fragmentHTML: String, context: Element?, baseURI: String = "") -> [Node]? {
-        return try? _parseHTMLFragment(fragmentHTML, context: context, baseURI: baseURI)
+        let treeBuilder = HtmlTreeBuilder()
+        return try? treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
-    /// Parse a fragment of HTML into a list of nodes. The context element, if supplied, supplies parsing context.
-    ///
-    /// This is legacy and throwing version of ``Parser/parseHTMLFragment(_:context:baseURI:)``.
-    ///
-    /// - Note: As this method throws ``SwiftSoupError/failedToParseHTML`` error only, use the new method ``Parser/parseHTMLFragment(_:context:baseURI:)`` instead.
-    public class func _parseHTMLFragment(_ fragmentHTML: String, context: Element?, baseURI: String = "") throws -> [Node] {
+    
+    internal static func _parseHTMLFragment(_ fragmentHTML: String, context: Element?, baseURI: String = "") throws -> [Node] {
         let treeBuilder = HtmlTreeBuilder()
         return try treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
@@ -101,16 +90,8 @@ public class Parser {
     ///     - baseURI: Base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: An array of nodes parsed from the input XML. If parser failed to parse the XML string, returns `nil` instead.
     public static func parseXMLFragment(_ fragmentXML: String, baseURI: String = "") -> [Node]? {
-        return try? _parseXMLFragment(fragmentXML, baseURI: baseURI)
-    }
-    /// Parse a fragment of XML into a list of nodes.
-    ///
-    /// This is legacy and throwing version of ``Parser/parseXMLFragment(_:baseURI:)``.
-    ///
-    /// - Note: As this method only throws ``SwiftSoupError/failedToParseHTML`` error , use the new method ``Parser/parseXMLFragment(_:baseURI:)`` instead.
-    public class func _parseXMLFragment(_ fragmentXML: String, baseURI: String = "") throws -> [Node] {
         let treeBuilder: XmlTreeBuilder = XmlTreeBuilder()
-        return try treeBuilder.parseFragment(fragmentXML, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
+        return try? treeBuilder.parseFragment(fragmentXML, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
 
     /// Parse a fragment of HTML into the ``Document/body`` of a ``Document``.
@@ -120,23 +101,14 @@ public class Parser {
     ///     - baseURI: Base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: Parsed ``Document`` object, with empty ``Document/head``, and HTML parsed into ``Document/body``. If parser failed to parse HTML string, returns `nil` instead.
     public static func parseBodyFragment(_ bodyHTML: String, baseURI: String = "") -> Document? {
-        return try? _parseBodyFragment(bodyHTML, baseURI: baseURI)
-    }
-    /// Parse a fragment of HTML into the ``Document/body`` of a ``Document``.
-    ///
-    /// This is legacy and throwing version of ``Parser/parseBodyFragment(_:baseURI:)``.
-    ///
-    /// - Note: As this method throws ``SwiftSoupError/failedToParseHTML`` error only, use the new method ``Parser/parseBodyFragment(_:baseURI:)`` instead.
-    public class func _parseBodyFragment(_ bodyHTML: String, baseURI: String = "") throws -> Document {
         let document = Document.createShell(baseURI: baseURI)
-        if let body: Element = document.body {
-            let nodeList: Array<Node> = try _parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI)
-            if nodeList.count > 0 {
-                for i in 1..<nodeList.count {
-                    nodeList[i].remove()
+        if let body: Element = document.body, let nodes = parseHTMLFragment(bodyHTML, context: body, baseURI: baseURI) {
+            if nodes.count > 0 {
+                for i in 1..<nodes.count {
+                    nodes[i].remove()
                 }
             }
-            for node: Node in nodeList {
+            for node: Node in nodes {
                 body.appendChild(node)
             }
         }
@@ -145,24 +117,13 @@ public class Parser {
     
     /// Get safe HTML from untrusted input HTML, by parsing input HTML and filtering it through a whitelist of permitted tags and attributes.
     ///
-    /// - Parameters:
-    ///     - bodyHTML: An untrusted HTML string (body fragment).
-    ///     - baseURI: Base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
-    ///     - whitelist: Whitelist of permitted HTML elements elements.
-    ///     - settings: Document output settings. This is used to control pretty-printing and entity escape modes.
-    /// - Returns: Safe HTML string (body fragment). If parser failed to parse the HTML string, returns `nil` instead.
-    /// # See Also
-    /// * ``Cleaner``
-    public class func cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) -> String? {
-        return try? _cleanBodyFragment(bodyHTML, baseURI: baseURI, whitelist: whitelist, settings: settings)
-    }
-    /// Get safe HTML from untrusted input HTML, by parsing input HTML and filtering it through a whitelist of permitted tags and attributes.
-    ///
     /// This is legacy and throwing version of ``Parser/cleanBodyFragment(_:baseURI:whitelist:settings:)``.
     ///
     /// - Note: As this method throws ``SwiftSoupError/failedToParseHTML`` error only, use the new method ``Parser/cleanBodyFragment(_:baseURI:whitelist:settings:)`` instead.
-    public class func _cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) throws -> String {
-        let dirty: Document = try _parseBodyFragment(bodyHTML, baseURI: baseURI)
+    public class func cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) throws -> String {
+        guard let dirty: Document = parseBodyFragment(bodyHTML, baseURI: baseURI) else {
+            throw SwiftSoupError.failedToParseHTML
+        }
         let cleaner = Cleaner(whitelist)
         let clean: Document = try cleaner.clean(dirty)
         if let settings {
@@ -189,7 +150,9 @@ public class Parser {
     /// * ``Cleaner``
     public static func validateBodyFragment(_ bodyHTML: String, whitelist: Whitelist) -> Bool {
         do {
-            let dirty: Document = try _parseBodyFragment(bodyHTML, baseURI: "")
+            guard let dirty: Document = parseBodyFragment(bodyHTML, baseURI: "") else {
+                return false
+            }
             let cleaner  = Cleaner(whitelist)
             return try cleaner.isValid(dirty)
         } catch {
