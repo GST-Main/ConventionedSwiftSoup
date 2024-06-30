@@ -24,7 +24,7 @@ class FormElementTest: XCTestCase {
 		//"button", "fieldset", "input", "keygen", "object", "output", "select", "textarea"
 		let html = "<form id=1><button id=1><fieldset id=2 /><input id=3><keygen id=4><object id=5><output id=6>" +
 		"<select id=7><option></select><textarea id=8><p id=9>"
-        guard let doc: Document = Parser.parseHTML(html) else {
+        guard let doc: HTMLDocument = HTMLParser.parse(html) else {
             XCTFail()
             return
         }
@@ -41,7 +41,7 @@ class FormElementTest: XCTestCase {
 //			"<input name='eight' type='checkbox' checked><input name='nine' type='checkbox' value='unset'>" +
 //			"<input name='ten' value='text' disabled>" +
 //		"</form>";
-//		let doc: Document = try Jsoup.parse(html);
+//		let doc: HTMLDocument = try Jsoup.parse(html);
 //		let form: FormElement = try doc.select("form").first as! FormElement
 //		let data = form.formData();//List<Connection.KeyVal>
 //		
@@ -59,7 +59,7 @@ class FormElementTest: XCTestCase {
 	//todo:
 //	@Test public void createsSubmitableConnection() {
 //	String html = "<form action='/search'><input name='q'></form>";
-//	Document doc = Jsoup.parse(html, "http://example.com/");
+//	HTMLDocument doc = Jsoup.parse(html, "http://example.com/");
 //	doc.select("[name=q]").attr("value", "jsoup");
 //	
 //	FormElement form = ((FormElement) doc.select("form").first);
@@ -78,7 +78,7 @@ class FormElementTest: XCTestCase {
 	//TODO:
 //	func testActionWithNoValue()throws {
 //	String html = "<form><input name='q'></form>";
-//	Document doc = Jsoup.parse(html, "http://example.com/");
+//	HTMLDocument doc = Jsoup.parse(html, "http://example.com/");
 //	FormElement form = ((FormElement) doc.select("form").first);
 //	Connection con = form.submit();
 //	
@@ -88,7 +88,7 @@ class FormElementTest: XCTestCase {
 //TODO:
 //	@Test public void actionWithNoBaseUri() {
 //	String html = "<form><input name='q'></form>";
-//	Document doc = Jsoup.parse(html);
+//	HTMLDocument doc = Jsoup.parse(html);
 //	FormElement form = ((FormElement) doc.select("form").first);
 //	
 //	
@@ -104,9 +104,9 @@ class FormElementTest: XCTestCase {
 //	}
 
 	func testFormsAddedAfterParseAreFormElements()throws {
-		let doc: Document = Parser.parseHTML("<body />")!
+		let doc: HTMLDocument = HTMLParser.parse("<body />")!
 		try doc.body?.setHTML("<form action='http://example.com/search'><input name='q' value='search'>")
-		let formEl: Element = doc.select(cssQuery: "form").first!
+		let formEl: HTMLElement = doc.select(cssQuery: "form").first!
 		XCTAssertNotNil(formEl as? FormElement)
 
 		let form: FormElement =  formEl as! FormElement
@@ -114,10 +114,10 @@ class FormElementTest: XCTestCase {
 	}
 
 	func testControlsAddedAfterParseAreLinkedWithForms()throws {
-		let doc: Document = Parser.parseHTML("<body />")!
+		let doc: HTMLDocument = HTMLParser.parse("<body />")!
 		try doc.body?.setHTML("<form />")
 
-		let formEl: Element = doc.select(cssQuery: "form").first!
+		let formEl: HTMLElement = doc.select(cssQuery: "form").first!
 		try formEl.appendHTML("<input name=foo value=bar>")
 
 		XCTAssertNotNil(formEl as? FormElement)
@@ -152,7 +152,7 @@ class FormElementTest: XCTestCase {
 //	"  </table>\n" +
 //	"</body>\n" +
 //	"</html>";
-//	Document doc = Jsoup.parse(html);
+//	HTMLDocument doc = Jsoup.parse(html);
 //	FormElement form = (FormElement) doc.select("form").first;
 //	List<Connection.KeyVal> data = form.formData();
 //	assertEquals(3, data.count);

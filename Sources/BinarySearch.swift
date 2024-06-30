@@ -27,8 +27,8 @@ extension Collection {
     ///     where it should be inserted. Also check to be sure the returned
     ///     index isn't off the end of the collection.
     ///
-    /// - Parameter predicate: Reports the ordering of a given Element relative
-    ///     to the desired Element. Typically, this is <.
+    /// - Parameter predicate: Reports the ordering of a given HTMLElement relative
+    ///     to the desired HTMLElement. Typically, this is <.
     ///
     /// - Returns: Index N such that the predicate is true for all elements up to
     ///     but not including N, and is false for all elements N and beyond
@@ -48,7 +48,7 @@ extension Collection {
     }
 
     /// Binary search lookup for ordered Collections using a KeyPath
-    /// relative to Element.
+    /// relative to HTMLElement.
     ///
     /// Behavior is undefined if the collection is not properly sorted.
     ///
@@ -63,7 +63,7 @@ extension Collection {
     ///     where it should be inserted. Also check to be sure the returned
     ///     index isn't off the end of the collection.
     ///
-    /// - Parameter keyPath: KeyPath that extracts the Element value on which
+    /// - Parameter keyPath: KeyPath that extracts the HTMLElement value on which
     ///     the Collection is presorted. Must be Comparable and Equatable.
     ///     ordering is presumed to be <, however that is defined for the type.
     ///

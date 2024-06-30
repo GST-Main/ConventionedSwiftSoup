@@ -31,8 +31,8 @@ open class Cleaner {
     /// The original document is not modified. Only elements from the dirt document's `<body>` are used.
     /// - Parameter dirtyDocument: Untrusted base document to clean.
     /// - Returns: A cleaned document.
-	public func clean(_ dirtyDocument: Document) throws -> Document {
-		let clean = Document.createShell(baseURI: dirtyDocument.baseURI!)
+	public func clean(_ dirtyDocument: HTMLDocument) throws -> HTMLDocument {
+		let clean = HTMLDocument.createShell(baseURI: dirtyDocument.baseURI!)
         if let headWhitelist, let dirtHead = dirtyDocument.head, let cleanHead = clean.head { // frameset documents won't have a head. the clean doc will have empty head.
             try copySafeNodes(dirtHead, cleanHead, whitelist: headWhitelist)
         }
@@ -50,14 +50,14 @@ open class Cleaner {
     /// to ensure enforced attributes are set correctly, and that the output is tidied.
     /// - Parameter dirtyDocument: document to test
     /// - Returns: true if no tags or attributes need to be removed; false if they do
-	public func isValid(_ dirtyDocument: Document) throws -> Bool {
-        let clean = Document.createShell(baseURI: dirtyDocument.baseURI!)
+	public func isValid(_ dirtyDocument: HTMLDocument) throws -> Bool {
+        let clean = HTMLDocument.createShell(baseURI: dirtyDocument.baseURI!)
         let numDiscarded = try copySafeNodes(dirtyDocument.body!, clean.body!, whitelist: bodyWhitelist)
         return numDiscarded == 0
 	}
 
     @discardableResult
-    fileprivate func copySafeNodes(_ source: Element, _ dest: Element, whitelist: Whitelist) throws -> Int {
+    fileprivate func copySafeNodes(_ source: HTMLElement, _ dest: HTMLElement, whitelist: Whitelist) throws -> Int {
 		let cleaningVisitor = Cleaner.CleaningVisitor(source, dest, whitelist)
 		try NodeTraversor(cleaningVisitor).traverse(source)
 		return cleaningVisitor.numDiscarded
@@ -68,19 +68,19 @@ extension Cleaner {
 	fileprivate final class CleaningVisitor: NodeVisitor {
 		private(set) var numDiscarded = 0
 
-		private let root: Element
-		private var destination: Element? // current element to append nodes to
+		private let root: HTMLElement
+		private var destination: HTMLElement? // current element to append nodes to
 
         private let whitelist: Whitelist
 
-		public init(_ root: Element, _ destination: Element, _ whitelist: Whitelist) {
+		public init(_ root: HTMLElement, _ destination: HTMLElement, _ whitelist: Whitelist) {
 			self.root = root
 			self.destination = destination
             self.whitelist = whitelist
 		}
 
 		public func head(_ source: Node, _ depth: Int) throws {
-			if let sourceEl = source as? Element {
+			if let sourceEl = source as? HTMLElement {
 				if whitelist.isSafeTag(sourceEl.tagName) { // safe, clone and copy safe attrs
 					let meta = try createSafeElement(sourceEl)
 					let destChild = meta.el
@@ -107,7 +107,7 @@ extension Cleaner {
 		}
 
 		public func tail(_ source: Node, _ depth: Int) throws {
-			if let x = source as? Element {
+			if let x = source as? HTMLElement {
 				if whitelist.isSafeTag(x.nodeName) {
 					// would have descended, so pop destination stack
 					destination = destination?.parent
@@ -115,7 +115,7 @@ extension Cleaner {
 			}
 		}
 
-        private func createSafeElement(_ sourceEl: Element) throws -> ElementMeta {
+        private func createSafeElement(_ sourceEl: HTMLElement) throws -> ElementMeta {
             let sourceTag = sourceEl.tagName
             let destAttrs = Attributes()
             var numDiscarded = 0
@@ -132,7 +132,7 @@ extension Cleaner {
             let enforcedAttrs = try whitelist.getEnforcedAttributes(sourceTag)
             destAttrs.addAll(incoming: enforcedAttrs)
 
-            let dest = try Element(tag: Tag.valueOf(sourceTag), baseURI: sourceEl.baseURI!, attributes: destAttrs)
+            let dest = try HTMLElement(tag: Tag.valueOf(sourceTag), baseURI: sourceEl.baseURI!, attributes: destAttrs)
             return ElementMeta(dest, numDiscarded)
         }
 	}
@@ -140,10 +140,10 @@ extension Cleaner {
 
 extension Cleaner {
 	fileprivate struct ElementMeta {
-		let el: Element
+		let el: HTMLElement
 		let numAttribsDiscarded: Int
 
-		init(_ el: Element, _ numAttribsDiscarded: Int) {
+		init(_ el: HTMLElement, _ numAttribsDiscarded: Int) {
 			self.el = el
 			self.numAttribsDiscarded = numAttribsDiscarded
 		}

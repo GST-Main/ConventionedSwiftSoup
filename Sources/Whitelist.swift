@@ -515,7 +515,7 @@ public class Whitelist {
      * @param attr attribute under test
      * @return true if allowed
      */
-    public func isSafeAttribute(_ tagName: String, _ el: Element, _ attr: Attribute) -> Bool {
+    public func isSafeAttribute(_ tagName: String, _ el: HTMLElement, _ attr: Attribute) -> Bool {
         let tag: TagName = TagName.valueOf(tagName)
         let key: AttributeKey = AttributeKey.valueOf(attr.getKey())
 
@@ -534,7 +534,7 @@ public class Whitelist {
         return !(tagName == ":all") && isSafeAttribute(":all", el, attr)
     }
 
-    private func testValidProtocol(_ el: Element, _ attr: Attribute, _ protocols: Set<Protocol>) -> Bool {
+    private func testValidProtocol(_ el: HTMLElement, _ attr: Attribute, _ protocols: Set<Protocol>) -> Bool {
         // try to resolve relative urls to abs, and optionally update the attribute so output html has abs.
         // rels without a baseuri get removed
         guard var value = el.absoluteURLPath(ofAttribute: attr.getKey()) else {

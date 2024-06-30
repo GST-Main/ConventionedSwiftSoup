@@ -276,7 +276,7 @@ public class Entities {
      * @return unescaped string
      */
     public static func unescape(string: String, strict: Bool)throws -> String {
-        return try Parser.unescapeEntities(string, strict)
+        return try HTMLParser.unescapeEntities(string, strict)
     }
 
     /*

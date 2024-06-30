@@ -268,7 +268,7 @@ final class Tokeniser {
     func currentNodeInHtmlNS() -> Bool {
         // todo: implement namespaces correctly
         return true
-        // Element currentNode = currentNode()
+        // HTMLElement currentNode = currentNode()
         // return currentNode != null && currentNode.namespace().equals("HTML")
     }
 

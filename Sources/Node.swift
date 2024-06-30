@@ -10,9 +10,9 @@ import Foundation
 
 /// A node of tree that contains data of parsed HTML or XML.
 ///
-/// Basically, you use ``Element`` type, subclass of ``Node``, to access HTML elements rather than this type. ``Node`` object has information about a node that constitute a tree, like ``parent`` and ``getChildNodes()``. It also has information about the common elements of both HTML and XML like ``getAttributes()`` and ``absoluteURLPath(ofAttribute:)``.
+/// Basically, you use ``HTMLElement`` type, subclass of ``Node``, to access HTML elements rather than this type. ``Node`` object has information about a node that constitute a tree, like ``parent`` and ``getChildNodes()``. It also has information about the common elements of both HTML and XML like ``getAttributes()`` and ``absoluteURLPath(ofAttribute:)``.
 ///
-/// - Note: This class also contains members only for HTML such as ``insertHTMLAsPreviousSibling(_:)``. I believe this has an unclear role as an OOP object and is considered an anti-pattern. However, it will be left as is to minimize changes to the existing code.
+/// - todo: This class also contains members only for HTML such as ``insertHTMLAsPreviousSibling(_:)``. I believe this has an unclear role as an OOP object and is considered an anti-pattern. This will be refactored iin the future.
 open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
@@ -47,7 +47,7 @@ open class Node: Equatable, Hashable {
 
     /// The node name of this node.
     ///
-    /// This is an abstract property. Subclasses overrides this property. For example, ``Element`` returns tag name and ``Document`` returns literal `"#Document"`.
+    /// This is an abstract property. Subclasses overrides this property. For example, ``HTMLElement`` returns tag name and ``HTMLDocument`` returns literal `"#document"`.
     /// Call this method directly in ``Node`` instance will cause `fatalError`.
     public var nodeName: String {
         preconditionFailure("This method must be overridden")
@@ -151,7 +151,7 @@ open class Node: Equatable, Hashable {
     ///
     /// Get a URL string from an attribute of this node. The URL path will be resolved if the retrieved URL is relative.
     /// ```swift
-    /// let wiki: Document = ... // Parsed HTML of "https://en.wikipedia.org/wiki/Swift"
+    /// let wiki: HTMLDocument = ... // Parsed HTML of "https://en.wikipedia.org/wiki/Swift"
     /// wiki.baseURI = "https://en.wikipedia.org/"
     /// let link = wiki.getElementsContainingText("Swift (programming language)").first!
     /// let href = link.getAttribute(key: "href")!
@@ -217,11 +217,11 @@ open class Node: Equatable, Hashable {
         return parentNode
     }
 
-    /// Get the Document associated with this node.
+    /// Get the HTMLDocument associated with this node.
     ///
-    /// - Returns: A ``Document`` object associated with this node. If there's no such document, returns `nil`.
-    open func ownerDocument() -> Document? {
-        if let this = self as? Document {
+    /// - Returns: A ``HTMLDocument`` object associated with this node. If there's no such document, returns `nil`.
+    open func ownerDocument() -> HTMLDocument? {
+        if let this = self as? HTMLDocument {
             return this
         } else if let parentNode {
             return parentNode.ownerDocument()
@@ -312,8 +312,6 @@ open class Node: Equatable, Hashable {
     ///
     /// Parse the given HTML string and create a new node. Then, insert the node as a sibling at the given index.
     ///
-    /// If this node doesn't have a parent, throws ``SwiftSoupError/noParentNode``. If parsing HTML is failed, throws ``SwiftSoupError/failedToParseHTML``.
-    ///
     /// - Parameters:
     ///     - html: HTML string to insert.
     ///     - index: The index at which to insert in the siblings.
@@ -326,8 +324,8 @@ open class Node: Equatable, Hashable {
             throw SwiftSoupError.noParentNode
         }
 
-        let context: Element? = parent as? Element
-        let nodes: [Node] = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
+        let context: HTMLElement? = parent as? HTMLElement
+        let nodes: [Node] = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
         parentNode.insertChildren(nodes, at: index)
     }
 
@@ -342,13 +340,13 @@ open class Node: Equatable, Hashable {
             throw SwiftSoupError.emptyHTML
         }
 
-        let context = parent as? Element
-        var wrapChildren = try Parser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
-        guard wrapChildren.count > 0, let wrap = wrapChildren[0] as? Element else {
+        let context = parent as? HTMLElement
+        var wrapChildren = try HTMLParser._parseHTMLFragment(html, context: context, baseURI: baseURI!)
+        guard wrapChildren.count > 0, let wrap = wrapChildren[0] as? HTMLElement else {
             throw SwiftSoupError.noHTMLElementsToWrap
         }
 
-        let deepest: Element = getDeepChild(element: wrap)
+        let deepest: HTMLElement = getDeepChild(element: wrap)
         try parentNode?.replaceChildNode(self, with: wrap)
 		wrapChildren = wrapChildren.filter { $0 != wrap }
         deepest.appendChildren(self)
@@ -377,7 +375,7 @@ open class Node: Equatable, Hashable {
     ///     </span>
     /// </div>
     /// """
-    /// let document = Parser.parseHTML(html)!
+    /// let document = HTMLParser.parse(html)!
     /// let span = document.getElementsByTag("span").first!
     /// let result = try! span.unwrap()
     ///
@@ -413,7 +411,7 @@ open class Node: Equatable, Hashable {
         return firstChild
     }
 
-    private func getDeepChild(element: Element) -> Element {
+    private func getDeepChild(element: HTMLElement) -> HTMLElement {
         let children = element.children
         if (children.count > 0) {
             return getDeepChild(element: children.get(index: 0)!)
@@ -610,7 +608,7 @@ open class Node: Equatable, Hashable {
 
     // if this node has no document (or parent), retrieve the default output settings
     func getOutputSettings() -> OutputSettings {
-        return ownerDocument() != nil ? ownerDocument()!.outputSettings : (Document(baseURI: Node.empty)).outputSettings
+        return ownerDocument() != nil ? ownerDocument()!.outputSettings : (HTMLDocument(baseURI: Node.empty)).outputSettings
     }
 
     /**
@@ -662,7 +660,7 @@ open class Node: Equatable, Hashable {
     /// parent node. As a stand-alone object, any changes made to the clone or any of its children will not impact the
     /// original node.
     /// <p>
-    /// The cloned node may be adopted into another Document or node structure using {@link Element#appendChild(Node)}.
+    /// The cloned node may be adopted into another HTMLDocument or node structure using {@link HTMLElement#appendChild(Node)}.
     /// @return stand-alone cloned node
     public func copy(with zone: NSZone? = nil) -> Any {
 		return copy(clone: Node())
