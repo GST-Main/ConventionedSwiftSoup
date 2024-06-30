@@ -184,7 +184,7 @@ class HtmlTreeBuilder: TreeBuilder {
         if href.count != 0 { // ignore <base target> etc
             baseUri = href
             baseUriSetFromDoc = true
-            doc.setBaseURI(href) // set on the doc so doc.createElement(Tag) will get updated base, and to update all descendants
+            doc.baseURI = href // set on the doc so doc.createElement(Tag) will get updated base, and to update all descendants
         }
     }
 

@@ -20,8 +20,32 @@ open class Node: Equatable, Hashable {
     weak var parentNode: Node?
     public internal(set) var childNodes: [Node]
     var attributes: Attributes?
+    internal var _baseURI: String?
     /// Base URI of this node.
-    public internal(set) var baseURI: String?
+    public var baseURI: String? {
+        get {
+            _baseURI
+        }
+        set {
+            guard let newValue else { return }
+            try! traverse(nodeVisitor(newValue)) // Never throws
+            
+            class nodeVisitor: NodeVisitor {
+                private let uri: String?
+                init(_ baseURI: String?) {
+                    self.uri = baseURI
+                }
+
+                func head(_ node: Node, _ depth: Int) throws {
+                    node._baseURI = uri
+                }
+
+                func tail(_ node: Node, _ depth: Int) throws {
+                }
+            }
+        }
+    }
+
 
     /// The index of this node in its node sibling list.
     public var siblingIndex: Int = 0
@@ -29,20 +53,20 @@ open class Node: Equatable, Hashable {
     /// Create a new ``Node``.
     public init(baseURI: String, attributes: Attributes) {
         self.childNodes = Node.EMPTY_NODES
-        self.baseURI = baseURI.trim()
+        self._baseURI = baseURI.trim()
         self.attributes = attributes
     }
     /// Create a new ``Node`` with empty attributes.
     public init(baseURI baseUri: String) {
         childNodes = Node.EMPTY_NODES
-        self.baseURI = baseUri.trim()
+        self._baseURI = baseUri.trim()
         self.attributes = Attributes()
     }
     /// Create a new ``Node`` with no attributes and baseURI.
     public init() {
         self.childNodes = Node.EMPTY_NODES
         self.attributes = nil
-        self.baseURI = nil
+        self._baseURI = nil
     }
 
     /// The node name of this node.
@@ -126,25 +150,6 @@ open class Node: Equatable, Hashable {
     open func removeAttribute(withKey key: String) throws -> Node {
         try attributes?.removeIgnoreCase(key: key)
         return self
-    }
-
-    /// Update the base URI of this node and all of its descendants.
-    open func setBaseURI(_ baseURI: String) {
-        try! traverse(nodeVisitor(baseURI)) // Never throws
-        
-        class nodeVisitor: NodeVisitor {
-            private let baseURI: String
-            init(_ baseURI: String) {
-                self.baseURI = baseURI
-            }
-
-            func head(_ node: Node, _ depth: Int) throws {
-                node.baseURI = baseURI
-            }
-
-            func tail(_ node: Node, _ depth: Int) throws {
-            }
-        }
     }
 
     /// Get an absolute URL string from an attribute.
@@ -674,7 +679,7 @@ open class Node: Equatable, Hashable {
 		clone.parentNode = parent // can be null, to create an orphan split
 		clone.siblingIndex = parent == nil ? 0 : siblingIndex
 		clone.attributes = attributes != nil ? attributes?.clone() : nil
-		clone.baseURI = baseURI
+		clone._baseURI = _baseURI
 		clone.childNodes = Array<Node>()
 
 		for  child in childNodes {

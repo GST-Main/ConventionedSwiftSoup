@@ -49,7 +49,7 @@ class NodeTest: XCTestCase {
 	func testSetBaseUriIsRecursive() {
         let doc: HTMLDocument = HTMLParser.parse("<div><p></p></div>")!
         let baseUri: String = "https://jsoup.org"
-        doc.setBaseURI(baseUri)
+        doc.baseURI = baseUri
         
         XCTAssertEqual(baseUri, doc.baseURI)
         XCTAssertEqual(baseUri, doc.select(cssQuery: "div").first?.baseURI)
