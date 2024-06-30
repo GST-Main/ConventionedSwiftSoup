@@ -104,16 +104,6 @@ open class Document: Element {
         }
     }
 
-    /// Set this document's title.
-    @available(*, deprecated, message: "Use get-set property `title` instead. This method will be deleted after 1.0.0")
-    public func setTitle(_ title: String) {
-        if let titleElement = getElementsByTag("title").first {
-            titleElement.setText(title)
-        } else {
-            try! head?.appendElement(tagName: "title").setText(title)
-        }
-    }
-
     /// Create a new element with the given tag name.
     ///
     /// Create a new ``Element`` instance with the base URI of this document and the specified tag name. This method does not add the created element to this document.
@@ -234,47 +224,6 @@ open class Document: Element {
     open override var nodeName: String {
         return "#document"
     }
-
-    /**
-     * Sets the charset used in this document. This method is equivalent
-     * to {@link OutputSettings#charset(java.nio.charset.Charset)
-     * OutputSettings.charset(Charset)} but in addition it updates the
-     * charset / encoding element within the document.
-     *
-     * <p>This enables
-     * {@link #updateMetaCharsetElement(boolean) meta charset update}.</p>
-     *
-     * <p>If there's no element with charset / encoding information yet it will
-     * be created. Obsolete charset / encoding definitions are removed!</p>
-     *
-     * <p><b>Elements used:</b></p>
-     *
-     * <ul>
-     * <li><b>Html:</b> <i>&lt;meta charset="CHARSET"&gt;</i></li>
-     * <li><b>Xml:</b> <i>&lt;?xml version="1.0" encoding="CHARSET"&gt;</i></li>
-     * </ul>
-     *
-     * @param charset Charset
-     *
-     * @see #updateMetaCharsetElement(boolean)
-     * @see OutputSettings#charset(java.nio.charset.Charset)
-     */
-    
-    /// Set a text encoding used in this document.
-    @available(*, deprecated, message: "Use get-set property `charset` instead. This method will be deleted after 1.0.0")
-    public func charset(_ charset: String.Encoding) {
-        outputSettings.charset(charset)
-        ensureMetaCharsetElement()
-    }
-
-    /**
-     * Returns the charset used in this document. This method is equivalent
-     * to {@link OutputSettings#charset()}.
-     *
-     * @return Current Charset
-     *
-     * @see OutputSettings#charset()
-     */
     
     /// A text encoding used in this document.
     public var charset: String.Encoding {

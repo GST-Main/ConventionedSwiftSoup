@@ -122,8 +122,6 @@ class NodeTest: XCTestCase {
         
         XCTAssertEqual("http://example.net/foo", one?.absoluteURLPath(ofAttribute: "href"))
         XCTAssertEqual("https://example.net/foo", two?.absoluteURLPath(ofAttribute: "href"))
-        
-        let doc3: Document = Parser.parseHTML("<img src=//www.google.com/images/errors/logo_sm.gif alt=Google>", baseURI: "https://google.com")!
 	}
 
 	func testAbsHandlesRelativeQuery() {

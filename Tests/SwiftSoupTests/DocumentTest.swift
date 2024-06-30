@@ -73,12 +73,12 @@ class DocumentTest: XCTestCase {
         let withTitle: Document = Parser.parseHTML("<title>First</title><title>Ignore</title><p>Hello</p>")!
         
         XCTAssertEqual(nil, noTitle.title)
-        noTitle.setTitle("Hello")
+        noTitle.title = "Hello"
         XCTAssertEqual("Hello", noTitle.title)
         XCTAssertEqual("Hello", noTitle.select(cssQuery: "title").first?.getText())
         
         XCTAssertEqual("First", withTitle.title)
-        withTitle.setTitle("Hello")
+        withTitle.title = "Hello"
         XCTAssertEqual("Hello", withTitle.title)
         XCTAssertEqual("Hello", withTitle.select(cssQuery: "title").first?.getText())
         
@@ -92,7 +92,7 @@ class DocumentTest: XCTestCase {
         XCTAssertEqual("<p title=\"π\">π &amp; &lt; &gt; </p>", doc.body?.html)
         XCTAssertEqual("UTF-8", doc.outputSettings.charset().displayName())
         
-        doc.outputSettings.charset(String.Encoding.ascii)
+        doc.outputSettings.charset(.ascii)
         XCTAssertEqual(Entities.EscapeMode.base, doc.outputSettings.escapeMode())
         XCTAssertEqual("<p title=\"&#x3c0;\">&#x3c0; &amp; &lt; &gt; </p>", doc.body?.html)
         
@@ -116,7 +116,7 @@ class DocumentTest: XCTestCase {
 		let clone: Document = doc.copy() as! Document
 
         XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", TextUtil.stripNewlines(clone.html!))
-        clone.setTitle("Hello there")
+        clone.title = "Hello there"
 		try! clone.select(cssQuery: "p").first!.setText("One more").setAttribute(withKey: "id", newValue: "1")
 		XCTAssertEqual("<html><head><title>Hello there</title> </head><body><p id=\"1\">One more</p><p>Two</p></body></html>", TextUtil.stripNewlines(clone.html!))
 		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", TextUtil.stripNewlines(doc.html!))
@@ -222,11 +222,7 @@ class DocumentTest: XCTestCase {
 
 	func testMetaCharsetUpdateUtf8() {
 		let doc: Document = createHtmlDocument("changeThis")
-		do {
-			try doc.charset(DocumentTest.charsetUtf8)
-		} catch {
-			print("")
-		}
+        doc.charset = DocumentTest.charsetUtf8
 
 		let htmlCharsetUTF8: String = "<html>\n" + " <head>\n" + "  <meta charset=\"" + "UTF-8" + "\">\n" + " </head>\n" + " <body></body>\n" + "</html>"
 		XCTAssertEqual(htmlCharsetUTF8, doc.outerHTML ?? "")
@@ -240,7 +236,7 @@ class DocumentTest: XCTestCase {
 
 	func testMetaCharsetUpdateIsoLatin2()throws {
 		let doc: Document = createHtmlDocument("changeThis")
-		try doc.charset(String.Encoding.isoLatin2)
+		doc.charset = .isoLatin2
 
 		let htmlCharsetISO = "<html>\n" +
 			" <head>\n" +
@@ -258,7 +254,7 @@ class DocumentTest: XCTestCase {
 
 	func testMetaCharsetUpdateNoCharset() throws {
 		let docNoCharset: Document = Document.createShell(baseURI: "")
-		try docNoCharset.charset(String.Encoding.utf8)
+		docNoCharset.charset = .utf8
 
         XCTAssertEqual(String.Encoding.utf8.displayName(), docNoCharset.select(cssQuery: "meta[charset]").first?.getAttribute(withKey: "charset"))
 
@@ -305,7 +301,7 @@ class DocumentTest: XCTestCase {
 
 	func testMetaCharsetUpdateEnabledAfterCharsetChange()throws {
 		let doc: Document = createHtmlDocument("dontTouch")
-		try doc.charset(String.Encoding.utf8)
+        doc.charset = .utf8
 
 		let selectedElement: Element = doc.select(cssQuery: "meta[charset]").first!
         XCTAssertEqual(String.Encoding.utf8.displayName(), selectedElement.getAttribute(withKey: "charset"))
@@ -314,7 +310,7 @@ class DocumentTest: XCTestCase {
 
 	func testMetaCharsetUpdateCleanup()throws {
 		let doc: Document = createHtmlDocument("dontTouch")
-		try doc.charset(String.Encoding.utf8)
+        doc.charset = .utf8
 
 		let htmlCharsetUTF8 = "<html>\n" +
 			" <head>\n" +
@@ -328,7 +324,7 @@ class DocumentTest: XCTestCase {
 
 	func testMetaCharsetUpdateXmlUtf8()throws {
 		let doc: Document = try createXmlDocument("1.0", "changeThis", true)
-		try doc.charset(String.Encoding.utf8)
+        doc.charset = .utf8
 
 		let xmlCharsetUTF8 = "<?xml version=\"1.0\" encoding=\"" + String.Encoding.utf8.displayName() + "\"?>\n" +
 			"<root>\n" +
@@ -344,7 +340,7 @@ class DocumentTest: XCTestCase {
 
 	func testMetaCharsetUpdateXmlIso2022JP()throws {
 		let doc: Document = try createXmlDocument("1.0", "changeThis", true)
-		try doc.charset(String.Encoding.iso2022JP)
+        doc.charset = .iso2022JP
 
 		let xmlCharsetISO = "<?xml version=\"1.0\" encoding=\"" + String.Encoding.iso2022JP.displayName() + "\"?>\n" +
 			"<root>\n" +
@@ -360,7 +356,7 @@ class DocumentTest: XCTestCase {
 
 	func testMetaCharsetUpdateXmlNoCharset()throws {
 		let doc: Document = try createXmlDocument("1.0", "none", false)
-		try doc.charset(String.Encoding.utf8)
+		doc.charset = .utf8
 
 		let xmlCharsetUTF8 = "<?xml version=\"1.0\" encoding=\"" + String.Encoding.utf8.displayName() + "\"?>\n" +
 			"<root>\n" +
