@@ -17,7 +17,7 @@ open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
     private static let EMPTY_NODES = Array<Node>()
-    weak var parentNode: Node?
+    public weak var parentNode: Node?
     public internal(set) var childNodes: [Node]
     var attributes: Attributes?
     internal var _baseURI: String?
@@ -412,14 +412,6 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /// Set the parent node to the supplied node.
-    public func setParentNode(_ newParentNode: Node) {
-        if let parentNode {
-            try! parentNode.removeChild(self)
-        }
-        self.parentNode = newParentNode
-    }
-
     /// Replace the specified child node with the new node.
     ///
     /// ## Throws
@@ -500,7 +492,7 @@ open class Node: Equatable, Hashable {
             try! parentNode.removeChild(childNode)
         }
         
-        childNode.setParentNode(self)
+        childNode.parentNode = self
     }
 
     private func reindexChildren(_ start: Int) {
