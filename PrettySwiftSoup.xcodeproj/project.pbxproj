@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1AD27D952C312F3700BDEEB5 /* MarkupParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD27D942C312F3700BDEEB5 /* MarkupParser.swift */; };
+		1AD27D962C312F3700BDEEB5 /* MarkupParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD27D942C312F3700BDEEB5 /* MarkupParser.swift */; };
+		1AD27D972C312F3700BDEEB5 /* MarkupParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD27D942C312F3700BDEEB5 /* MarkupParser.swift */; };
+		1AD27D982C312F3700BDEEB5 /* MarkupParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD27D942C312F3700BDEEB5 /* MarkupParser.swift */; };
 		6710742C27F57FA60048E7C1 /* UnfairLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6710742B27F57FA60048E7C1 /* UnfairLock.swift */; };
 		6710742D27F57FA60048E7C1 /* UnfairLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6710742B27F57FA60048E7C1 /* UnfairLock.swift */; };
 		6710742E27F57FA60048E7C1 /* UnfairLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6710742B27F57FA60048E7C1 /* UnfairLock.swift */; };
@@ -280,6 +284,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1AD27D942C312F3700BDEEB5 /* MarkupParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkupParser.swift; sourceTree = "<group>"; };
 		6710742B27F57FA60048E7C1 /* UnfairLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnfairLock.swift; sourceTree = "<group>"; };
 		6710743027F580530048E7C1 /* Mutex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mutex.swift; sourceTree = "<group>"; };
 		722E96322B7DF76400936F48 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -492,12 +497,13 @@
 		8C7ED6761E00B13E0032A27C /* parser */ = {
 			isa = PBXGroup;
 			children = (
+				1AD27D942C312F3700BDEEB5 /* MarkupParser.swift */,
+				8CE4184B1DAA568600240B42 /* HTMLParser.swift */,
 				8CEA29581DAC112B0064A341 /* CharacterReader.swift */,
 				8C6239C51DBE910B0024F42D /* HtmlTreeBuilder.swift */,
 				8C6239C31DBE90740024F42D /* HtmlTreeBuilderState.swift */,
 				8C19C8301DB7E8CD00B8FC22 /* ParseError.swift */,
 				8C19C8321DB7ECB700B8FC22 /* ParseErrorList.swift */,
-				8CE4184B1DAA568600240B42 /* HTMLParser.swift */,
 				8CC2FD841DB11B64002CB469 /* ParseSettings.swift */,
 				8CE2D9401DB27CAD00C7BDE3 /* Tag.swift */,
 				8CA859601DB69481006B8148 /* Token.swift */,
@@ -939,6 +945,7 @@
 				8CE418641DAA568600240B42 /* BooleanAttribute.swift in Sources */,
 				8CD500DE1DAEC9FF002270FC /* TokeniserState.swift in Sources */,
 				8CE418741DAA568700240B42 /* CharacterExt.swift in Sources */,
+				1AD27D952C312F3700BDEEB5 /* MarkupParser.swift in Sources */,
 				8C5B31C51DC3F2F000D2F649 /* HtmlTreeBuilderState.swift in Sources */,
 				8C246B531DD7396200B31DA7 /* OrderedSet.swift in Sources */,
 				8CE418681DAA568600240B42 /* Element.swift in Sources */,
@@ -1039,6 +1046,7 @@
 				BD3B5B721FBED933001FDB3B /* BooleanAttribute.swift in Sources */,
 				BD3B5B731FBED933001FDB3B /* TokeniserState.swift in Sources */,
 				BD3B5B741FBED933001FDB3B /* CharacterExt.swift in Sources */,
+				1AD27D962C312F3700BDEEB5 /* MarkupParser.swift in Sources */,
 				BD3B5B751FBED933001FDB3B /* HtmlTreeBuilderState.swift in Sources */,
 				BD3B5B761FBED933001FDB3B /* OrderedSet.swift in Sources */,
 				BD3B5B771FBED933001FDB3B /* Element.swift in Sources */,
@@ -1100,6 +1108,7 @@
 				BD3B5BB51FC063BD001FDB3B /* BooleanAttribute.swift in Sources */,
 				BD3B5BB61FC063BD001FDB3B /* TokeniserState.swift in Sources */,
 				BD3B5BB71FC063BD001FDB3B /* CharacterExt.swift in Sources */,
+				1AD27D972C312F3700BDEEB5 /* MarkupParser.swift in Sources */,
 				BD3B5BB81FC063BD001FDB3B /* HtmlTreeBuilderState.swift in Sources */,
 				BD3B5BB91FC063BD001FDB3B /* OrderedSet.swift in Sources */,
 				BD3B5BBA1FC063BD001FDB3B /* Element.swift in Sources */,
@@ -1161,6 +1170,7 @@
 				BD3B5BF81FC06423001FDB3B /* BooleanAttribute.swift in Sources */,
 				BD3B5BF91FC06423001FDB3B /* TokeniserState.swift in Sources */,
 				BD3B5BFA1FC06423001FDB3B /* CharacterExt.swift in Sources */,
+				1AD27D982C312F3700BDEEB5 /* MarkupParser.swift in Sources */,
 				BD3B5BFB1FC06423001FDB3B /* HtmlTreeBuilderState.swift in Sources */,
 				BD3B5BFC1FC06423001FDB3B /* OrderedSet.swift in Sources */,
 				BD3B5BFD1FC06423001FDB3B /* Element.swift in Sources */,
