@@ -12,7 +12,7 @@ import Foundation
 ///
 /// Basically, you use ``HTMLElement`` type, subclass of ``Node``, to access HTML elements rather than this type. ``Node`` object has information about a node that constitute a tree, like ``parent`` and ``getChildNodes()``. It also has information about the common elements of both HTML and XML like ``getAttributes()`` and ``absoluteURLPath(ofAttribute:)``.
 ///
-/// - Note: This class also contains members only for HTML such as ``insertHTMLAsPreviousSibling(_:)``. I believe this has an unclear role as an OOP object and is considered an anti-pattern. However, it will be left as is to minimize changes to the existing code.
+/// - todo: This class also contains members only for HTML such as ``insertHTMLAsPreviousSibling(_:)``. I believe this has an unclear role as an OOP object and is considered an anti-pattern. This will be refactored iin the future.
 open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
