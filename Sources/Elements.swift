@@ -243,11 +243,6 @@ open class Elements: NSCopying {
     ///   list.
     open func append<S: Sequence>(contentsOf newElements: S) where S.Element == Element {
         _elements.append(contentsOf: newElements)
-        let foo = Parser.parseHTML("html")
-        let div = foo!.getElementsByTag("div")
-        let spans = foo!.getElementsByTag("span")
-        let abcd = Elements()
-        abcd.append(contentsOf: div)
     }
     
     /// Inserts a new element at the specified position.
