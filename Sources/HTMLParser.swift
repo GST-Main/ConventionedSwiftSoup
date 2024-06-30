@@ -1,5 +1,5 @@
 //
-//  Parser.swift
+//  HTMLParser.swift
 //  SwifSoup
 //
 //  Created by Nabil Chatbi on 29/09/16.
@@ -8,51 +8,24 @@
 
 import Foundation
 
-/// Parses HTML into a ``Document``.
+/// An HTML parser.
 ///
-/// Generally, static method ``parseHTML(_:baseURI:)-swift.type.method`` is mostly recommended.
-public class Parser {
-	private static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
-
-	public var treeBuilder: TreeBuilder
-	public var maxErrors: Int = DEFAULT_MAX_ERRORS
-	public private(set) var errors: ParseErrorList = ParseErrorList(16, 16)
-    public var isTrackErrors: Bool { maxErrors > 0 }
-	public var settings: ParseSettings
-
-    /// Create a new ``Parser`` using the specified ``TreeBuilder``
-    /// - Parameters:
-    ///     - treeBuilder: A ``TreeBuilder`` object to use to parse input into ``Document``s.
-	init(_ treeBuilder: TreeBuilder) {
-		self.treeBuilder = treeBuilder
-        self.settings = treeBuilder.defaultSettings()
-	}
-
-    /// Parse HTML into a ``Document``.
-    ///
-    /// - Parameters:
-    ///     - html: HTML string to parse.
-    ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
-    /// - Returns: Parsed ``Document`` object.
-    ///
-    /// You can track parse errors whereas static method ``parseHTML(_:baseURI:)-swift.type.method`` can't.
-    ///
-    /// ## Throws:
-    /// * `SwiftSoupError.failedToParseHTML`` if parsing is failed.
-	public func parseHTML(_ html: String, baseURI: String) throws -> Document {
-		errors = isTrackErrors ? ParseErrorList.tracking(maxErrors) : ParseErrorList.noTracking()
-		return try treeBuilder.parse(html, baseURI, errors, settings)
-	}
+/// A static method ``parse(_:baseURI:)`` is commonly used for parsing HTML.
+public class HTMLParser: MarkupParser {
+    /// Create an HTML parser.
+    public init() {
+        super.init(HtmlTreeBuilder())
+    }
 
 	// MARK: Static Methods
     /// Parse HTML into a ``Document``.
     ///
-    /// ``Document`` is the main object of ``SwiftSoup``. You can get ``Document`` object by calling this static method.
+    /// ``Document`` is the main object of ``PrettySwiftSoup``. You can get ``Document`` object by calling this static method.
     /// ```swift
     /// let url = URL(string: "https://www.swift.org")!
     /// let data = try! Data(contentsOf: url)
     /// let html = String(data: data, encoding: .utf8)!
-    /// if let document = Parser.parseHTML(html) {
+    /// if let document = HTMLParser.parse(html) {
     ///     // do something with document...
     /// }
     /// ```
@@ -61,7 +34,7 @@ public class Parser {
     ///     - html: HTML string to parse.
     ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: Parsed ``Document`` object. If parser failed to parse the HTML string, returns `nil` instead.
-    public static func parseHTML(_ html: String, baseURI: String = "") -> Document? {
+    public static func parse(_ html: String, baseURI: String = "") -> Document? {
         let treeBuilder: TreeBuilder = HtmlTreeBuilder()
         return try? treeBuilder.parse(html, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
@@ -81,17 +54,6 @@ public class Parser {
     internal static func _parseHTMLFragment(_ fragmentHTML: String, context: Element?, baseURI: String = "") throws -> [Node] {
         let treeBuilder = HtmlTreeBuilder()
         return try treeBuilder.parseFragment(fragmentHTML, context, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
-    }
-
-    /// Parse a fragment of XML into a list of nodes.
-    ///
-    /// - Parameters:
-    ///     - fragmentXML: The fragment of XML to parse.
-    ///     - baseURI: Base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
-    /// - Returns: An array of nodes parsed from the input XML. If parser failed to parse the XML string, returns `nil` instead.
-    public static func parseXMLFragment(_ fragmentXML: String, baseURI: String = "") -> [Node]? {
-        let treeBuilder: XmlTreeBuilder = XmlTreeBuilder()
-        return try? treeBuilder.parseFragment(fragmentXML, baseURI, ParseErrorList.noTracking(), treeBuilder.defaultSettings())
     }
 
     /// Parse a fragment of HTML into the ``Document/body`` of a ``Document``.
@@ -115,11 +77,8 @@ public class Parser {
         return document
     }
     
+    // TODO: More descriptions (later)
     /// Get safe HTML from untrusted input HTML, by parsing input HTML and filtering it through a whitelist of permitted tags and attributes.
-    ///
-    /// This is legacy and throwing version of ``Parser/cleanBodyFragment(_:baseURI:whitelist:settings:)``.
-    ///
-    /// - Note: As this method throws ``SwiftSoupError/failedToParseHTML`` error only, use the new method ``Parser/cleanBodyFragment(_:baseURI:whitelist:settings:)`` instead.
     public class func cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) throws -> String {
         guard let dirty: Document = parseBodyFragment(bodyHTML, baseURI: baseURI) else {
             throw SwiftSoupError.failedToParseHTML
@@ -169,24 +128,5 @@ public class Parser {
 	public static func unescapeEntities(_ string: String, _ inAttribute: Bool) throws -> String {
 		let tokeniser: Tokeniser = Tokeniser(CharacterReader(string), ParseErrorList.noTracking())
 		return try tokeniser.unescapeEntities(inAttribute)
-	}
-
-	// MARK: Builders
-    /// Create a new HTML parser.
-    ///
-    /// This parser treats input as HTML5, and enforces the creation of a normalised document based on a knowledge of the semantics of the incoming tags.
-    ///
-    /// - Returns: A new HTML parser.
-	public static func htmlParser() -> Parser {
-		return Parser(HtmlTreeBuilder())
-	}
-
-    /// Create a new XML parser.
-    ///
-    /// This parser assumes no knowledge of the incoming tags and does not treat it as HTML rather creates a simple tree directly from the input.
-    ///
-    /// - Returns: A new simple XML parser.
-	public static func xmlParser() -> Parser {
-		return Parser(XmlTreeBuilder())
 	}
 }
