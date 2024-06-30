@@ -30,7 +30,7 @@ open class TextNode: Node {
     public init(_ text: String, _ baseUri: String?) {
         self._text = text
         super.init()
-        self.baseURI = baseUri
+        self._baseURI = baseUri
 
     }
 

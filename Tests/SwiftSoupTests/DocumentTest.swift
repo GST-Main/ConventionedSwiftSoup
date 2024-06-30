@@ -332,7 +332,7 @@ class DocumentTest: XCTestCase {
 		"</root>"
         XCTAssertEqual(xmlCharsetUTF8, doc.outerHTML)
 
-		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
+		let selectedNode: XmlDeclaration = doc.childNodes[0] as! XmlDeclaration
 		XCTAssertEqual(String.Encoding.utf8.displayName(), doc.charset.displayName())
         XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.getAttribute(withKey: "encoding"))
 		XCTAssertEqual(doc.charset, doc.outputSettings.charset())
@@ -348,7 +348,7 @@ class DocumentTest: XCTestCase {
 		"</root>"
         XCTAssertEqual(xmlCharsetISO, doc.outerHTML)
 
-		let selectedNode: XmlDeclaration =  doc.childNode(0) as! XmlDeclaration
+		let selectedNode: XmlDeclaration =  doc.childNodes[0] as! XmlDeclaration
 		XCTAssertEqual(String.Encoding.iso2022JP.displayName(), doc.charset.displayName())
         XCTAssertEqual(String.Encoding.iso2022JP.displayName(), selectedNode.getAttribute(withKey: "encoding"))
 		XCTAssertEqual(doc.charset, doc.outputSettings.charset())
@@ -364,7 +364,7 @@ class DocumentTest: XCTestCase {
 		"</root>"
         XCTAssertEqual(xmlCharsetUTF8, doc.outerHTML)
 
-		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
+		let selectedNode: XmlDeclaration = doc.childNodes[0] as! XmlDeclaration
         XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.getAttribute(withKey: "encoding"))
 	}
 
@@ -386,7 +386,7 @@ class DocumentTest: XCTestCase {
 		"</root>"
         XCTAssertEqual(xmlCharset, doc.outerHTML)
 
-		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
+		let selectedNode: XmlDeclaration = doc.childNodes[0] as! XmlDeclaration
         XCTAssertEqual("dontTouch", selectedNode.getAttribute(withKey: "encoding"))
         XCTAssertEqual("dontTouch", selectedNode.getAttribute(withKey: "version"))
 	}

@@ -17,11 +17,35 @@ open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
     private static let EMPTY_NODES = Array<Node>()
-    weak var parentNode: Node?
-    public var childNodes: [Node]
+    public weak var parentNode: Node?
+    public internal(set) var childNodes: [Node]
     var attributes: Attributes?
+    internal var _baseURI: String?
     /// Base URI of this node.
-    public internal(set) var baseURI: String?
+    public var baseURI: String? {
+        get {
+            _baseURI
+        }
+        set {
+            guard let newValue else { return }
+            try! traverse(nodeVisitor(newValue)) // Never throws
+            
+            class nodeVisitor: NodeVisitor {
+                private let uri: String?
+                init(_ baseURI: String?) {
+                    self.uri = baseURI
+                }
+
+                func head(_ node: Node, _ depth: Int) throws {
+                    node._baseURI = uri
+                }
+
+                func tail(_ node: Node, _ depth: Int) throws {
+                }
+            }
+        }
+    }
+
 
     /// The index of this node in its node sibling list.
     public var siblingIndex: Int = 0
@@ -29,20 +53,20 @@ open class Node: Equatable, Hashable {
     /// Create a new ``Node``.
     public init(baseURI: String, attributes: Attributes) {
         self.childNodes = Node.EMPTY_NODES
-        self.baseURI = baseURI.trim()
+        self._baseURI = baseURI.trim()
         self.attributes = attributes
     }
     /// Create a new ``Node`` with empty attributes.
     public init(baseURI baseUri: String) {
         childNodes = Node.EMPTY_NODES
-        self.baseURI = baseUri.trim()
+        self._baseURI = baseUri.trim()
         self.attributes = Attributes()
     }
     /// Create a new ``Node`` with no attributes and baseURI.
     public init() {
         self.childNodes = Node.EMPTY_NODES
         self.attributes = nil
-        self.baseURI = nil
+        self._baseURI = nil
     }
 
     /// The node name of this node.
@@ -128,25 +152,6 @@ open class Node: Equatable, Hashable {
         return self
     }
 
-    /// Update the base URI of this node and all of its descendants.
-    open func setBaseURI(_ baseURI: String) {
-        try! traverse(nodeVisitor(baseURI)) // Never throws
-        
-        class nodeVisitor: NodeVisitor {
-            private let baseURI: String
-            init(_ baseURI: String) {
-                self.baseURI = baseURI
-            }
-
-            func head(_ node: Node, _ depth: Int) throws {
-                node.baseURI = baseURI
-            }
-
-            func tail(_ node: Node, _ depth: Int) throws {
-            }
-        }
-    }
-
     /// Get an absolute URL string from an attribute.
     ///
     /// Get a URL string from an attribute of this node. The URL path will be resolved if the retrieved URL is relative.
@@ -178,20 +183,6 @@ open class Node: Equatable, Hashable {
         return StringUtil.resolve(baseURI, relUrl: uriComponent)
     }
 
-    /// Get a child node by given index.
-    ///
-    /// Get a child by its 0-based index.
-    ///
-    /// - Attention: This method doesn't check if the index is in safe range. If the index out of bounds, it will cause a runtime error.
-    open func childNode(_ index: Int) -> Node {
-        return childNodes[index]
-    }
-
-    /// Get this node's children
-    open func getChildNodes() -> [Node] {
-        return childNodes
-    }
-
     /// Get a deep copy of this node's children.
     ///
     /// Get a deep copy of this node's children. Changes made to these nodes will not be reflected in the original nodes.
@@ -201,15 +192,6 @@ open class Node: Equatable, Hashable {
 			children.append(node.copy() as! Node)
 		}
 		return children
-    }
-
-    /// Get the number of this node's children.
-    public func childNodeSize() -> Int {
-        return childNodes.count
-    }
-
-    final func childNodesAsArray() -> [Node] {
-        return childNodes as Array
     }
 
     /// The parent node of this node.
@@ -405,7 +387,7 @@ open class Node: Equatable, Hashable {
             throw SwiftSoupError.noChildrenToUnwrap
         }
         
-        parentNode.insertChildren(self.childNodesAsArray(), at: siblingIndex)
+        parentNode.insertChildren(childNodes, at: siblingIndex)
         self.remove()
 
         return firstChild
@@ -428,14 +410,6 @@ open class Node: Equatable, Hashable {
         if let parentNode {
             try! parentNode.replaceChildNode(self, with: newNode)
         }
-    }
-
-    /// Set the parent node to the supplied node.
-    public func setParentNode(_ newParentNode: Node) {
-        if let parentNode {
-            try! parentNode.removeChild(self)
-        }
-        self.parentNode = newParentNode
     }
 
     /// Replace the specified child node with the new node.
@@ -518,7 +492,7 @@ open class Node: Equatable, Hashable {
             try! parentNode.removeChild(childNode)
         }
         
-        childNode.setParentNode(self)
+        childNode.parentNode = self
     }
 
     private func reindexChildren(_ start: Int) {
@@ -697,7 +671,7 @@ open class Node: Equatable, Hashable {
 		clone.parentNode = parent // can be null, to create an orphan split
 		clone.siblingIndex = parent == nil ? 0 : siblingIndex
 		clone.attributes = attributes != nil ? attributes?.clone() : nil
-		clone.baseURI = baseURI
+		clone._baseURI = _baseURI
 		clone.childNodes = Array<Node>()
 
 		for  child in childNodes {

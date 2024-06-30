@@ -727,7 +727,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
 
                             let adopter: HTMLElement = HTMLElement(tag: formatEl!.tag, baseURI: tb.getBaseUri())
                             adopter.getAttributes()?.addAll(incoming: formatEl!.getAttributes())
-                            let childNodes: [Node] = furthestBlock!.getChildNodes()
+                            let childNodes: [Node] = furthestBlock!.childNodes
                             for childNode: Node in childNodes {
                                 adopter.appendChild(childNode) // append will reparent. thus the clone to avoid concurrent mod.
                             }

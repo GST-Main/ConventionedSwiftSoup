@@ -30,8 +30,8 @@ class ElementTest: XCTestCase {
 
 		let ps = doc.getElementsByTag("p")
 		XCTAssertEqual(2, ps.count)
-		XCTAssertEqual("Hello", (ps.get(index: 0)!.childNode(0) as! TextNode).getWholeText())
-		XCTAssertEqual("Another ", (ps.get(index: 1)!.childNode(0) as! TextNode).getWholeText())
+		XCTAssertEqual("Hello", (ps.get(index: 0)!.childNodes[0] as! TextNode).getWholeText())
+		XCTAssertEqual("Another ", (ps.get(index: 1)!.childNodes[0] as! TextNode).getWholeText())
 		let ps2 = doc.getElementsByTag("P")
 		XCTAssertEqual(ps, ps2)
 
@@ -709,16 +709,16 @@ class ElementTest: XCTestCase {
 		let div1: HTMLElement = doc.select(cssQuery: "div").get(index: 0)!
 		let div2: HTMLElement = doc.select(cssQuery: "div").get(index: 1)!
 
-		XCTAssertEqual(4, div1.childNodeSize())
-		var children: Array<Node> = div1.getChildNodes()
+		XCTAssertEqual(4, div1.childNodes.count)
+		var children: Array<Node> = div1.childNodes
 		XCTAssertEqual(4, children.count)
 
         div2.insertChildren(children, at: 0)
 
-		children = div1.getChildNodes()
+		children = div1.childNodes
 		XCTAssertEqual(0, children.count) // children is backed by div1.childNodes, moved, so should be 0 now
-		XCTAssertEqual(0, div1.childNodeSize())
-		XCTAssertEqual(4, div2.childNodeSize())
+		XCTAssertEqual(0, div1.childNodes.count)
+		XCTAssertEqual(4, div2.childNodes.count)
 		XCTAssertEqual("<div id=\"1\"></div>\n<div id=\"2\">\n Text \n <p>One</p> Text \n <p>Two</p>\n</div>", doc.body!.html)
 	}
 
@@ -728,10 +728,10 @@ class ElementTest: XCTestCase {
 		let p1s: HTMLElements = div1.select(cssQuery: "p")
 		let div2: HTMLElement = doc.select(cssQuery: "div").get(index: 1)!
 
-		XCTAssertEqual(2, div2.childNodeSize())
+		XCTAssertEqual(2, div2.childNodes.count)
 		div2.insertChildren(p1s.toArray(), at: 0)
-		XCTAssertEqual(2, div1.childNodeSize()) // moved two out
-		XCTAssertEqual(4, div2.childNodeSize())
+		XCTAssertEqual(2, div1.childNodes.count) // moved two out
+		XCTAssertEqual(4, div2.childNodes.count)
 		XCTAssertEqual(1, p1s.get(index: 1)!.siblingIndex) // should be last
 
 		var els: Array<Node> = Array<Node>()
@@ -745,7 +745,7 @@ class ElementTest: XCTestCase {
 		XCTAssertNil(el1.parent)
         div2.insertChildren(els, at: 4)
 		XCTAssertEqual(div2, el1.parent)
-		XCTAssertEqual(7, div2.childNodeSize())
+		XCTAssertEqual(7, div2.childNodes.count)
 		XCTAssertEqual(4, el1.siblingIndex)
 		XCTAssertEqual(5, el2.siblingIndex)
 		XCTAssertEqual(6, tn1.siblingIndex)
@@ -759,8 +759,8 @@ class ElementTest: XCTestCase {
 		ps.first!.setText("One cloned")
 		div2.insertChildren(ps.toArray(), at: 0)
 
-		XCTAssertEqual(4, div1.childNodeSize()) // not moved -- cloned
-		XCTAssertEqual(2, div2.childNodeSize())
+		XCTAssertEqual(4, div1.childNodes.count) // not moved -- cloned
+		XCTAssertEqual(2, div2.childNodes.count)
 		XCTAssertEqual("<div id=\"1\">Text <p>One</p> Text <p>Two</p></div><div id=\"2\"><p>One cloned</p><p>Two</p></div>",
                        TextUtil.stripNewlines(doc.body!.html!))
 	}

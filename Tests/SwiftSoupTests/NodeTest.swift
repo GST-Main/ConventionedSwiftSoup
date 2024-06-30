@@ -49,7 +49,7 @@ class NodeTest: XCTestCase {
 	func testSetBaseUriIsRecursive() {
         let doc: HTMLDocument = HTMLParser.parse("<div><p></p></div>")!
         let baseUri: String = "https://jsoup.org"
-        doc.setBaseURI(baseUri)
+        doc.baseURI = baseUri
         
         XCTAssertEqual(baseUri, doc.baseURI)
         XCTAssertEqual(baseUri, doc.select(cssQuery: "div").first?.baseURI)
@@ -143,7 +143,7 @@ class NodeTest: XCTestCase {
 	func testRemove() {
         let doc: HTMLDocument = HTMLParser.parse("<p>One <span>two</span> three</p>")!
         let p: HTMLElement? = doc.select(cssQuery: "p").first
-        p?.childNode(0).remove()
+        p?.childNodes[0].remove()
         
         XCTAssertEqual("two three", p?.getText())
         XCTAssertEqual("<span>two</span> three", TextUtil.stripNewlines(p!.html!))
@@ -154,7 +154,7 @@ class NodeTest: XCTestCase {
 			let doc: HTMLDocument = HTMLParser.parse("<p>One <span>two</span> three</p>")!
 			let p: HTMLElement? = doc.select(cssQuery: "p").first
 			let insert: HTMLElement = try doc.createElement(withTagName: "em").setText("foo")
-            p?.childNode(1).replace(with: insert)
+            p?.childNodes[1].replace(with: insert)
 
 			XCTAssertEqual("One <em>foo</em> three", p?.html)
 		} catch {
@@ -207,7 +207,7 @@ class NodeTest: XCTestCase {
 		do {
 			let doc: HTMLDocument = HTMLParser.parse("<div>One <span>Two <b>Three</b></span> Four</div>")!
 			let span: HTMLElement? = doc.select(cssQuery: "span").first
-			let twoText: Node? = span?.childNode(0)
+			let twoText: Node? = span?.childNodes[0]
 			let node: Node? = try span?.unwrap()
 
 			XCTAssertEqual("<div>One Two <b>Three</b> Four</div>", TextUtil.stripNewlines(doc.body!.html!))
@@ -298,7 +298,7 @@ class NodeTest: XCTestCase {
         let div2: HTMLElement? = doc.select(cssQuery: "#2").first
         let divChildren = div1?.childNodesCopy()
         XCTAssertEqual(5, divChildren?.count)
-        let tn1: TextNode? = div1?.childNode(0) as? TextNode
+        let tn1: TextNode? = div1?.childNodes[0] as? TextNode
         let tn2: TextNode? = divChildren?[0] as? TextNode
         tn2?.text("Text 1 updated")
         XCTAssertEqual("Text 1 ", tn1?.text())

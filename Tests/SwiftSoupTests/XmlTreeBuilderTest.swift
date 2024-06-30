@@ -94,8 +94,8 @@ class XmlTreeBuilderTest: XCTestCase {
         let doc = try XMLParser().parse(html, baseURI: "")
 		XCTAssertEqual("<?xml encoding=\"UTF-8\"?> <body> One </body> <!-- comment -->",
                            StringUtil.normaliseWhitespace(doc.outerHTML!))
-		XCTAssertEqual("#declaration", doc.childNode(0).nodeName)
-		XCTAssertEqual("#comment", doc.childNode(2).nodeName)
+		XCTAssertEqual("#declaration", doc.childNodes[0].nodeName)
+		XCTAssertEqual("#comment", doc.childNodes[2].nodeName)
 	}
 
 	func testXmlFragment()throws {
@@ -131,7 +131,7 @@ class XmlTreeBuilderTest: XCTestCase {
 	func testParseDeclarationAttributes()throws {
 		let xml = "<?xml version='1' encoding='UTF-8' something='else'?><val>One</val>"
         let doc = try XMLParser().parse(xml, baseURI: "")
-        guard let decl: XmlDeclaration =  doc.childNode(0) as? XmlDeclaration else {
+        guard let decl: XmlDeclaration =  doc.childNodes[0] as? XmlDeclaration else {
             XCTAssertTrue(false)
             return
         }

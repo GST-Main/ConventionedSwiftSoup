@@ -29,8 +29,8 @@ class NodeTraversor {
 
         while (node != nil) {
             try visitor.head(node!, depth)
-            if (node!.childNodeSize() > 0) {
-                node = node!.childNode(0)
+            if (node!.childNodes.count > 0) {
+                node = node!.childNodes[0]
                 depth+=1
             } else {
                 while (node!.nextSibling == nil && depth > 0) {
