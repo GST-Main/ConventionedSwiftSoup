@@ -23,7 +23,7 @@ class StringUtilTest: XCTestCase {
 //		do {
 //			let html = try String(contentsOf: myURL, encoding: .utf8)
 //			print("HTML : \(html)")
-//			let doc: Document = try SwiftSoup.parse(html)
+//			let doc: HTMLDocument = try SwiftSoup.parse(html)
 //			print(try doc.text())
 //		}
 //		catch {

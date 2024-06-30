@@ -9,11 +9,11 @@
 import Foundation
 
 /**
- * A HTML Form Element provides ready access to the form fields/controls that are associated with it. It also allows a
+ * A HTML Form HTMLElement provides ready access to the form fields/controls that are associated with it. It also allows a
  * form to easily be submitted.
  */
-public class FormElement: Element {
-    private let _elements: Elements = Elements()
+public class FormElement: HTMLElement {
+    private let _elements: HTMLElements = HTMLElements()
 
     /**
      * Create a new, standalone form element.
@@ -30,7 +30,7 @@ public class FormElement: Element {
      * Get the list of form control elements associated with this form.
      * @return form controls associated with this element.
      */
-    public func elements() -> Elements {
+    public func elements() -> HTMLElements {
         return _elements
     }
 
@@ -40,7 +40,7 @@ public class FormElement: Element {
      * @return this form element, for chaining
      */
     @discardableResult
-    public func addElement(_ element: Element) -> FormElement {
+    public func addElement(_ element: HTMLElement) -> FormElement {
         _elements.append(element)
         return self
     }
@@ -74,7 +74,7 @@ public class FormElement: Element {
 //        ArrayList<Connection.KeyVal> data = new ArrayList<Connection.KeyVal>();
 //        
 //        // iterate the form control elements and accumulate their values
-//        for (Element el: elements) {
+//        for (HTMLElement el: elements) {
 //            if (!el.tag().isFormSubmittable()) continue; // contents are form listable, superset of submitable
 //            if (el.hasAttribute("disabled")) continue; // skip disabled form inputs
 //            String name = el.attr("name");
@@ -82,14 +82,14 @@ public class FormElement: Element {
 //            String type = el.attr("type");
 //            
 //            if ("select".equals(el.tagName())) {
-//                Elements options = el.select("option[selected]");
+//                HTMLElements options = el.select("option[selected]");
 //                boolean set = false;
-//                for (Element option: options) {
+//                for (HTMLElement option: options) {
 //                    data.add(HttpConnection.KeyVal.create(name, option.val()));
 //                    set = true;
 //                }
 //                if (!set) {
-//                    Element option = el.select("option").first();
+//                    HTMLElement option = el.select("option").first();
 //                    if (option != null)
 //                    data.add(HttpConnection.KeyVal.create(name, option.val()));
 //                }

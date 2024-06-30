@@ -1,5 +1,5 @@
 //
-//  Document.swift
+//  HTMLDocument.swift
 //  SwifSoup
 //
 //  Created by Nabil Chatbi on 29/09/16.
@@ -8,10 +8,10 @@
 
 import Foundation
 
-/// An ``Element`` representing an HTML document.
+/// An ``HTMLElement`` representing an HTML document.
 ///
-/// ``Document`` is a main object of ``PrettySwiftSoup``.
-/// In most cases, an HTML document is first parsed into a ``Document`` instance
+/// ``HTMLDocument`` is a main object of ``PrettySwiftSoup``.
+/// In most cases, an HTML document is first parsed into a ``HTMLDocument`` instance
 /// using the static method ``HTMLParser/parse(_:baseURI:)`` of ``HTMLParser``.
 /// Then, you manipulate the document with members of its superclasses or itself.
 /// ```swift
@@ -23,12 +23,12 @@ import Foundation
 /// }
 /// ```
 ///
-/// A ``Document`` is commonly treated as an ``Element`` since it is a subclass of ``Element``. Useful methods from ``Element`` (or even ``Node``), such as ``Element/getElementById(_:)`` or ``Element/getChild(at:)``, are also essential for ``Document``. For more information, please check ``Element`` documentation.
+/// A ``HTMLDocument`` is commonly treated as an ``HTMLElement`` since it is a subclass of ``HTMLElement``. Useful methods from ``HTMLElement`` (or even ``Node``), such as ``HTMLElement/getElementById(_:)`` or ``HTMLElement/getChild(at:)``, are also essential for ``HTMLDocument``. For more information, please check ``HTMLElement`` documentation.
 /// ```swift
 /// // Get an element with id "soup"
-/// let soupElement: Element? = document.getElementById("soup")
+/// let soupElement: HTMLElement? = document.getElementById("soup")
 /// // Get the first child of the first child of a document
-/// let grandkid: Element? = document.firstChild?.firstChild
+/// let grandkid: HTMLElement? = document.firstChild?.firstChild
 /// // Append an element to children
 /// if let grandkid {
 ///     document.appendChild(grandkid)
@@ -37,16 +37,18 @@ import Foundation
 /// let htmlString: String = document.html ?? ""
 /// ```
 ///
-/// ``Document`` contains members specifically useful for an HTML document. 
+/// ``HTMLDocument`` contains members specifically useful for an HTML document. 
 /// For example, you can get ``head`` and ``body`` from a document.
 /// The property ``charset`` represents which text-encoding is used to represent a document.
-open class Document: Element {
+///
+/// - todo: XML elements are also parsed into ``HTMLDocument``. This is temporary and will be refactored into a more object-oriented structure in the future.
+open class HTMLDocument: HTMLElement {
     public enum QuirksMode {
         case noQuirks, quirks, limitedQuirks
     }
 
     public var outputSettings = OutputSettings()
-    private var _quirksMode: Document.QuirksMode = QuirksMode.noQuirks
+    private var _quirksMode: HTMLDocument.QuirksMode = QuirksMode.noQuirks
     /// An alias of a document's base URI.
     public let location: String
 
@@ -57,9 +59,9 @@ open class Document: Element {
     }
 
     /// Create a valid and empty shell of a document suitable for adding more elements to.
-    static public func createShell(baseURI: String) -> Document {
-        let doc: Document = Document(baseURI: baseURI)
-        let html: Element = try! doc.appendElement(tagName: "html")
+    static public func createShell(baseURI: String) -> HTMLDocument {
+        let doc: HTMLDocument = HTMLDocument(baseURI: baseURI)
+        let html: HTMLElement = try! doc.appendElement(tagName: "html")
         try! html.appendElement(tagName: "head")
         try! html.appendElement(tagName: "body")
 
@@ -67,12 +69,12 @@ open class Document: Element {
     }
 
     /// A head element of this document.
-    public var head: Element? {
+    public var head: HTMLElement? {
         findFirstElementByTagName("head", self)
     }
 
     /// A body element of this document.
-    public var body: Element? {
+    public var body: HTMLElement? {
         return findFirstElementByTagName("body", self)
     }
 
@@ -106,12 +108,12 @@ open class Document: Element {
 
     /// Create a new element with the given tag name.
     ///
-    /// Create a new ``Element`` instance with the base URI of this document and the specified tag name. This method does not add the created element to this document.
+    /// Create a new ``HTMLElement`` instance with the base URI of this document and the specified tag name. This method does not add the created element to this document.
     ///
     /// - Parameter tagName: A tag name of new element.
     /// - Returns: A new element.
-    public func createElement(withTagName tagName: String) throws -> Element {
-        return try Element(tag: Tag.valueOf(tagName, ParseSettings.preserveCase), baseURI: self.baseURI!)
+    public func createElement(withTagName tagName: String) throws -> HTMLElement {
+        return try HTMLElement(tag: Tag.valueOf(tagName, ParseSettings.preserveCase), baseURI: self.baseURI!)
     }
 
     /// Normalize this document.
@@ -120,7 +122,7 @@ open class Document: Element {
     ///
     /// - Returns: This document after normalization.
     @discardableResult
-    public func normalise() throws -> Document {
+    public func normalise() throws -> HTMLDocument {
         var htmlElement = findFirstElementByTagName("html", self)
         if htmlElement == nil {
             htmlElement = try! appendElement(tagName: "html")
@@ -151,7 +153,7 @@ open class Document: Element {
     }
 
     // does not recurse.
-    private func normaliseTextNodes(_ element: Element) throws {
+    private func normaliseTextNodes(_ element: HTMLElement) throws {
         var toMove: [Node] = []
         for node: Node in element.childNodes {
             if let tn = (node as? TextNode) {
@@ -170,9 +172,9 @@ open class Document: Element {
     }
 
     // merge multiple <head> or <body> contents into one, delete the remainder, and ensure they are owned by <html>
-    private func normaliseStructure(_ tag: String, _ htmlEl: Element) {
-        let elements: Elements = self.getElementsByTag(tag)
-        let master: Element? = elements.first // will always be available as created above if not existent
+    private func normaliseStructure(_ tag: String, _ htmlEl: HTMLElement) {
+        let elements: HTMLElements = self.getElementsByTag(tag)
+        let master: HTMLElement? = elements.first // will always be available as created above if not existent
         if (elements.count > 1) { // dupes, move contents to master
             var toMove: Array<Node> = Array<Node>()
             for i in 1..<elements.count {
@@ -194,12 +196,12 @@ open class Document: Element {
     }
 
     // fast method to get first by tag name, used for html, head, body finders
-    private func findFirstElementByTagName(_ tag: String, _ node: Node) -> Element? {
+    private func findFirstElementByTagName(_ tag: String, _ node: Node) -> HTMLElement? {
         if (node.nodeName == tag) {
-            return node as? Element
+            return node as? HTMLElement
         } else {
             for child: Node in node.childNodes {
-                let found: Element? = findFirstElementByTagName(tag, child)
+                let found: HTMLElement? = findFirstElementByTagName(tag, child)
                 if (found != nil) {
                     return found
                 }
@@ -213,14 +215,14 @@ open class Document: Element {
     }
 
     @discardableResult
-    public override func setText(_ text: String) -> Element {
+    public override func setText(_ text: String) -> HTMLElement {
         body?.setText(text) // overridden to not nuke doc structure
         return self
     }
 
     /// The node name of this node.
     ///
-    /// In ``Document``, this is the literal "#document".
+    /// In ``HTMLDocument``, this is the literal "#document".
     open override var nodeName: String {
         return "#document"
     }
@@ -248,7 +250,7 @@ open class Document: Element {
      * <li>Obsolete elements are removed</li>
      * </ul>
      *
-     * <p><b>Elements used:</b></p>
+     * <p><b>HTMLElements used:</b></p>
      *
      * <ul>
      * <li><b>Html:</b> <i>&lt;meta charset="CHARSET"&gt;</i></li>
@@ -259,12 +261,12 @@ open class Document: Element {
         let syntax: OutputSettings.Syntax = outputSettings.syntax()
         
         if syntax == .html {
-            let metaCharset: Element? = select(cssQuery: "meta[charset]").first
+            let metaCharset: HTMLElement? = select(cssQuery: "meta[charset]").first
             
             if (metaCharset != nil) {
                 try! metaCharset?.setAttribute(withKey: "charset", newValue: charset.displayName())
             } else {
-                let head: Element? = self.head
+                let head: HTMLElement? = self.head
                 
                 if (head != nil) {
                     try! head?.appendElement(tagName: "meta").setAttribute(withKey: "charset", newValue: charset.displayName())
@@ -301,28 +303,28 @@ open class Document: Element {
         }
     }
 
-    public func quirksMode() -> Document.QuirksMode {
+    public func quirksMode() -> HTMLDocument.QuirksMode {
         return _quirksMode
     }
 
     @discardableResult
-    public func quirksMode(_ quirksMode: Document.QuirksMode) -> Document {
+    public func quirksMode(_ quirksMode: HTMLDocument.QuirksMode) -> HTMLDocument {
         self._quirksMode = quirksMode
         return self
     }
 
 	public override func copy(with zone: NSZone? = nil) -> Any {
-		let clone = Document(baseURI: location)
+		let clone = HTMLDocument(baseURI: location)
 		return copy(clone: clone)
 	}
 
 	public override func copy(parent: Node?) -> Node {
-		let clone = Document(baseURI: location)
+		let clone = HTMLDocument(baseURI: location)
 		return copy(clone: clone, parent: parent)
 	}
 
 	public override func copy(clone: Node, parent: Node?) -> Node {
-		let clone = clone as! Document
+		let clone = clone as! HTMLDocument
 		clone.outputSettings = outputSettings.copy() as! OutputSettings
 		clone._quirksMode = _quirksMode
 		return super.copy(clone: clone, parent: parent)

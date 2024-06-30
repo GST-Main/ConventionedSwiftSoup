@@ -55,7 +55,7 @@ public class CombiningEvaluator: Evaluator {
             super.init(evaluators)
         }
 
-        public override func matches(_ root: Element, _ node: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ node: HTMLElement) -> Bool {
             for index in 0..<num {
                 let evaluator = evaluators[index]
                 do {
@@ -108,7 +108,7 @@ public class CombiningEvaluator: Evaluator {
             updateNumEvaluators()
         }
 
-        public override func matches(_ root: Element, _ node: Element) -> Bool {
+        public override func matches(_ root: HTMLElement, _ node: HTMLElement) -> Bool {
             for index in 0..<num {
                 let evaluator: Evaluator = evaluators[index]
                 do {

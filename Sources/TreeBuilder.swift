@@ -11,8 +11,8 @@ import Foundation
 public class TreeBuilder {
     public var reader: CharacterReader
     var tokeniser: Tokeniser
-    public var doc: Document // current doc we are building into
-    public var stack: Array<Element> // the stack of open elements
+    public var doc: HTMLDocument // current doc we are building into
+    public var stack: Array<HTMLElement> // the stack of open elements
     public var baseUri: String // current base uri, for creating new elements
     public var currentToken: Token? // currentToken is used only for error tracking.
     public var errors: ParseErrorList // null when not tracking errors
@@ -24,26 +24,26 @@ public class TreeBuilder {
     public func defaultSettings() -> ParseSettings {preconditionFailure("This method must be overridden")}
 
     public init() {
-        doc =  Document(baseURI: "")
+        doc =  HTMLDocument(baseURI: "")
         reader = CharacterReader("")
         tokeniser = Tokeniser(reader, nil)
-        stack = Array<Element>()
+        stack = Array<HTMLElement>()
         baseUri = ""
         errors = ParseErrorList(0, 0)
         settings = ParseSettings(false, false)
     }
 
     public func initialiseParse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings) {
-        doc = Document(baseURI: baseUri)
+        doc = HTMLDocument(baseURI: baseUri)
         self.settings = settings
         reader = CharacterReader(input)
         self.errors = errors
         tokeniser = Tokeniser(reader, errors)
-        stack = Array<Element>()
+        stack = Array<HTMLElement>()
         self.baseUri = baseUri
     }
 
-    func parse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->Document {
+    func parse(_ input: String, _ baseUri: String, _ errors: ParseErrorList, _ settings: ParseSettings)throws->HTMLDocument {
 		initialiseParse(input, baseUri, errors, settings)
         try runParser()
         return doc
@@ -91,7 +91,7 @@ public class TreeBuilder {
     return try process(end.reset().name(name))
     }
 
-    public func currentElement() -> Element? {
+    public func currentElement() -> HTMLElement? {
         let size: Int = stack.count
         return size > 0 ? stack[size-1] : nil
     }

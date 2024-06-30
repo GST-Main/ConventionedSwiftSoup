@@ -9,7 +9,7 @@
 import Foundation
 
 /**
- * The attributes of an Element.
+ * The attributes of an HTMLElement.
  * <p>
  * Attributes are treated as a map: there can be only one value associated with an attribute key/name.
  * </p>
@@ -186,7 +186,7 @@ open class Attributes: NSCopying {
      */
     open func html()throws -> String {
         let accum = StringBuilder()
-        try html(accum: accum, out: Document(baseURI: "").outputSettings) // output settings a bit funky, but this html() seldom used
+        try html(accum: accum, out: HTMLDocument(baseURI: "").outputSettings) // output settings a bit funky, but this html() seldom used
         return accum.toString()
     }
 
