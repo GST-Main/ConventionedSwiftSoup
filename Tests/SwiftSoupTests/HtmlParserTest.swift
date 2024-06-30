@@ -29,7 +29,7 @@ class HtmlParserTest: XCTestCase {
         let p: Element = doc.body!.getChild(at: 0)!
 		XCTAssertEqual("p", p.tagName)
 		let img: Element = p.getChild(at: 0)!
-		XCTAssertEqual("foo.png", img.getAttribute(key: "src"))
+		XCTAssertEqual("foo.png", img.getAttribute(withKey: "src"))
 		XCTAssertEqual("img", img.tagName)
 	}
 
@@ -40,7 +40,7 @@ class HtmlParserTest: XCTestCase {
 		// need a better way to verify these:
 		let p: Element = doc.body!.getChild(at: 0)!
 		XCTAssertEqual("p", p.tagName)
-		XCTAssertEqual("foo > bar", p.getAttribute(key: "class"))
+		XCTAssertEqual("foo > bar", p.getAttribute(withKey: "class"))
 	}
 
 	func testParsesQuiteRoughAttributes()throws {
@@ -129,7 +129,7 @@ class HtmlParserTest: XCTestCase {
 		XCTAssertEqual(3, head.children.count)
 		XCTAssertEqual(1, body.children.count)
 
-		XCTAssertEqual("keywords", head.getElementsByTag("meta").get(index: 0)!.getAttribute(key: "name"))
+		XCTAssertEqual("keywords", head.getElementsByTag("meta").get(index: 0)!.getAttribute(withKey: "name"))
 		XCTAssertEqual(0, body.getElementsByTag("meta").count)
 		XCTAssertEqual("SwiftSoup",  doc.title)
 		XCTAssertEqual("Hello world", body.getText())
@@ -150,7 +150,7 @@ class HtmlParserTest: XCTestCase {
 		let doc = Parser.parseHTML(html)!
 		let div: Element = doc.getElementsByTag("div").get(index: 0)!
 
-		XCTAssertEqual("Surf & Turf", div.getAttribute(key: "title"))
+		XCTAssertEqual("Surf & Turf", div.getAttribute(withKey: "title"))
 		XCTAssertEqual("Reef & Beef", div.getText())
 	}
 
@@ -317,8 +317,8 @@ class HtmlParserTest: XCTestCase {
 		let doc = Parser.parseHTML(h)!
         let foos: Elements = doc.select(cssQuery: "foo")
 		XCTAssertEqual(2, foos.count)
-		XCTAssertEqual("bar", foos.first!.getAttribute(key: "title"))
-		XCTAssertEqual("qux", foos.last!.getAttribute(key: "title"))
+		XCTAssertEqual("bar", foos.first!.getAttribute(withKey: "title"))
+		XCTAssertEqual("qux", foos.last!.getAttribute(withKey: "title"))
 		XCTAssertEqual("there", foos.last!.getText())
 	}
 
@@ -430,8 +430,8 @@ class HtmlParserTest: XCTestCase {
 		let h = "<head><base target='_blank'></head><body><a href=/foo>Test</a></body>"
         let doc = Parser.parseHTML(h, baseURI: "http://example.com/")!
 		let a: Element = doc.select(cssQuery: "a").first!
-		XCTAssertEqual("/foo", a.getAttribute(key: "href"))
-		XCTAssertEqual("http://example.com/foo",  a.getAttribute(key: "abs:href"))
+		XCTAssertEqual("/foo", a.getAttribute(withKey: "href"))
+		XCTAssertEqual("http://example.com/foo",  a.getAttribute(withKey: "abs:href"))
 	}
 
 	func testNormalisesDocument()throws {
@@ -594,7 +594,7 @@ class HtmlParserTest: XCTestCase {
 		let doc = Parser.parseHTML(h)!
 		let a: Element = doc.select(cssQuery: "a").first!
 		XCTAssertEqual("link text", a.getText())
-		XCTAssertEqual("/lib/14160711/", a.getAttribute(key: "href"))
+		XCTAssertEqual("/lib/14160711/", a.getAttribute(withKey: "href"))
 	}
 
 	func testhandlesSpanInTbody()throws {

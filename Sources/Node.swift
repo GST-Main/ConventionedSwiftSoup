@@ -18,7 +18,7 @@ open class Node: Equatable, Hashable {
     fileprivate static let empty = ""
     private static let EMPTY_NODES = Array<Node>()
     weak var parentNode: Node?
-    var childNodes: [Node]
+    public var childNodes: [Node]
     var attributes: Attributes?
     /// Base URI of this node.
     public internal(set) var baseURI: String?
@@ -59,8 +59,8 @@ open class Node: Equatable, Hashable {
     ///     - key: The key of an attribute. Case sensitive. Should not be empty.
     ///
     /// - Returns: The value of an attribute with the given key. If not exists, returns nil.
-    open func getAttribute(key: String) -> String? {
-        guard let value = try? attributes!.getIgnoreCase(key: key) else {
+    open func getAttribute(withKey key: String) -> String? {
+        guard let value = try? attributes?.getIgnoreCase(key: key) else {
             return nil
         }
         if value.count > 0 {
@@ -90,8 +90,8 @@ open class Node: Equatable, Hashable {
     /// ## Throws
     /// * `SwiftSoupError.emptyAttributeKey` if the given attributet key is an empty string.
     @discardableResult
-    open func setAttribute(key attributeKey: String, value attributeValue: String) throws -> Node {
-        try attributes?.put(attributeKey, attributeValue)
+    open func setAttribute(withKey key: String, newValue: String) throws -> Node {
+        try attributes?.put(key, newValue)
         return self
     }
 
@@ -171,7 +171,7 @@ open class Node: Equatable, Hashable {
     ///
     /// - Returns: An absolute URL string. If there's no attribute with the given key, returns `nil`.
     open func absoluteURLPath(ofAttribute attributeKey: String) -> String? {
-        guard let baseURI, let uriComponent = getAttribute(key: attributeKey) else {
+        guard let baseURI, let uriComponent = getAttribute(withKey: attributeKey) else {
             return nil
         }
         

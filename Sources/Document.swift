@@ -49,7 +49,6 @@ open class Document: Element {
     private var _quirksMode: Document.QuirksMode = QuirksMode.noQuirks
     /// An alias of a document's base URI.
     public let location: String
-    private var updateMetaCharset: Bool = false
 
     /// Create an empty document.
     public init(baseURI: String) {
@@ -85,19 +84,23 @@ open class Document: Element {
     /// A String value representing contents of the title element.
     public var title: String? {
         // title is a preserve whitespace tag (for document output), but normalised here
-        if let titleElement = getElementsByTag("title").first {
-            return StringUtil.normaliseWhitespace(titleElement.getText()).trim()
-        } else {
-            return nil
+        get {
+            if let titleElement = getElementsByTag("title").first {
+                return StringUtil.normaliseWhitespace(titleElement.getText()).trim()
+            } else {
+                return nil
+            }
         }
-    }
-
-    /// Set this document's title.
-    public func setTitle(_ title: String) {
-        if let titleElement = getElementsByTag("title").first {
-            titleElement.setText(title)
-        } else {
-            try! head?.appendElement(tagName: "title").setText(title)
+        set {
+            if let newValue {
+                if let titleElement = getElementsByTag("title").first {
+                    titleElement.setText(newValue)
+                } else {
+                    try! head?.appendElement(tagName: "title").setText(newValue)
+                }
+            } else if let titleElement = getElementsByTag("title").first {
+                titleElement.remove()
+            }
         }
     }
 
@@ -142,7 +145,7 @@ open class Document: Element {
         normaliseStructure("head", htmlElement)
         normaliseStructure("body", htmlElement)
 
-        try ensureMetaCharsetElement()
+        ensureMetaCharsetElement()
 
         return self
     }
@@ -221,78 +224,16 @@ open class Document: Element {
     open override var nodeName: String {
         return "#document"
     }
-
-    /**
-     * Sets the charset used in this document. This method is equivalent
-     * to {@link OutputSettings#charset(java.nio.charset.Charset)
-     * OutputSettings.charset(Charset)} but in addition it updates the
-     * charset / encoding element within the document.
-     *
-     * <p>This enables
-     * {@link #updateMetaCharsetElement(boolean) meta charset update}.</p>
-     *
-     * <p>If there's no element with charset / encoding information yet it will
-     * be created. Obsolete charset / encoding definitions are removed!</p>
-     *
-     * <p><b>Elements used:</b></p>
-     *
-     * <ul>
-     * <li><b>Html:</b> <i>&lt;meta charset="CHARSET"&gt;</i></li>
-     * <li><b>Xml:</b> <i>&lt;?xml version="1.0" encoding="CHARSET"&gt;</i></li>
-     * </ul>
-     *
-     * @param charset Charset
-     *
-     * @see #updateMetaCharsetElement(boolean)
-     * @see OutputSettings#charset(java.nio.charset.Charset)
-     */
     
-    /// Set a text encoding used in this document.
-    public func charset(_ charset: String.Encoding) throws {
-        updateMetaCharsetElement(true)
-        outputSettings.charset(charset)
-        try ensureMetaCharsetElement()
-    }
-
-    /**
-     * Returns the charset used in this document. This method is equivalent
-     * to {@link OutputSettings#charset()}.
-     *
-     * @return Current Charset
-     *
-     * @see OutputSettings#charset()
-     */
+    /// A text encoding used in this document.
     public var charset: String.Encoding {
-        outputSettings.charset()
-    }
-
-    /**
-     * Sets whether the element with charset information in this document is
-     * updated on changes through {@link #charset(java.nio.charset.Charset)
-     * Document.charset(Charset)} or not.
-     *
-     * <p>If set to <tt>false</tt> <i>(default)</i> there are no elements
-     * modified.</p>
-     *
-     * @param update If <tt>true</tt> the element updated on charset
-     * changes, <tt>false</tt> if not
-     *
-     * @see #charset(java.nio.charset.Charset)
-     */
-    public func updateMetaCharsetElement(_ update: Bool) {
-        self.updateMetaCharset = update
-    }
-
-    /**
-     * Returns whether the element with charset information in this document is
-     * updated on changes through {@link #charset(java.nio.charset.Charset)
-     * Document.charset(Charset)} or not.
-     *
-     * @return Returns <tt>true</tt> if the element is updated on charset
-     * changes, <tt>false</tt> if not
-     */
-    public func updateMetaCharsetElement() -> Bool {
-        return updateMetaCharset
+        get {
+            outputSettings.charset()
+        }
+        set {
+            outputSettings.charset(newValue)
+            ensureMetaCharsetElement()
+        }
     }
 
     /**
@@ -314,53 +255,48 @@ open class Document: Element {
      * <li><b>Xml:</b> <i>&lt;?xml version="1.0" encoding="CHARSET"&gt;</i></li>
      * </ul>
      */
-    private func ensureMetaCharsetElement() throws {
-        if (updateMetaCharset) {
-            let syntax: OutputSettings.Syntax = outputSettings.syntax()
-
-            if (syntax == OutputSettings.Syntax.html) {
-                let metaCharset: Element? = select(cssQuery: "meta[charset]").first
-
-                if (metaCharset != nil) {
-                    try metaCharset?.setAttribute(key: "charset", value: charset.displayName())
-                } else {
-                    let head: Element? = self.head
-
-                    if (head != nil) {
-                        try head?.appendElement(tagName: "meta").setAttribute(key: "charset", value: charset.displayName())
-                    }
+    private func ensureMetaCharsetElement() {
+        let syntax: OutputSettings.Syntax = outputSettings.syntax()
+        
+        if syntax == .html {
+            let metaCharset: Element? = select(cssQuery: "meta[charset]").first
+            
+            if (metaCharset != nil) {
+                try! metaCharset?.setAttribute(withKey: "charset", newValue: charset.displayName())
+            } else {
+                let head: Element? = self.head
+                
+                if (head != nil) {
+                    try! head?.appendElement(tagName: "meta").setAttribute(withKey: "charset", newValue: charset.displayName())
                 }
-
-                // Remove obsolete elements
-				let s = select(cssQuery: "meta[name=charset]")
-                s.forEach{ $0.remove() }
-
-            } else if (syntax == OutputSettings.Syntax.xml) {
-                let node: Node = getChildNodes()[0]
-
-                if let decl = (node as? XmlDeclaration) {
-
-                    if (decl.name()=="xml") {
-                        try decl.setAttribute(key: "encoding", value: charset.displayName())
-
-                        _ = decl.getAttribute(key: "version")
-                        try decl.setAttribute(key: "version", value: "1.0")
-                    } else {
-                        try Validate.notNull(obj: baseURI)
-                        let decl = XmlDeclaration("xml", baseURI!, false)
-                        try decl.setAttribute(key: "version", value: "1.0")
-                        try decl.setAttribute(key: "encoding", value: charset.displayName())
-
-                        prependChild(decl)
+            }
+            
+            // Remove obsolete elements
+            let s = select(cssQuery: "meta[name=charset]")
+            s.forEach{ $0.remove() }
+            
+        } else if syntax == .xml {
+            let node: Node = getChildNodes()[0]
+            if let decl = (node as? XmlDeclaration) {
+                if (decl.name()=="xml") {
+                    try! decl.setAttribute(withKey: "encoding", newValue: charset.displayName())
+                    
+                    if hasAttribute(withKey: "version") {
+                        try! decl.setAttribute(withKey: "version", newValue: "1.0")
                     }
                 } else {
-                    try Validate.notNull(obj: baseURI)
-                    let decl = XmlDeclaration("xml", baseURI!, false)
-                    try decl.setAttribute(key: "version", value: "1.0")
-                    try decl.setAttribute(key: "encoding", value: charset.displayName())
-
+                    let decl = XmlDeclaration("xml", baseURI ?? "", false)
+                    try! decl.setAttribute(withKey: "version", newValue: "1.0")
+                    try! decl.setAttribute(withKey: "encoding", newValue: charset.displayName())
+                    
                     prependChild(decl)
                 }
+            } else {
+                let decl = XmlDeclaration("xml", baseURI ?? "", false)
+                try! decl.setAttribute(withKey: "version", newValue: "1.0")
+                try! decl.setAttribute(withKey: "encoding", newValue: charset.displayName())
+                
+                prependChild(decl)
             }
         }
     }
@@ -389,7 +325,6 @@ open class Document: Element {
 		let clone = clone as! Document
 		clone.outputSettings = outputSettings.copy() as! OutputSettings
 		clone._quirksMode = _quirksMode
-		clone.updateMetaCharset = updateMetaCharset
 		return super.copy(clone: clone, parent: parent)
 	}
 

@@ -32,14 +32,14 @@ class CleanerTest: XCTestCase {
     func testSimpleBehaviourTest()throws {
         let h = "<div><p class=foo><a href='http://evil.com'>Hello <b id=bar>there</b>!</a></div>"
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.simpleText())
-        XCTAssertEqual("Hello <b>there</b>!", TextUtil.stripNewlines(cleanHtml!))
+        XCTAssertEqual("Hello <b>there</b>!", TextUtil.stripNewlines(cleanHtml))
     }
 
     func testSimpleBehaviourTest2()throws {
         let h = "Hello <b>there</b>!"
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.simpleText())
 
-        XCTAssertEqual("Hello <b>there</b>!", TextUtil.stripNewlines(cleanHtml!))
+        XCTAssertEqual("Hello <b>there</b>!", TextUtil.stripNewlines(cleanHtml))
     }
 
     func testBasicBehaviourTest()throws {
@@ -47,33 +47,33 @@ class CleanerTest: XCTestCase {
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.basic())
 
         XCTAssertEqual("<p><a rel=\"nofollow\">Dodgy</a> <a href=\"HTTP://nice.com\" rel=\"nofollow\">Nice</a></p><blockquote>Hello</blockquote>",
-                       TextUtil.stripNewlines(cleanHtml!))
+                       TextUtil.stripNewlines(cleanHtml))
     }
 
     func testBasicWithImagesTest()throws {
         let h = "<div><p><img src='http://example.com/' alt=Image></p><p><img src='ftp://ftp.example.com'></p></div>"
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.basicWithImages())
-        XCTAssertEqual("<p><img src=\"http://example.com/\" alt=\"Image\"></p><p><img></p>", TextUtil.stripNewlines(cleanHtml!))
+        XCTAssertEqual("<p><img src=\"http://example.com/\" alt=\"Image\"></p><p><img></p>", TextUtil.stripNewlines(cleanHtml))
     }
 
     func testRelaxed()throws {
         let h = "<h1>Head</h1><table><tr><td>One<td>Two</td></tr></table>"
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.relaxed())
-        XCTAssertEqual("<h1>Head</h1><table><tbody><tr><td>One</td><td>Two</td></tr></tbody></table>", TextUtil.stripNewlines(cleanHtml!))
+        XCTAssertEqual("<h1>Head</h1><table><tbody><tr><td>One</td><td>Two</td></tr></tbody></table>", TextUtil.stripNewlines(cleanHtml))
     }
 
     func testRemoveTags()throws {
         let h = "<div><p><A HREF='HTTP://nice.com'>Nice</a></p><blockquote>Hello</blockquote>"
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.basic().removeTags("a"))
 
-        XCTAssertEqual("<p>Nice</p><blockquote>Hello</blockquote>", TextUtil.stripNewlines(cleanHtml!))
+        XCTAssertEqual("<p>Nice</p><blockquote>Hello</blockquote>", TextUtil.stripNewlines(cleanHtml))
     }
 
     func testRemoveAttributes()throws {
         let h = "<div><p>Nice</p><blockquote cite='http://example.com/quotations'>Hello</blockquote>"
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.basic().removeAttributes("blockquote", "cite"))
 
-        XCTAssertEqual("<p>Nice</p><blockquote>Hello</blockquote>", TextUtil.stripNewlines(cleanHtml!))
+        XCTAssertEqual("<p>Nice</p><blockquote>Hello</blockquote>", TextUtil.stripNewlines(cleanHtml))
     }
 
     func testRemoveEnforcedAttributes()throws {
@@ -81,7 +81,7 @@ class CleanerTest: XCTestCase {
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.basic().removeEnforcedAttribute("a", "rel"))
 
         XCTAssertEqual("<p><a href=\"HTTP://nice.com\">Nice</a></p><blockquote>Hello</blockquote>",
-                       TextUtil.stripNewlines(cleanHtml!))
+                       TextUtil.stripNewlines(cleanHtml))
     }
 
     func testRemoveProtocols()throws {
@@ -89,7 +89,7 @@ class CleanerTest: XCTestCase {
         let cleanHtml = try Parser.cleanBodyFragment(h, whitelist: Whitelist.basic().removeProtocols("a", "href", "ftp", "mailto"))
 
         XCTAssertEqual("<p>Contact me <a rel=\"nofollow\">here</a></p>",
-                       TextUtil.stripNewlines(cleanHtml!))
+                       TextUtil.stripNewlines(cleanHtml))
     }
 
     func testDropComments()throws {
@@ -136,11 +136,11 @@ class CleanerTest: XCTestCase {
         // A Whitelist that allows them will keep them.
         let relaxedWithAnchor: Whitelist = try Whitelist.relaxed().addProtocols("a", "href", "#")
 
-        cleanHtml = Parser.cleanBodyFragment(validAnchor, whitelist: relaxedWithAnchor)
+        cleanHtml = try Parser.cleanBodyFragment(validAnchor, whitelist: relaxedWithAnchor)
         XCTAssertEqual(validAnchor, cleanHtml)
 
         // An invalid anchor is never valid.
-        cleanHtml = Parser.cleanBodyFragment(invalidAnchor, whitelist: relaxedWithAnchor)
+        cleanHtml = try Parser.cleanBodyFragment(invalidAnchor, whitelist: relaxedWithAnchor)
         XCTAssertEqual("<a>Invalid anchor</a>", cleanHtml)
     }
 
@@ -192,7 +192,7 @@ class CleanerTest: XCTestCase {
             .addAttributes("p", "style")
             .addTags("p", "a")
 
-        let clean = Parser.cleanBodyFragment(html, whitelist: whitelist)
+        let clean = try Parser.cleanBodyFragment(html, whitelist: whitelist)
         XCTAssertEqual("<p class=\"foo\"><a class=\"qux\">link</a></p>", clean)
     }
 
@@ -201,7 +201,7 @@ class CleanerTest: XCTestCase {
         let whitelist = try Whitelist()
             .addAttributes("p", "class")
         // ^^ whitelist does not have explicit tag add for p, inferred from add attributes.
-        let clean = Parser.cleanBodyFragment(html, whitelist: whitelist)
+        let clean = try Parser.cleanBodyFragment(html, whitelist: whitelist)
         XCTAssertEqual("<p class=\"foo\">One</p>", clean)
     }
 
@@ -258,7 +258,7 @@ class CleanerTest: XCTestCase {
     }
 
     func testCleansInternationalText()throws {
-        XCTAssertEqual("привет", Parser.cleanBodyFragment("привет", whitelist: Whitelist.none()))
+        XCTAssertEqual("привет", try Parser.cleanBodyFragment("привет", whitelist: Whitelist.none()))
     }
 
     func testScriptTagInWhiteList()throws {

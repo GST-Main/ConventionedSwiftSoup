@@ -59,16 +59,16 @@ class NodeTest: XCTestCase {
 	func testHandlesAbsPrefix() {
         let doc: Document = Parser.parseHTML("<a href=/foo>Hello</a>", baseURI: "https://jsoup.org/")!
         let a: Element? = doc.select(cssQuery: "a").first
-        XCTAssertEqual("/foo", a?.getAttribute(key: "href"))
-        XCTAssertEqual("https://jsoup.org/foo", a?.getAttribute(key: "abs:href"))
+        XCTAssertEqual("/foo", a?.getAttribute(withKey: "href"))
+        XCTAssertEqual("https://jsoup.org/foo", a?.getAttribute(withKey: "abs:href"))
         //XCTAssertTrue(a!.hasAttr("abs:href"));//TODO:nabil
 	}
 
 	func testHandlesAbsOnImage() {
         let doc: Document = Parser.parseHTML("<p><img src=\"/rez/osi_logo.png\" /></p>", baseURI: "https://jsoup.org/")!
         let img: Element? = doc.select(cssQuery: "img").first
-        XCTAssertEqual("https://jsoup.org/rez/osi_logo.png", img?.getAttribute(key: "abs:src"))
-        XCTAssertEqual(img?.absoluteURLPath(ofAttribute: "src"), img?.getAttribute(key: "abs:src"))
+        XCTAssertEqual("https://jsoup.org/rez/osi_logo.png", img?.getAttribute(withKey: "abs:src"))
+        XCTAssertEqual(img?.absoluteURLPath(ofAttribute: "src"), img?.getAttribute(withKey: "abs:src"))
 	}
 
 	func testHandlesAbsPrefixOnHasAttr() {
@@ -91,7 +91,7 @@ class NodeTest: XCTestCase {
         let doc: Document = Parser.parseHTML("<a abs:href='odd'>One</a>")!
         let el: Element = doc.select(cssQuery: "a").first!
         XCTAssertTrue(el.hasAttribute(withKey: "abs:href"))
-        XCTAssertEqual("odd", el.getAttribute(key: "abs:href"))
+        XCTAssertEqual("odd", el.getAttribute(withKey: "abs:href"))
 	}
 	//TODO:Nabil
 /*
@@ -122,8 +122,6 @@ class NodeTest: XCTestCase {
         
         XCTAssertEqual("http://example.net/foo", one?.absoluteURLPath(ofAttribute: "href"))
         XCTAssertEqual("https://example.net/foo", two?.absoluteURLPath(ofAttribute: "href"))
-        
-        let doc3: Document = Parser.parseHTML("<img src=//www.google.com/images/errors/logo_sm.gif alt=Google>", baseURI: "https://google.com")!
 	}
 
 	func testAbsHandlesRelativeQuery() {

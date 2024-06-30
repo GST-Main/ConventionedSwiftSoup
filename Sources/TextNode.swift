@@ -153,9 +153,9 @@ open class TextNode: Node {
         }
     }
 
-    open override func getAttribute(key attributeKey: String) -> String? {
+    open override func getAttribute(withKey attributeKey: String) -> String? {
         ensureAttributes()
-        return super.getAttribute(key: attributeKey)
+        return super.getAttribute(withKey: attributeKey)
     }
 
     open override func getAttributes() -> Attributes {
@@ -163,9 +163,9 @@ open class TextNode: Node {
         return super.getAttributes()!
     }
 
-    open override func setAttribute(key attributeKey: String, value attributeValue: String)throws->Node {
+    open override func setAttribute(withKey attributeKey: String, newValue attributeValue: String)throws->Node {
         ensureAttributes()
-        return try super.setAttribute(key: attributeKey, value: attributeValue)
+        return try super.setAttribute(withKey: attributeKey, newValue: attributeValue)
     }
 
     open override func hasAttribute(withKey attributeKey: String) -> Bool {

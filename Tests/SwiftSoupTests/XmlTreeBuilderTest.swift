@@ -135,9 +135,9 @@ class XmlTreeBuilderTest: XCTestCase {
             XCTAssertTrue(false)
             return
         }
-		XCTAssertEqual("1", decl.getAttribute(key: "version"))
-		XCTAssertEqual("UTF-8", decl.getAttribute(key: "encoding"))
-		XCTAssertEqual("else", decl.getAttribute(key: "something"))
+		XCTAssertEqual("1", decl.getAttribute(withKey: "version"))
+		XCTAssertEqual("UTF-8", decl.getAttribute(withKey: "encoding"))
+		XCTAssertEqual("else", decl.getAttribute(withKey: "something"))
 		try XCTAssertEqual("version=\"1\" encoding=\"UTF-8\" something=\"else\"", decl.getWholeDeclaration())
 		XCTAssertEqual("<?xml version=\"1\" encoding=\"UTF-8\" something=\"else\"?>", decl.outerHTML)
 	}
@@ -151,7 +151,7 @@ class XmlTreeBuilderTest: XCTestCase {
 	func testCreatesValidProlog()throws {
 		let document = Document.createShell(baseURI: "")
 		document.outputSettings.syntax(syntax: OutputSettings.Syntax.xml)
-		try document.charset(String.Encoding.utf8)
+        document.charset = .utf8
 		XCTAssertEqual("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<html>\n" +
 			" <head></head>\n" +

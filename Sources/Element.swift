@@ -106,8 +106,8 @@ open class Element: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    open override func setAttribute(key: String, value: String) throws -> Element {
-        try super.setAttribute(key: key, value: value)
+    open override func setAttribute(withKey: String, newValue: String) throws -> Element {
+        try super.setAttribute(withKey: withKey, newValue: newValue)
         return self
     }
 
@@ -720,7 +720,6 @@ open class Element: Node {
         return result ?? Elements()
     }
 
-    // TODO: Fix parameter name typo
     /// Get a list of elements whose attribute values contain the given keyword.
     ///
     /// Find elements that have attributes with the given attirbute key, and whose attribute value also contains the given match string. Starting with this element, it searches all descendants including itself case insensitively.
@@ -729,7 +728,7 @@ open class Element: Node {
     ///     - key: An attribute key to search for.
     ///     - match: A substring that an attribute's value with the given key should contains.
     /// - Returns: A matching list of elements.
-    public func getElementsByAttribute(key: String, valueMathcingWith match: String) -> Elements {
+    public func getElementsByAttribute(key: String, valueMatchingWith match: String) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
         
@@ -745,7 +744,7 @@ open class Element: Node {
      */
     
     ///
-    public func getElementsByAttribute(key: String, valueMathcingWith pattern: Pattern) -> Elements {
+    public func getElementsByAttribute(key: String, valueMatchingWith pattern: Pattern) -> Elements {
         guard !key.isEmpty else { return Elements() }
         let key = key.trim()
 
@@ -772,7 +771,7 @@ open class Element: Node {
         } catch {
             return Elements()
         }
-        return getElementsByAttribute(key: key, valueMathcingWith: pattern)
+        return getElementsByAttribute(key: key, valueMatchingWith: pattern)
     }
     
     // TODO: SwiftRegex
@@ -1153,7 +1152,7 @@ open class Element: Node {
     ///
     /// This property represents the "class" attribute of this element. Multiple class names are separated by spaces. If there is no class attribute, this will be nil.
     public var className: String? {
-        return getAttribute(key: Element.classString)?.trim()
+        return getAttribute(withKey: Element.classString)?.trim()
     }
 
     /// A list of class names of this element.
@@ -1280,7 +1279,7 @@ open class Element: Node {
         if tagName == "textarea" {
             return text
         } else {
-            return getAttribute(key: "value")
+            return getAttribute(withKey: "value")
         }
     }
 
@@ -1295,7 +1294,7 @@ open class Element: Node {
         if tagName == "textarea" {
             setText(value)
         } else {
-            try! setAttribute(key: "value", value: value)
+            try! setAttribute(withKey: "value", newValue: value)
         }
         return self
     }
