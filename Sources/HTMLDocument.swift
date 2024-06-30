@@ -40,6 +40,8 @@ import Foundation
 /// ``HTMLDocument`` contains members specifically useful for an HTML document. 
 /// For example, you can get ``head`` and ``body`` from a document.
 /// The property ``charset`` represents which text-encoding is used to represent a document.
+///
+/// - todo: XML elements are also parsed into ``HTMLDocument``. This is temporary and will be refactored into a more object-oriented structure in the future.
 open class HTMLDocument: Element {
     public enum QuirksMode {
         case noQuirks, quirks, limitedQuirks
