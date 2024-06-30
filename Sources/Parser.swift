@@ -203,20 +203,9 @@ public class Parser {
     ///     - string: A HTML escaped string.
     ///     - inAttribute: If the string is to be escaped in strict mode (as attributes are).
     /// - Returns: An unescaped string.
-	public static func unescapeEntities(_ string: String, inAttribute: Bool) throws -> String {
+	public static func unescapeEntities(_ string: String, _ inAttribute: Bool) throws -> String {
 		let tokeniser: Tokeniser = Tokeniser(CharacterReader(string), ParseErrorList.noTracking())
 		return try tokeniser.unescapeEntities(inAttribute)
-	}
-
-	/**
-	* @param bodyHtml HTML to parse
-	* @param baseUri baseUri base URI of document (i.e. original fetch location), for resolving relative URLs.
-	*
-	* @return parsed Document
-	* @deprecated Use {@link #parseBodyFragment} or {@link #parseFragment} instead.
-	*/
-	public static func parseBodyFragmentRelaxed(_ bodyHtml: String, baseURI: String) throws -> Document {
-        return try Parser._parseHTML(bodyHtml, baseURI: baseURI)
 	}
 
 	// MARK: Builders

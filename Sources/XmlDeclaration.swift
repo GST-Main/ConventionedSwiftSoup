@@ -21,10 +21,10 @@ public class XmlDeclaration: Node {
      @param baseUri base uri
      @param isProcessingInstruction is processing instruction
      */
-    public init(_ name: String, _ baseUri: String, _ isProcessingInstruction: Bool) {
+    public init(_ name: String, _ baseURI: String, _ isProcessingInstruction: Bool) {
         self._name = name
         self.isProcessingInstruction = isProcessingInstruction
-        super.init(baseURI: baseUri)
+        super.init(baseURI: baseURI)
     }
 
     public override var nodeName: String {

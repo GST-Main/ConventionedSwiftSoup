@@ -18,7 +18,7 @@ open class Node: Equatable, Hashable {
     fileprivate static let empty = ""
     private static let EMPTY_NODES = Array<Node>()
     weak var parentNode: Node?
-    var childNodes: [Node]
+    public var childNodes: [Node]
     var attributes: Attributes?
     /// Base URI of this node.
     public internal(set) var baseURI: String?
@@ -60,7 +60,7 @@ open class Node: Equatable, Hashable {
     ///
     /// - Returns: The value of an attribute with the given key. If not exists, returns nil.
     open func getAttribute(key: String) -> String? {
-        guard let value = try? attributes!.getIgnoreCase(key: key) else {
+        guard let value = try? attributes?.getIgnoreCase(key: key) else {
             return nil
         }
         if value.count > 0 {
