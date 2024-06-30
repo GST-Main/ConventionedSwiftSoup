@@ -10,9 +10,9 @@ import Foundation
 
 /// An ``Element`` representing an HTML document.
 ///
-/// ``Document`` is a main object of ``SwiftSoup``. 
+/// ``Document`` is a main object of ``PrettySwiftSoup``.
 /// In most cases, an HTML document is first parsed into a ``Document`` instance
-/// using the static method ``HTMLParser/parse(_:baseURI:)-swift.type.method`` of ``HTMLParser``.
+/// using the static method ``HTMLParser/parse(_:baseURI:)`` of ``HTMLParser``.
 /// Then, you manipulate the document with members of its superclasses or itself.
 /// ```swift
 /// let url = URL(string: "https://www.swift.org")!

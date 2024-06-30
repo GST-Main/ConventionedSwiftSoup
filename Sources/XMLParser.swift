@@ -1,9 +1,8 @@
 import Foundation
 
-/// Parses HTML into a ``Document``.
-///
-/// Generally, static method ``parse(_:baseURI:)-swift.type.method`` is mostly recommended.
+/// An XML parser.
 public class XMLParser: MarkupParser {
+    /// Create an XML parser.
     public init() {
         super.init(XmlTreeBuilder())
     }

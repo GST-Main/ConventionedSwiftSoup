@@ -1,5 +1,8 @@
 import Foundation
 
+/// A parser of markup languages like HTML and XML.
+///
+/// This is a base class for both ``HTMLParser`` and ``XMLParser``. Genrally, it is not used directly. Use ``HTMLParser`` for parsing an HTML document and ``XMLParser`` for parsing an XML document.
 open class MarkupParser {
     internal static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
 
@@ -9,27 +12,25 @@ open class MarkupParser {
     public var isTrackErrors: Bool { maxErrors > 0 }
     public var settings: ParseSettings
 
-    /// Create a new ``Parser`` using the specified ``TreeBuilder``
+    /// Create a new ``MarkupParser`` using the specified ``TreeBuilder``
     /// - Parameters:
     ///     - treeBuilder: A ``TreeBuilder`` object to use to parse input into ``Document``s.
-    init(_ treeBuilder: TreeBuilder) {
+    public init(_ treeBuilder: TreeBuilder) {
         self.treeBuilder = treeBuilder
         self.settings = treeBuilder.defaultSettings()
     }
 
-    /// Parse HTML into a ``Document``.
+    /// Parse given markup code into a ``Document``.
     ///
     /// - Parameters:
-    ///     - html: HTML string to parse.
-    ///     - baseURI: Base URI of document for resolving resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
+    ///     - source: A markup-based code to parse.
+    ///     - baseURI: The base URI of document for resolving relative URLs. To see how it can be used, see ``Node/absoluteURLPath(ofAttribute:)``.
     /// - Returns: Parsed ``Document`` object.
     ///
-    /// You can track parse errors whereas static method ``parse(_:baseURI:)-swift.type.method`` can't.
-    ///
     /// ## Throws:
-    /// * `SwiftSoupError.failedToParseHTML`` if parsing is failed.
-    public func parse(_ input: String, baseURI: String) throws -> Document {
+    /// * `SwiftSoupError.failedToParseHTML` if parsing is failed.
+    public func parse(_ source: String, baseURI: String) throws -> Document {
         errors = isTrackErrors ? ParseErrorList.tracking(maxErrors) : ParseErrorList.noTracking()
-        return try treeBuilder.parse(input, baseURI, errors, settings)
+        return try treeBuilder.parse(source, baseURI, errors, settings)
     }
 }

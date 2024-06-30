@@ -312,8 +312,6 @@ open class Node: Equatable, Hashable {
     ///
     /// Parse the given HTML string and create a new node. Then, insert the node as a sibling at the given index.
     ///
-    /// If this node doesn't have a parent, throws ``SwiftSoupError/noParentNode``. If parsing HTML is failed, throws ``SwiftSoupError/failedToParseHTML``.
-    ///
     /// - Parameters:
     ///     - html: HTML string to insert.
     ///     - index: The index at which to insert in the siblings.

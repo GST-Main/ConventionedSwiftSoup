@@ -8,10 +8,11 @@
 
 import Foundation
 
-/// Parses HTML into a ``Document``.
+/// An HTML parser.
 ///
-/// Generally, static method ``parse(_:baseURI:)-swift.type.method`` is mostly recommended.
+/// A static method ``parse(_:baseURI:)`` is commonly used for parsing HTML.
 public class HTMLParser: MarkupParser {
+    /// Create an HTML parser.
     public init() {
         super.init(HtmlTreeBuilder())
     }
@@ -19,7 +20,7 @@ public class HTMLParser: MarkupParser {
 	// MARK: Static Methods
     /// Parse HTML into a ``Document``.
     ///
-    /// ``Document`` is the main object of ``SwiftSoup``. You can get ``Document`` object by calling this static method.
+    /// ``Document`` is the main object of ``PrettySwiftSoup``. You can get ``Document`` object by calling this static method.
     /// ```swift
     /// let url = URL(string: "https://www.swift.org")!
     /// let data = try! Data(contentsOf: url)
@@ -76,11 +77,8 @@ public class HTMLParser: MarkupParser {
         return document
     }
     
+    // TODO: More descriptions (later)
     /// Get safe HTML from untrusted input HTML, by parsing input HTML and filtering it through a whitelist of permitted tags and attributes.
-    ///
-    /// This is legacy and throwing version of ``HTMLParser/cleanBodyFragment(_:baseURI:whitelist:settings:)``.
-    ///
-    /// - Note: As this method throws ``SwiftSoupError/failedToParseHTML`` error only, use the new method ``HTMLParser/cleanBodyFragment(_:baseURI:whitelist:settings:)`` instead.
     public class func cleanBodyFragment(_ bodyHTML: String, baseURI: String = "", whitelist: Whitelist, settings: OutputSettings? = nil) throws -> String {
         guard let dirty: Document = parseBodyFragment(bodyHTML, baseURI: baseURI) else {
             throw SwiftSoupError.failedToParseHTML
