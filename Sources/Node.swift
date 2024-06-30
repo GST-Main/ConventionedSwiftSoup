@@ -8,6 +8,11 @@
 
 import Foundation
 
+/// A node of tree that contains data of parsed HTML or XML.
+///
+/// Basically, you use ``Element`` type, subclass of ``Node``, to access HTML elements rather than this type. ``Node`` object has information about a node that constitute a tree, like ``parent`` and ``getChildNodes()``. It also has information about the common elements of both HTML and XML like ``getAttributes()`` and ``absoluteURLPath(ofAttribute:)``.
+///
+/// - Note: This class also contains members only for HTML such as ``insertHTMLAsPreviousSibling(_:)``. I believe this has an unclear role as an OOP object and is considered an anti-pattern. However, it will be left as is to minimize changes to the existing code.
 open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
@@ -15,65 +20,45 @@ open class Node: Equatable, Hashable {
     weak var parentNode: Node?
     var childNodes: [Node]
     var attributes: Attributes?
+    /// Base URI of this node.
     public internal(set) var baseURI: String?
 
-	/**
-	* Get the list index of this node in its node sibling list. I.e. if this is the first node
-	* sibling, returns 0.
-	* @return position in node sibling list
-	* @see Element#elementSiblingIndex()
-	*/
+    /// The index of this node in its node sibling list.
     public var siblingIndex: Int = 0
 
-    /**
-     Create a new Node.
-     @param baseUri base URI
-     @param attributes attributes (not null, but may be empty)
-     */
+    /// Create a new ``Node``.
     public init(baseURI: String, attributes: Attributes) {
         self.childNodes = Node.EMPTY_NODES
         self.baseURI = baseURI.trim()
         self.attributes = attributes
     }
-
+    /// Create a new ``Node`` with empty attributes.
     public init(baseURI baseUri: String) {
         childNodes = Node.EMPTY_NODES
         self.baseURI = baseUri.trim()
         self.attributes = Attributes()
     }
-
-    /**
-     * Default constructor. Doesn't setup base uri, children, or attributes; use with caution.
-     */
+    /// Create a new ``Node`` with no attributes and baseURI.
     public init() {
         self.childNodes = Node.EMPTY_NODES
         self.attributes = nil
         self.baseURI = nil
     }
 
-    /**
-     Get the node name of this node. Use for debugging purposes and not logic switching (for that, use instanceof).
-     @return node name
-     */
+    /// The node name of this node.
+    ///
+    /// This is an abstract property. Subclasses overrides this property. For example, ``Element`` returns tag name and ``Document`` returns literal `"#Document"`.
+    /// Call this method directly in ``Node`` instance will cause `fatalError`.
     public var nodeName: String {
         preconditionFailure("This method must be overridden")
     }
 
-    /**
-     * Get an attribute's value by its key. <b>Case insensitive</b>
-     * <p>
-     * To get an absolute URL from an attribute that may be a relative URL, prefix the key with <code><b>abs</b></code>,
-     * which is a shortcut to the {@link #absUrl} method.
-     * </p>
-     * E.g.:
-     * <blockquote><code>String url = a.attr("abs:href");</code></blockquote>
-     *
-     * @param attributeKey The attribute key.
-     * @return The attribute, or empty string if not present (to avoid nulls).
-     * @see #attributes()
-     * @see #hasAttr(String)
-     * @see #absUrl(String)
-     */
+    /// Get a value of an attribute with the given key.
+    ///
+    /// - Parameters:
+    ///     - key: The key of an attribute. Case sensitive. Should not be empty.
+    ///
+    /// - Returns: The value of an attribute with the given key. If not exists, returns nil.
     open func getAttribute(key: String) -> String? {
         guard let value = try? attributes!.getIgnoreCase(key: key) else {
             return nil
@@ -87,31 +72,33 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /**
-     * Get all of the element's attributes.
-     * @return attributes (which implements iterable, in same order as presented in original HTML).
-     */
+    /// Get all of the elemtent's attributes.
     open func getAttributes() -> Attributes? {
         return attributes
     }
 
-    /**
-     * Set an attribute (key=value). If the attribute already exists, it is replaced.
-     * @param attributeKey The attribute key.
-     * @param attributeValue The attribute value.
-     * @return this (for chaining)
-     */
+    /// Set an attribute of this node.
+    ///
+    /// Set an attribute with the given key. If the attribute already exists, it will be replaced.
+    ///
+    /// - Parameters:
+    ///     - key: The key of an attribute to set. Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey` error.
+    ///     - value: The new value of an attribute with the given key.
+    ///
+    /// - Returns: `self` for chaining.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.emptyAttributeKey` if the given attributet key is an empty string.
     @discardableResult
     open func setAttribute(key attributeKey: String, value attributeValue: String) throws -> Node {
         try attributes?.put(attributeKey, attributeValue)
         return self
     }
 
-    /**
-     * Test if this element has an attribute. <b>Case insensitive</b>
-     * @param attributeKey The attribute key to check.
-     * @return true if the attribute exists, false if not.
-     */
+    /// A Boolean value indicating whether a node has any attributes.
+    ///
+    /// - Parameters:
+    ///     - key: The key of an attribute to check.
     open func hasAttribute(withKey key: String) -> Bool {
 		guard let attributes = attributes else {
 			return false
@@ -126,21 +113,22 @@ open class Node: Equatable, Hashable {
         return attributes.hasKeyIgnoreCase(key: key)
     }
 
-    /**
-     * Remove an attribute from this element.
-     * @param attributeKey The attribute to remove.
-     * @return this (for chaining)
-     */
+    /// Remove an attribute from this node.
+    ///
+    /// - Parameters:
+    ///     - key: The key of an attribute to remove. Must not be empty, otherwise throws `SwiftSoupError.emptyAttributeKey`error.
+    ///
+    /// - Returns: `self` for chaining.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.emptyAttributeKey` if the given attributet key is an empty string.
     @discardableResult
     open func removeAttribute(withKey key: String) throws -> Node {
         try attributes?.removeIgnoreCase(key: key)
         return self
     }
 
-    /**
-     Update the base URI of this node and all of its descendants.
-     @param baseUri base URI to set
-     */
+    /// Update the base URI of this node and all of its descendants.
     open func setBaseURI(_ baseURI: String) {
         try! traverse(nodeVisitor(baseURI)) // Never throws
         
@@ -159,29 +147,29 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /**
-     * Get an absolute URL from a URL attribute that may be relative (i.e. an <code>&lta href&gt;</code> or
-     * <code>&lt;img src&gt;</code>).
-     * <p>
-     * E.g.: <code>String absUrl = linkEl.absUrl("href");</code>
-     * </p>
-     * <p>
-     * If the attribute value is already absolute (i.e. it starts with a protocol, like
-     * <code>http://</code> or <code>https://</code> etc), and it successfully parses as a URL, the attribute is
-     * returned directly. Otherwise, it is treated as a URL relative to the element's {@link #baseUri}, and made
-     * absolute using that.
-     * </p>
-     * <p>
-     * As an alternate, you can use the {@link #attr} method with the <code>abs:</code> prefix, e.g.:
-     * <code>String absUrl = linkEl.attr("abs:href");</code>
-     * </p>
-     *
-     * @param attributeKey The attribute key
-     * @return An absolute URL if one could be made, or an empty string (not null) if the attribute was missing or
-     * could not be made successfully into a URL.
-     * @see #attr
-     * @see java.net.URL#URL(java.net.URL, String)
-     */
+    /// Get an absolute URL string from an attribute.
+    ///
+    /// Get a URL string from an attribute of this node. The URL path will be resolved if the retrieved URL is relative.
+    /// ```swift
+    /// let wiki: Document = ... // Parsed HTML of "https://en.wikipedia.org/wiki/Swift"
+    /// wiki.baseURI = "https://en.wikipedia.org/"
+    /// let link = wiki.getElementsContainingText("Swift (programming language)").first!
+    /// let href = link.getAttribute(key: "href")!
+    /// let urlPath = link.absoluteURLPath(ofAttribute: "href")!
+    ///
+    /// print(href)
+    /// print(urlPath)
+    ///
+    /// // Prints "/wiki/Swift_(programming_language)"
+    /// // Prints "https://en.wikipedia.org/wiki/Swift_(programming_language)"
+    /// ```
+    ///
+    /// If the attribute value is already an absolute URL path, such as one containing `https://`, the attribute will be returned directly.
+    ///
+    /// - Parameters:
+    ///     - attributeKey: The key of an attribute to retrieve URL path as value.
+    ///
+    /// - Returns: An absolute URL string. If there's no attribute with the given key, returns `nil`.
     open func absoluteURLPath(ofAttribute attributeKey: String) -> String? {
         guard let baseURI, let uriComponent = getAttribute(key: attributeKey) else {
             return nil
@@ -190,30 +178,24 @@ open class Node: Equatable, Hashable {
         return StringUtil.resolve(baseURI, relUrl: uriComponent)
     }
 
-    /**
-     Get a child node by its 0-based index.
-     @param index index of child node
-     @return the child node at this index. Throws a {@code IndexOutOfBoundsException} if the index is out of bounds.
-     */
+    /// Get a child node by given index.
+    ///
+    /// Get a child by its 0-based index.
+    ///
+    /// - Attention: This method doesn't check if the index is in safe range. If the index out of bounds, it will cause a runtime error.
     open func childNode(_ index: Int) -> Node {
         return childNodes[index]
     }
 
-    /**
-     Get this node's children. Presented as an unmodifiable list: new children can not be added, but the child nodes
-     themselves can be manipulated.
-     @return list of children. If no children, returns an empty list.
-     */
-    open func getChildNodes() -> Array<Node> {
+    /// Get this node's children
+    open func getChildNodes() -> [Node] {
         return childNodes
     }
 
-    /**
-     * Returns a deep copy of this node's children. Changes made to these nodes will not be reflected in the original
-     * nodes
-     * @return a deep copy of this node's children
-     */
-    open func childNodesCopy() -> Array<Node> {
+    /// Get a deep copy of this node's children.
+    ///
+    /// Get a deep copy of this node's children. Changes made to these nodes will not be reflected in the original nodes.
+    open func childNodesCopy() -> [Node] {
 		var children: Array<Node> = Array<Node>()
 		for node: Node in childNodes {
 			children.append(node.copy() as! Node)
@@ -221,10 +203,7 @@ open class Node: Equatable, Hashable {
 		return children
     }
 
-    /**
-     * Get the number of child nodes that this node holds.
-     * @return the number of child nodes that this node holds.
-     */
+    /// Get the number of this node's children.
     public func childNodeSize() -> Int {
         return childNodes.count
     }
@@ -233,18 +212,14 @@ open class Node: Equatable, Hashable {
         return childNodes as Array
     }
 
-    /**
-     Gets this node's parent node.
-     @return parent node or null if no parent.
-     */
+    /// The parent node of this node.
     open var parent: Node? {
         return parentNode
     }
 
-    /**
-     * Gets the Document associated with this Node.
-     * @return the Document associated with this Node, or null if there is no such Document.
-     */
+    /// Get the Document associated with this node.
+    ///
+    /// - Returns: A ``Document`` object associated with this node. If there's no such document, returns `nil`.
     open func ownerDocument() -> Document? {
         if let this = self as? Document {
             return this
@@ -255,32 +230,39 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /**
-     * Remove (delete) this node from the DOM tree. If this node has children, they are also removed.
-     */
+    /// Remove this node from the DOM tree.
+    ///
+    /// Remove this node from the DOM tree. If this node has children, they are also removed together.
     open func remove() {
         // Assume users never try to remove root node
         try! parentNode?.removeChild(self)
     }
 
-    /**
-     * Insert the specified HTML into the DOM before this node (i.e. as a preceding sibling).
-     * @param html HTML to add before this node
-     * @return this node, for chaining
-     * @see #after(String)
-     */
+    /// Insert the specified HTML into the DOM as a preceding sibling.
+    ///
+    /// Parse the given HTML string and create a new node. Then, insert the new node as a preceding sibling of this node.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesn't have a parent.
+    /// * `SwiftSoupError.failedToParseHTML` if parsing HTML is failed.
+    ///
+    /// - Parameter html: HTML string to add before this node.
+    /// - Returns: `self` for chaining.
     @discardableResult
     open func insertHTMLAsPreviousSibling(_ html: String) throws -> Node {
         try insertSiblingHTML(html, at: siblingIndex)
         return self
     }
 
-    /**
-     * Insert the specified node into the DOM before this node (i.e. as a preceding sibling).
-     * @param node to add before this node
-     * @return this node, for chaining
-     * @see #after(Node)
-     */
+    /// Insert the specified node into the DOM as a preceding sibling.
+    ///
+    /// Insert the given node as a preceding sibling of this node.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesnt't have a parent.
+    ///
+    /// - Parameter node: A node to insert.
+    /// - Returns: `self` for chaining.
     @discardableResult
     open func insertNodeAsPreviousSibling(_ node: Node) throws -> Node {
         guard let parentNode else {
@@ -291,24 +273,31 @@ open class Node: Equatable, Hashable {
         return self
     }
 
-    /**
-     * Insert the specified HTML into the DOM after this node (i.e. as a following sibling).
-     * @param html HTML to add after this node
-     * @return this node, for chaining
-     * @see #before(String)
-     */
+    /// Insert the specified HTML into the DOM as a following sibling.
+    ///
+    /// Parse the given HTML string and create a new node. Then, insert the new node as a following sibling of this node.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesn't have a parent.
+    /// * `SwiftSoupError.failedToParseHTML` if parsing HTML is failed.
+    ///
+    /// - Parameter html: HTML string to add after this node.
+    /// - Returns: `self` for chaining.
     @discardableResult
     open func insertHTMLAsNextSibling(_ html: String) throws -> Node {
         try insertSiblingHTML(html, at: siblingIndex + 1)
         return self
     }
 
-    /**
-     * Insert the specified node into the DOM after this node (i.e. as a following sibling).
-     * @param node to add after this node
-     * @return this node, for chaining
-     * @see #before(Node)
-     */
+    /// Insert the specified node into the DOM as a following sibling.
+    ///
+    /// Insert the given node as a following sibling of this node.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node doesnt't have a parent.
+    ///
+    /// - Parameter node: A node to add after this node.
+    /// - Returns: `self` for chaining.
     @discardableResult
     open func insertNodeAsNextSibling(_ node: Node) throws -> Node {
         guard let parentNode else {
@@ -319,6 +308,19 @@ open class Node: Equatable, Hashable {
         return self
     }
 
+    /// Insert the specified HTML into the DOM as a sibling at the given index.
+    ///
+    /// Parse the given HTML string and create a new node. Then, insert the node as a sibling at the given index.
+    ///
+    /// If this node doesn't have a parent, throws ``SwiftSoupError/noParentNode``. If parsing HTML is failed, throws ``SwiftSoupError/failedToParseHTML``.
+    ///
+    /// - Parameters:
+    ///     - html: HTML string to insert.
+    ///     - index: The index at which to insert in the siblings.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if this node does not have a parent.
+    /// * `SwiftSoupError.failedToParseHTML` if parsing HTML is failed.
     open func insertSiblingHTML(_ html: String, at index: Int) throws {
         guard let parentNode else {
             throw SwiftSoupError.noParentNode
@@ -329,11 +331,11 @@ open class Node: Equatable, Hashable {
         parentNode.insertChildren(nodes, at: index)
     }
 
-    /**
-     Wrap the supplied HTML around this node.
-     @param html HTML to wrap around this element, e.g. {@code <div class="head"></div>}. Can be arbitrarily deep.
-     @return this node, for chaining.
-     */
+    /// Wrap the supplied HTML around this node.
+    ///
+    /// - Parameter html: HTML to wrap around this element. For example, `"<div class="head"></div>"`. Can be arbitrarily deep.
+    ///
+    /// - Returns: `self` for chaining.
     @discardableResult
     open func wrap(html: String) throws -> Node {
         guard !html.isEmpty else {
@@ -363,21 +365,39 @@ open class Node: Equatable, Hashable {
         return self
     }
 
-    /**
-     * Removes this node from the DOM, and moves its children up into the node's parent. This has the effect of dropping
-     * the node but keeping its children.
-     * <p>
-     * For example, with the input html:
-     * </p>
-     * <p>{@code <div>One <span>Two <b>Three</b></span></div>}</p>
-     * Calling {@code element.unwrap()} on the {@code span} element will result in the html:
-     * <p>{@code <div>One Two <b>Three</b></div>}</p>
-     * and the {@code "Two "} {@link TextNode} being returned.
-     *
-     * @return the first child of this node, after the node has been unwrapped. Null if the node had no children.
-     * @see #remove()
-     * @see #wrap(String)
-     */
+    /// Unwrap this node from the DOM.
+    ///
+    /// Remove this node from the DOM and move its children up into the parent node. This has the effect of dropping the node but keeping its children.
+    /// ```swift
+    /// let html =
+    /// """
+    /// <div>One
+    ///     <span>Two
+    ///         <b>Three</b>
+    ///     </span>
+    /// </div>
+    /// """
+    /// let document = Parser.parseHTML(html)!
+    /// let span = document.getElementsByTag("span").first!
+    /// let result = try! span.unwrap()
+    ///
+    /// print(document.body!.html!)
+    /// print(result)
+    ///
+    /// // Prints:
+    /// // <div>One Two
+    /// //     <b>Three</b>
+    /// // </div>
+    ///
+    /// // Prints "Two "
+    /// ```
+    /// In the codes above, `result` is a ``TextNode`` contains text "Two " which was the first child node of `span`.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.noParentNode` if there's no parent node.
+    /// * `SwiftSoupError.noChildrenToUnwrap` if there's no children node.
+    ///
+    /// - Returns: The first child of this node. It may be a ``TextNode``.
     @discardableResult
     open func unwrap() throws -> Node {
         guard let parentNode else {
@@ -402,10 +422,9 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /**
-     * Replace this node in the DOM with the supplied node.
-     * @param in the node that will will replace the existing node.
-     */
+    /// Replace this node with the supplied node.
+    ///
+    /// - Note: If this is a root node, this method does nothing.
     public func replace(with newNode: Node) {
         // Do nothing if self is root node
         if let parentNode {
@@ -413,6 +432,7 @@ open class Node: Equatable, Hashable {
         }
     }
 
+    /// Set the parent node to the supplied node.
     public func setParentNode(_ newParentNode: Node) {
         if let parentNode {
             try! parentNode.removeChild(self)
@@ -420,6 +440,10 @@ open class Node: Equatable, Hashable {
         self.parentNode = newParentNode
     }
 
+    /// Replace the specified child node with the new node.
+    ///
+    /// ## Throws
+    /// * `SwiftSoupError.notChildNode` if the given child node is not a child of this.
     public func replaceChildNode(_ childNode: Node, with newNode: Node) throws {
         guard childNode.parentNode === self else {
             throw SwiftSoupError.notChildNode
@@ -436,6 +460,10 @@ open class Node: Equatable, Hashable {
         childNode.parentNode = nil
     }
 
+    /// Remove the sepcified child node.
+    ///
+    /// ## Throws
+    /// *  `SwiftSoupError.notChildNode` if the given child node is not a child of this.
     public func removeChild(_ node: Node) throws {
         guard node.parentNode === self else {
             throw SwiftSoupError.notChildNode
@@ -447,11 +475,13 @@ open class Node: Equatable, Hashable {
         node.parentNode = nil
     }
 
+    /// Append the given nodes as children.
     public func appendChildren(_ children: Node...) {
         //most used. short circuit addChildren(int), which hits reindex children and array copy
         appendChildren(children)
     }
 
+    /// Append the given nodes as children.
     public func appendChildren(_ children: [Node]) {
         //most used. short circuit addChildren(int), which hits reindex children and array copy
         for child in children {
@@ -462,10 +492,12 @@ open class Node: Equatable, Hashable {
         }
     }
 
+    /// Insert the given nodes as children at specified index.
     public func insertChildren(_ children: Node..., at index: Int) {
         insertChildren(children, at: index)
     }
 
+    /// Insert the given nodes as children at specified index.
     public func insertChildren(_ children: [Node], at index: Int) {
         ensureChildNodes()
         for i in children.indices.reversed() {
@@ -483,7 +515,6 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /// 
     public func reparentChild(_ childNode: Node) {
         if let parentNode = childNode.parentNode {
             try! parentNode.removeChild(childNode)
@@ -498,11 +529,9 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /**
-     Retrieves this node's sibling nodes. Similar to {@link #childNodes()  node.parent.childNodes()}, but does not
-     include this node (a node is not a sibling of itself).
-     @return node siblings. If the node has no parent, returns an empty list.
-     */
+    /// An array of nodes which are siblings of this node.
+    ///
+    /// An array of nodes which are siblings of this node. It doesn't contains this node itself.
     open var siblingNodes: [Node] {
         guard let parentNode else { return [] }
 
@@ -521,6 +550,10 @@ open class Node: Equatable, Hashable {
      Get this node's next sibling.
      @return next sibling, or null if this is the last sibling
      */
+    
+    /// The next sibling node of this node.
+    ///
+    /// The next sibling node of this node. If not exists, it is `nil`.
     open var nextSibling: Node? {
         guard let siblings = parentNode?.childNodes else {
             return nil
@@ -534,10 +567,9 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /**
-     Get this node's previous sibling.
-     @return the previous sibling, or null if this is the first sibling
-     */
+    /// The previous sibling of this node.
+    ///
+    /// The previous sibling of this node. If not exists, it is `nil`.
     open var previousSibling: Node? {
         guard let parentNode else {
             return nil
@@ -550,11 +582,10 @@ open class Node: Equatable, Hashable {
         }
     }
 
-    /**
-     * Perform a depth-first traversal through this node and its descendants.
-     * @param nodeVisitor the visitor callbacks to perform on each node
-     * @return this node, for chaining
-     */
+    /// Perform a depth-first traversal through this node and its descendants.
+    ///
+    /// - Parameter nodeVisitor: The visitor callbacks to perform on each node.
+    /// - Returns: `self` for chaining.
     @discardableResult
     open func traverse(_ nodeVisitor: NodeVisitor) throws -> Node {
         let traversor: NodeTraversor = NodeTraversor(nodeVisitor)
@@ -562,10 +593,7 @@ open class Node: Equatable, Hashable {
         return self
     }
 
-    /**
-     Get the outer HTML of this node.
-     @return HTML
-     */
+    /// The outer HTML of this node.
     open var outerHTML: String? {
         let accum: StringBuilder = StringBuilder(128)
         do {
@@ -598,12 +626,10 @@ open class Node: Equatable, Hashable {
         preconditionFailure("This method must be overridden")
     }
 
-    /**
-     * Write this node and its children to the given {@link Appendable}.
-     *
-     * @param appendable the {@link Appendable} to write to.
-     * @return the supplied {@link Appendable}, for chaining.
-     */
+    /// Write this node and its children to the given ``StringBuilder``.
+    ///
+    /// - Parameter appendable: The ``StringBuilder`` to write to.
+    /// - Returns: The supplied ``StringBuilder`` for chaining.
     open func html(_ appendable: StringBuilder) throws -> StringBuilder {
         try outerHtml(appendable)
         return appendable
@@ -613,25 +639,15 @@ open class Node: Equatable, Hashable {
         accum.append(UnicodeScalar.BackslashN).append(StringUtil.padding(depth * Int(out.indentAmount())))
     }
 
-    /**
-     * Check if this node is the same instance of another (object identity test).
-     * @param o other object to compare to
-     * @return true if the content of this node is the same as the other
-     * @see Node#hasSameValue(Object) to compare nodes by their value
-     */
-
+    /// Check if this node is the same instance of another
+    ///
+    /// Using this method is totally same as writing like `nodeA === nodeB`.
     open func equals(_ o: Node) -> Bool {
     // implemented just so that javadoc is clear this is an identity test
         return self === o
     }
 
-    /**
-     * Check if this node is has the same content as another node. A node is considered the same if its name, attributes and content match the
-     * other node; particularly its position in the tree does not influence its similarity.
-     * @param o other object to compare to
-     * @return true if the content of this node is the same as the other
-     */
-
+    /// Check if this node has the same content as another node.
     open func hasSameValue(_ o: Node) -> Bool {
         if self === o {
             return true
@@ -640,14 +656,14 @@ open class Node: Equatable, Hashable {
         return self.outerHTML == o.outerHTML
     }
 
-    /**
-     * Create a stand-alone, deep copy of this node, and all of its children. The cloned node will have no siblings or
-     * parent node. As a stand-alone object, any changes made to the clone or any of its children will not impact the
-     * original node.
-     * <p>
-     * The cloned node may be adopted into another Document or node structure using {@link Element#appendChild(Node)}.
-     * @return stand-alone cloned node
-     */
+    /// Create a stand-alone, deep copy of this node, and all of its children.
+    ///
+    /// The cloned node will have no siblings or
+    /// parent node. As a stand-alone object, any changes made to the clone or any of its children will not impact the
+    /// original node.
+    /// <p>
+    /// The cloned node may be adopted into another Document or node structure using {@link Element#appendChild(Node)}.
+    /// @return stand-alone cloned node
     public func copy(with zone: NSZone? = nil) -> Any {
 		return copy(clone: Node())
     }
@@ -676,10 +692,9 @@ open class Node: Equatable, Hashable {
 		return thisClone
 	}
 
-	/*
-	* Return a clone of the node using the given parent (which can be null).
-	* Not a deep copy of children.
-	*/
+    /// Get a clone of the node using the given parent (which can be null).
+    ///
+    /// Not a deep copy of children.
 	public func copy(clone: Node, parent: Node?) -> Node {
 		clone.parentNode = parent // can be null, to create an orphan split
 		clone.siblingIndex = parent == nil ? 0 : siblingIndex
@@ -745,6 +760,9 @@ open class Node: Equatable, Hashable {
 }
 
 extension Node: CustomStringConvertible {
+    /// A textual representation of this node.
+    ///
+    /// This property is same as `outherHTML ?? ""`.
 	public var description: String {
         outerHTML ?? ""
 	}

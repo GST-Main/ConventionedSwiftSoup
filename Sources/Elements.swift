@@ -8,14 +8,30 @@
 
 import Foundation
 
-// TODO: Document
+/// A list of `Elements`.
+///
+/// `Elements` is a sequence that exclusively contains ``Element`` instances. This is a reference type whereas most of Swift's collection types are value types.
+///
+/// Typically, users do not directly instantiate this object; instead, it is often returned as the result of methods from ``Element``.
+/// For example, ``Element/getElementsByClass(_:)`` returns an instance of ``Elements`` containing elements with a specified class name.
+///
+/// You can use Array-like members to manipulate a list of elements. This is the list of them:
+/// * Use ``append(_:)``, ``append(contentsOf:)``, ``insert(_:at:)``, ``insert(contensOf:at:)`` to add new elements to `Elements`.
+/// * Like `Array`, access an element in the list using the subscript. You can also use ``get(index:)`` method for safe access.
+/// * To avoid out-of-bound index error, check information such as ``startIndex``, ``endIndex`` and``count``.
+/// * Many other sequence methods and properties are supported: `forEach(_:)`, `map(_:)`, `first`, `reduce(_:_:)`, etc.
+///
+/// `Elements` has `Element` specialized methods and properties:
+/// * ``text(trimAndNormaliseWhitespace:)``, ``texts``, ``html`` and ``outerHtml`` combines the list's element.
+/// * You can simply check if any element meet specific conditions with "has-method"s: ``hasClass(named:)``, ``hasAttribute(key:)``, ``hasElementMatchedWithCSSQuery(_:)``, ``hasText``
+/// * Filter the list using CSS queries: ``select(cssQuery:)``, ``selectNot(cssQuery:)``
 open class Elements: NSCopying {
 	fileprivate var _elements: [Element] = []
 
-	///base init
+	/// Create an empty element list
 	public init() {
 	}
-	///Initialized with an array
+	/// Create an element list with given element array.
     public init<S: Sequence>(_ elements: S) where S.Element == Element {
         if let elements = elements as? Array<Element> {
             _elements = elements
@@ -24,10 +40,6 @@ open class Elements: NSCopying {
         }
 	}
 
-	/**
-	* Creates a deep copy of these elements.
-	* @return a deep copy
-	*/
 	public func copy(with zone: NSZone? = nil) -> Any {
 		let clone = Elements()
 		for element in self {
@@ -36,14 +48,12 @@ open class Elements: NSCopying {
 		return clone
 	}
 
-	/**
-	* Get the combined text of all the matched elements.
-	* <p>
-	* Note that it is possible to get repeats if the matched elements contain both parent elements and their own
-	* children, as the Element.text() method returns the combined text of a parent and all its children.
-	* @return string of all text: unescaped and no HTML.
-	* @see Element#text()
-	*/
+    /// Get a combined text of all elements.
+    ///
+    /// This method combines all elements' texts. Each element's text contains all of it's descendants' text. See ``Element/text``.
+    ///
+    /// - Parameter trimAndNormaliseWhitespace: Trim and normalized whitespace if it's `true`.
+    /// - Returns: A combined text of all elements.
 	open func text(trimAndNormaliseWhitespace: Bool = true) -> String {
 		let stringBuilder: StringBuilder = StringBuilder()
 		for element in self {
@@ -55,14 +65,11 @@ open class Elements: NSCopying {
 		return stringBuilder.toString()
 	}
     
-    /**
-     * Get the text content of each of the matched elements. If an element has no text, then it is not included in the
-     * result.
-     * @return A list of each matched element's text content.
-     * @see Element#text()
-     * @see Element#hasText()
-     * @see #text()
-     */
+    /// An Array of texts for each element.
+    ///
+    /// This property is an array of texts for each element that has any text.
+    /// Each text includes not only the element's own text but also the text of all its descendants.
+    /// See ``Element/text``.
     public var texts: [String] {
         var texts: [String] = []
         for element in self {
@@ -73,12 +80,9 @@ open class Elements: NSCopying {
         return texts
     }
 
-	/**
-	* Get the combined inner HTML of all matched elements.
-	* @return string of all element's inner HTML.
-	* @see #text()
-	* @see #outerHtml()
-	*/
+    /// A combined string of all inner HTML texts of elements.
+    ///
+    /// If one of the elements failed to get its HTML text, this property will be `nil`.
     open var html: String? {
 		let stringBuilder: StringBuilder = StringBuilder()
 		for element in self {
@@ -93,12 +97,9 @@ open class Elements: NSCopying {
 		return stringBuilder.toString()
 	}
 
-	/**
-	* Get the combined outer HTML of all matched elements.
-	* @return string of all element's outer HTML.
-	* @see #text()
-	* @see #html()
-	*/
+    /// A combined string of all outer HTML texts of elements.
+    ///
+    /// If one of the elements failed to get its outer HTML text, this property will be `nil`.
     open var outerHtml: String? {
 		let stringBuilder: StringBuilder = StringBuilder()
 		for element in self {
@@ -115,11 +116,7 @@ open class Elements: NSCopying {
 	}
     
     // MARK: "has" Methods
-    /**
-    Checks if any of the matched elements have this attribute set.
-    @param attributeKey attribute key
-    @return true if any of the elements have the attribute; false if none do.
-    */
+    /// Check if any of elements have an attribute with the specified key.
     open func hasAttribute(key: String) -> Bool {
         for element in self {
             if element.hasAttribute(withKey: key) {
@@ -129,11 +126,7 @@ open class Elements: NSCopying {
         return false
     }
 
-    /**
-    Determine if any of the matched elements have this class name set in their {@code class} attribute.
-    @param className class name to check for
-    @return true if any do, false if none do
-    */
+    /// Check if any of elements have the given class name.
     open func hasClass(named className: String) -> Bool {
         for element in self {
             if (element.hasClass(named: className)) {
@@ -143,7 +136,7 @@ open class Elements: NSCopying {
         return false
     }
 
-    /// Check if an element has text
+    /// A Boolean value indicating any of elements have text.
     open var hasText: Bool {
         for element in self {
             if element.hasText {
@@ -154,11 +147,12 @@ open class Elements: NSCopying {
     }
 
 	// MARK: CSS Filters
-	/**
-	* Find matching elements within this element list.
-	* @param query A {@link CssSelector} query
-	* @return the filtered list of elements, or an empty list if none match.
-	*/
+    /// Find matching elements with the given CSS query.
+    ///
+    /// This method filters the list based on the given CSS query. It only filters list elements, not retrieving matched inner elements.
+    ///
+    /// - Parameter cssQuery: A CSS selector to filter elements.
+    /// - Returns: A new filtered list of elements.
 	open func select(cssQuery: String) -> Elements {
         do {
             return try CssSelector.select(cssQuery, _elements)
@@ -167,16 +161,12 @@ open class Elements: NSCopying {
         }
 	}
 
-	/**
-	* Remove elements from this list that match the {@link CssSelector} query.
-	* <p>
-	* E.g. HTML: {@code <div class=logo>One</div> <div>Two</div>}<br>
-	* <code>Elements divs = doc.select("div").not(".logo");</code><br>
-	* Result: {@code divs: [<div>Two</div>]}
-	* <p>
-	* @param query the selector query whose results should be removed from these elements
-	* @return a new elements list that contains only the filtered results
-	*/
+    /// Find elements that do Not match the given CSS query.
+    ///
+    /// This method filters the list based on the given CSS query, excluding matching elements.
+    ///
+    /// - Parameter cssQuery: A CSS selector to filter elements.
+    /// - Returns: A new filtered list of elements that do not match the given CSS query.
 	open func selectNot(cssQuery: String) -> Elements {
         do {
             let out = try CssSelector.select(cssQuery, _elements)
@@ -186,11 +176,7 @@ open class Elements: NSCopying {
         }
 	}
 
-	/**
-	* Test if any of the matched elements match the supplied query.
-	* @param query A selector
-	* @return true if at least one element in the list matches the query.
-	*/
+    /// Check if any of elements match the given CSS query.
     open func hasElementMatchedWithCSSQuery(_ cssQuery: String) -> Bool {
         guard let eval: Evaluator = try? QueryParser.parse(cssQuery) else {
             return false
@@ -204,12 +190,7 @@ open class Elements: NSCopying {
         return false
     }
 
-    // MARK: Array-Like Methods
-	/**
-	* Perform a depth-first traversal on each of the selected elements.
-	* @param nodeVisitor the visitor callbacks to perform on each node
-	* @return this, for chaining
-	*/
+    /// Perform a depth-first traversal on each of the selected elements.
     @discardableResult
 	open func traverse(_ nodeVisitor: NodeVisitor) throws -> Elements {
 		let traversor: NodeTraversor = NodeTraversor(nodeVisitor)
@@ -219,12 +200,8 @@ open class Elements: NSCopying {
 		return self
 	}
 
-	/**
-	* Get the {@link FormElement} forms from the selected elements, if any.
-	* @return a list of {@link FormElement}s pulled from the matched elements. The list will be empty if the elements contain
-	* no forms.
-	*/
-	open func forms() -> Array<FormElement> {
+    /// Get an filtered array whose element is ``FormElement``.
+	open func forms() -> [FormElement] {
 		var forms: Array<FormElement> = Array<FormElement>()
 		for element in self {
 			if let element = element as? FormElement {
@@ -234,37 +211,111 @@ open class Elements: NSCopying {
 		return forms
 	}
     
+    /// Adds a new element at the end of the list.
+    ///
+    /// Use this method to append a single element to the end of a list.
+    ///
+    /// - Parameter newElement: The element to append to the list.
+    /// - Complexity: O(1) on average, over many calls to `append(_:)` on the
+    ///   same list.
     open func append(_ newElement: Element) {
         _elements.append(newElement)
     }
     
+    /// Adds the elements of a sequence to the end of the list.
+    ///
+    /// Use this method to append the elements of a sequence to the end of this
+    /// array. This example appends the elements of a `Range<Int>` instance
+    /// to an array of integers.
+    ///
+    /// ```swift
+    /// let elements = Elements()
+    /// let divs = document.getElementsByTag("div")
+    /// let spans = document.getElementsByTag("span")
+    /// elements.append(contentsOf: divs)
+    /// elements.append(contentsOf: spans)
+    /// ```
+    ///
+    /// - Parameter newElements: The elements to append to the list.
+    ///
+    /// - Complexity: O(*m*) on average, where *m* is the length of
+    ///   `newElements`, over many calls to `append(contentsOf:)` on the same
+    ///   list.
     open func append<S: Sequence>(contentsOf newElements: S) where S.Element == Element {
         _elements.append(contentsOf: newElements)
+        let foo = Parser.parseHTML("html")
+        let div = foo!.getElementsByTag("div")
+        let spans = foo!.getElementsByTag("span")
+        let abcd = Elements()
+        abcd.append(contentsOf: div)
     }
     
+    /// Inserts a new element at the specified position.
+    ///
+    /// The new element is inserted before the element currently at the specified
+    /// index. If you pass the array's `endIndex` property as the `index`
+    /// parameter, the new element is appended to the list.
+    /// ```swift
+    /// let elements = document.getElementsByTag("div")
+    /// let contents = document.getElementById("main-contents")!
+    /// let extra = document.getElementById("extra-contents")!
+    ///
+    /// elements.insert(contents, at: 3)
+    /// elements.insert(contents, at: elements.endIndex)
+    /// ```
+    ///
+    /// - Parameter newElement: The new element to insert into the list.
+    /// - Parameter index: The position at which to insert the new element.
+    ///   `index` must be a valid index of the list or equal to its `endIndex`
+    ///   property.
+    ///
+    /// - Complexity: O(*n*), where *n* is the length of the list. If
+    ///   `index == endIndex`, this method is equivalent to `append(_:)`.
     open func insert(_ newElement: Element, at index: Int) {
         _elements.insert(newElement, at: index)
     }
     
+    /// Inserts the elements of a sequence into the collection at the specified
+    /// position.
+    ///
+    /// The new elements are inserted before the element currently at the
+    /// specified index. If you pass the collection's `endIndex` property as the
+    /// `index` parameter, the new elements are appended to the collection.
+    ///
+    /// Calling this method may invalidate any existing indices for use with this
+    /// collection.
+    ///
+    /// - Parameter newElements: The new elements to insert into the collection.
+    /// - Parameter index: The position at which to insert the new elements. `index`
+    ///   must be a valid index of the collection.
+    ///
+    /// - Complexity: O(*n* + *m*), where *n* is length of this collection and
+    ///   *m* is the length of `newElements`. If `i == endIndex`, this method
+    ///   is equivalent to `append(contentsOf:)`.
     open func insert<C: Collection>(contensOf newElements: C, at index: Int) where C.Element == Element {
         _elements.insert(contentsOf: newElements, at: index)
     }
     
-    /// Safely get element
+    /// Safely get an element at the specified position.
+    ///
+    /// Unlike using the subscript of a sequence, this method does not cause any runtime error.
+    /// even if the given index is out of bounds.
+    /// Instead, it returns `nil` to provide a safe and convenient way to hande such situations.
+    ///
+    /// - Parameter index: The position of an element to get.
+    /// - Returns: An element at the given index if exists, otherwise returns `nil`
     open func get(index: Int) -> Element? {
         guard index >= 0 else { return nil }
         guard index < count else { return nil }
         return self[index]
     }
     
-    open func toArray() -> Array<Element> {
+    /// Get an Array of contents.
+    open func toArray() -> [Element] {
         return _elements
     }
 }
 
-/**
-* Elements extension Equatable.
-*/
 extension Elements: Equatable {
 	/// Returns a Boolean value indicating whether two values are equal.
 	///
@@ -279,33 +330,34 @@ extension Elements: Equatable {
 	}
 }
 
-/**
-* Elements RandomAccessCollection
-*/
 extension Elements: RandomAccessCollection {
 	public subscript(position: Int) -> Element {
 		return _elements[position]
 	}
 
+    /// The position of the first element in a nonempty list.
+    ///
+    /// For an instance of `Element`, `startIndex` is always zero. If the list
+    /// is empty, `startIndex` is equal to `endIndex`.
 	public var startIndex: Int {
 		return _elements.startIndex
 	}
 
+    /// The list's "past the end" position---that is, the position one greater
+    /// than the last valid subscript argument.
+    ///
+    /// If the list is empty, `endIndex` is equal to `startIndex`.
 	public var endIndex: Int {
 		return _elements.endIndex
 	}
 
-	/// The number of Element objects in the collection.
-	/// Equivalent to `size()`
+    /// The number of elements in the list.
 	public var count: Int {
 		return _elements.count
 	}
 }
 
 
-/**
-* Elements Extension Sequence.
-*/
 extension Elements: Sequence {
     /// Returns an iterator over the elements of this sequence.
     public func makeIterator() -> ElementsIterator {
