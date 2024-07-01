@@ -441,19 +441,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		8C55AE171E29049700DF7A9F /* safety */ = {
+		1A0CC9492C32534F0086F2C2 /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				8C74BC591E7AE5E5000032AF /* CleanerTest.swift */,
+				8CE418321DAA568600240B42 /* DataUtil.swift */,
+				8CE418331DAA568600240B42 /* SwiftSoupError.swift */,
+				8CE418351DAA568600240B42 /* StringBuilder.swift */,
+				8CE418371DAA568600240B42 /* StringUtil.swift */,
+				8CE418501DAA568600240B42 /* ArrayExt.swift */,
+				8CE418381DAA568600240B42 /* Validate.swift */,
 			);
-			name = safety;
+			path = utils;
 			sourceTree = "<group>";
 		};
-		8C7ED6731E00B0690032A27C /* shared */ = {
+		1A0CC94A2C3253870086F2C2 /* algorithm */ = {
 			isa = PBXGroup;
 			children = (
 				BB57C2E9222CCCB5008933AA /* BinarySearch.swift */,
-				8CE418501DAA568600240B42 /* ArrayExt.swift */,
 				8CE418511DAA568600240B42 /* CharacterExt.swift */,
 				8CE418541DAA568600240B42 /* Pattern.swift */,
 				8CE418551DAA568600240B42 /* StreamReader.swift */,
@@ -464,42 +468,26 @@
 				6710742B27F57FA60048E7C1 /* UnfairLock.swift */,
 				6710743027F580530048E7C1 /* Mutex.swift */,
 			);
-			name = shared;
+			path = algorithm;
 			sourceTree = "<group>";
 		};
-		8C7ED6741E00B10F0032A27C /* helper */ = {
+		1A0CC94C2C3253CD0086F2C2 /* select */ = {
 			isa = PBXGroup;
 			children = (
-				8CE418321DAA568600240B42 /* DataUtil.swift */,
-				8CE418331DAA568600240B42 /* SwiftSoupError.swift */,
-				8CE418351DAA568600240B42 /* StringBuilder.swift */,
-				8CE418371DAA568600240B42 /* StringUtil.swift */,
-				8CE418381DAA568600240B42 /* Validate.swift */,
+				8CD48F1E1DBB6B5100D1D88F /* Collector.swift */,
+				8C89785D1DBCDB0D00B1C024 /* CombiningEvaluator.swift */,
+				8C80628F1DB9560C0064EC33 /* HTMLElements.swift */,
+				8CD48F201DBB6D2F00D1D88F /* Evaluator.swift */,
+				8C84C43C1DB516C700D63B0D /* NodeTraversor.swift */,
+				8CA209861DB3A38E00A9EC9D /* NodeVisitor.swift */,
+				8C9651A91DBC2B6B00FCB4C2 /* QueryParser.swift */,
+				8C3617C01DBAC2AE00E00CFE /* CssSelector.swift */,
+				8C89785B1DBCBC5600B1C024 /* StructuralEvaluator.swift */,
 			);
-			name = helper;
+			path = select;
 			sourceTree = "<group>";
 		};
-		8C7ED6751E00B1280032A27C /* nodes */ = {
-			isa = PBXGroup;
-			children = (
-				8CE4183B1DAA568600240B42 /* Attribute.swift */,
-				8CE4183C1DAA568600240B42 /* Attributes.swift */,
-				8CE4183D1DAA568600240B42 /* BooleanAttribute.swift */,
-				8CE418471DAA568600240B42 /* Node.swift */,
-				8CE418411DAA568600240B42 /* HTMLElement.swift */,
-				8CE4183F1DAA568600240B42 /* HTMLDocument.swift */,
-				8CE418401DAA568600240B42 /* DocumentType.swift */,
-				8CE418481DAA568600240B42 /* TextNode.swift */,
-				8CE4183E1DAA568600240B42 /* DataNode.swift */,
-				8C9651A71DBC16D800FCB4C2 /* Comment.swift */,
-				8CE418451DAA568600240B42 /* Entities.swift */,
-				8CE418461DAA568600240B42 /* FormElement.swift */,
-				8CE418491DAA568600240B42 /* XmlDeclaration.swift */,
-			);
-			name = nodes;
-			sourceTree = "<group>";
-		};
-		8C7ED6761E00B13E0032A27C /* parser */ = {
+		1A0CC94D2C3254030086F2C2 /* parser */ = {
 			isa = PBXGroup;
 			children = (
 				1AD27D942C312F3700BDEEB5 /* MarkupParser.swift */,
@@ -519,32 +507,44 @@
 				8C6239C11DBE76D40024F42D /* TreeBuilder.swift */,
 				8CC2FD801DB1176A002CB469 /* XmlTreeBuilder.swift */,
 			);
-			name = parser;
+			path = parser;
 			sourceTree = "<group>";
 		};
-		8C7ED6771E00B1570032A27C /* safety */ = {
+		1A0CC94E2C3254240086F2C2 /* safety */ = {
 			isa = PBXGroup;
 			children = (
 				8CC2FD8C1DB12382002CB469 /* Whitelist.swift */,
 				8CE2D93E1DB2796C00C7BDE3 /* Cleaner.swift */,
 			);
-			name = safety;
+			path = safety;
 			sourceTree = "<group>";
 		};
-		8C7ED6781E00B16C0032A27C /* select */ = {
+		1A0CC94F2C3254360086F2C2 /* nodes */ = {
 			isa = PBXGroup;
 			children = (
-				8CD48F1E1DBB6B5100D1D88F /* Collector.swift */,
-				8C89785D1DBCDB0D00B1C024 /* CombiningEvaluator.swift */,
-				8C80628F1DB9560C0064EC33 /* HTMLElements.swift */,
-				8CD48F201DBB6D2F00D1D88F /* Evaluator.swift */,
-				8C84C43C1DB516C700D63B0D /* NodeTraversor.swift */,
-				8CA209861DB3A38E00A9EC9D /* NodeVisitor.swift */,
-				8C9651A91DBC2B6B00FCB4C2 /* QueryParser.swift */,
-				8C3617C01DBAC2AE00E00CFE /* CssSelector.swift */,
-				8C89785B1DBCBC5600B1C024 /* StructuralEvaluator.swift */,
+				8CE4183B1DAA568600240B42 /* Attribute.swift */,
+				8CE4183C1DAA568600240B42 /* Attributes.swift */,
+				8CE4183D1DAA568600240B42 /* BooleanAttribute.swift */,
+				8CE418471DAA568600240B42 /* Node.swift */,
+				8CE418411DAA568600240B42 /* HTMLElement.swift */,
+				8CE4183F1DAA568600240B42 /* HTMLDocument.swift */,
+				8CE418401DAA568600240B42 /* DocumentType.swift */,
+				8CE418481DAA568600240B42 /* TextNode.swift */,
+				8CE4183E1DAA568600240B42 /* DataNode.swift */,
+				8C9651A71DBC16D800FCB4C2 /* Comment.swift */,
+				8CE418451DAA568600240B42 /* Entities.swift */,
+				8CE418461DAA568600240B42 /* FormElement.swift */,
+				8CE418491DAA568600240B42 /* XmlDeclaration.swift */,
 			);
-			name = select;
+			path = nodes;
+			sourceTree = "<group>";
+		};
+		8C55AE171E29049700DF7A9F /* safety */ = {
+			isa = PBXGroup;
+			children = (
+				8C74BC591E7AE5E5000032AF /* CleanerTest.swift */,
+			);
+			name = safety;
 			sourceTree = "<group>";
 		};
 		8CC141E61E092D92002F536D /* helper */ = {
@@ -585,12 +585,12 @@
 		8CE418181DAA54A900240B42 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				8C7ED6741E00B10F0032A27C /* helper */,
-				8C7ED6731E00B0690032A27C /* shared */,
-				8C7ED6781E00B16C0032A27C /* select */,
-				8C7ED6771E00B1570032A27C /* safety */,
-				8C7ED6761E00B13E0032A27C /* parser */,
-				8C7ED6751E00B1280032A27C /* nodes */,
+				1A0CC9492C32534F0086F2C2 /* utils */,
+				1A0CC94A2C3253870086F2C2 /* algorithm */,
+				1A0CC94C2C3253CD0086F2C2 /* select */,
+				1A0CC94D2C3254030086F2C2 /* parser */,
+				1A0CC94E2C3254240086F2C2 /* safety */,
+				1A0CC94F2C3254360086F2C2 /* nodes */,
 				8CE4181A1DAA54A900240B42 /* Info.plist */,
 				BD3B5BAA1FBED934001FDB3B /* InfoMac.plist */,
 				BD3B5BED1FC063BD001FDB3B /* InfotvOS.plist */,
