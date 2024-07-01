@@ -24,9 +24,9 @@ class SelectorTest: XCTestCase {
 		// should be case insensitive
 		let els: HTMLElements = HTMLParser.parse("<div id=1><div id=2><p>Hello</p></div></div><DIV id=3>")!.select(cssQuery: "DIV")
 		XCTAssertEqual(3, els.count)
-		XCTAssertEqual("1", els.get(index: 0)!.id)
-		XCTAssertEqual("2", els.get(index: 1)!.id)
-		XCTAssertEqual("3", els.get(index: 2)!.id)
+		XCTAssertEqual("1", els.getElement(at: 0)!.id)
+		XCTAssertEqual("2", els.getElement(at: 1)!.id)
+		XCTAssertEqual("3", els.getElement(at: 2)!.id)
 
 		let none: HTMLElements = HTMLParser.parse("<div id=1><div id=2><p>Hello</p></div></div><div id=3>")!.select(cssQuery: "span")
 		XCTAssertEqual(0, none.count)
@@ -35,8 +35,8 @@ class SelectorTest: XCTestCase {
 	func testById()throws {
 		let els: HTMLElements = HTMLParser.parse("<div><p id=foo>Hello</p><p id=foo>Foo two!</p></div>")!.select(cssQuery: "#foo")
 		XCTAssertEqual(2, els.count)
-		XCTAssertEqual("Hello", els.get(index: 0)!.getText())
-		XCTAssertEqual("Foo two!", els.get(index: 1)!.getText())
+		XCTAssertEqual("Hello", els.getElement(at: 0)!.getText())
+		XCTAssertEqual("Foo two!", els.getElement(at: 1)!.getText())
 
 		let none: HTMLElements = HTMLParser.parse("<div id=1></div>")!.select(cssQuery: "#foo")
 		XCTAssertEqual(0, none.count)
@@ -45,8 +45,8 @@ class SelectorTest: XCTestCase {
 	func testByClass()throws {
 		let els: HTMLElements = HTMLParser.parse("<p id=0 class='ONE two'><p id=1 class='one'><p id=2 class='two'>")!.select(cssQuery: "P.One")
 		XCTAssertEqual(2, els.count)
-		XCTAssertEqual("0", els.get(index: 0)!.id)
-		XCTAssertEqual("1", els.get(index: 1)!.id)
+		XCTAssertEqual("0", els.getElement(at: 0)!.id)
+		XCTAssertEqual("1", els.getElement(at: 1)!.id)
 
 		let none: HTMLElements = HTMLParser.parse("<div class='one'></div>")!.select(cssQuery: ".foo")
 		XCTAssertEqual(0, none.count)
@@ -154,17 +154,17 @@ class SelectorTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse("<p><img src=foo.png id=1><img src=bar.jpg id=2><img src=qux.JPEG id=3><img src=old.gif><img></p>")!
 		let imgs: HTMLElements = doc.select(cssQuery: "img[src~=(?i)\\.(png|jpe?g)]")
 		XCTAssertEqual(3, imgs.count)
-		XCTAssertEqual("1", imgs.get(index: 0)!.id)
-		XCTAssertEqual("2", imgs.get(index: 1)!.id)
-		XCTAssertEqual("3", imgs.get(index: 2)!.id)
+		XCTAssertEqual("1", imgs.getElement(at: 0)!.id)
+		XCTAssertEqual("2", imgs.getElement(at: 1)!.id)
+		XCTAssertEqual("3", imgs.getElement(at: 2)!.id)
 	}
 
 	func testByAttributeRegexCharacterClass()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<p><img src=foo.png id=1><img src=bar.jpg id=2><img src=qux.JPEG id=3><img src=old.gif id=4></p>")!
 		let imgs: HTMLElements = doc.select(cssQuery: "img[src~=[o]]")
 		XCTAssertEqual(2, imgs.count)
-		XCTAssertEqual("1", imgs.get(index: 0)!.id)
-		XCTAssertEqual("4", imgs.get(index: 1)!.id)
+		XCTAssertEqual("1", imgs.getElement(at: 0)!.id)
+		XCTAssertEqual("4", imgs.getElement(at: 1)!.id)
 	}
 
 	func testByAttributeRegexCombined()throws {
@@ -205,15 +205,15 @@ class SelectorTest: XCTestCase {
 		let els: HTMLElements = doc.select(cssQuery: "p,div,[title]")
 
 		XCTAssertEqual(5, els.count)
-		XCTAssertEqual("div", els.get(index: 0)!.tagName)
-		XCTAssertEqual("foo", els.get(index: 0)!.getAttribute(withKey: "title"))
-		XCTAssertEqual("div", els.get(index: 1)!.tagName)
-		XCTAssertEqual("bar", els.get(index: 1)!.getAttribute(withKey: "title"))
-		XCTAssertEqual("div", els.get(index: 2)!.tagName)
-        XCTAssertTrue(els.get(index: 2)!.getAttribute(withKey: "title") == nil) // missing attributes come back as empty string
-		XCTAssertFalse(els.get(index: 2)!.hasAttribute(withKey: "title"))
-		XCTAssertEqual("p", els.get(index: 3)!.tagName)
-		XCTAssertEqual("span", els.get(index: 4)!.tagName)
+		XCTAssertEqual("div", els.getElement(at: 0)!.tagName)
+		XCTAssertEqual("foo", els.getElement(at: 0)!.getAttribute(withKey: "title"))
+		XCTAssertEqual("div", els.getElement(at: 1)!.tagName)
+		XCTAssertEqual("bar", els.getElement(at: 1)!.getAttribute(withKey: "title"))
+		XCTAssertEqual("div", els.getElement(at: 2)!.tagName)
+        XCTAssertTrue(els.getElement(at: 2)!.getAttribute(withKey: "title") == nil) // missing attributes come back as empty string
+		XCTAssertFalse(els.getElement(at: 2)!.hasAttribute(withKey: "title"))
+		XCTAssertEqual("p", els.getElement(at: 3)!.tagName)
+		XCTAssertEqual("span", els.getElement(at: 4)!.tagName)
 	}
 
 	func testGroupOrAttribute()throws {
@@ -221,24 +221,24 @@ class SelectorTest: XCTestCase {
         let els: HTMLElements = HTMLParser.parse(h)!.select(cssQuery: "[id],[title=foo]")
 
 		XCTAssertEqual(3, els.count)
-		XCTAssertEqual("1", els.get(index: 0)!.id)
-		XCTAssertEqual("2", els.get(index: 1)!.id)
-		XCTAssertEqual("foo", els.get(index: 2)!.getAttribute(withKey: "title"))
+		XCTAssertEqual("1", els.getElement(at: 0)!.id)
+		XCTAssertEqual("2", els.getElement(at: 1)!.id)
+		XCTAssertEqual("foo", els.getElement(at: 2)!.getAttribute(withKey: "title"))
 	}
 
 	func testDescendant()throws {
 		let h: String = "<div class=head><p class=first>Hello</p><p>There</p></div><p>None</p>"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let root: HTMLElement = doc.getElementsByClass("HEAD").first!
+		let root: HTMLElement = doc.getElementsByClass(named: "HEAD").first!
 
 		let els: HTMLElements = root.select(cssQuery: ".head p")
 		XCTAssertEqual(2, els.count)
-		XCTAssertEqual("Hello", els.get(index: 0)!.getText())
-		XCTAssertEqual("There", els.get(index: 1)!.getText())
+		XCTAssertEqual("Hello", els.getElement(at: 0)!.getText())
+		XCTAssertEqual("There", els.getElement(at: 1)!.getText())
 
 		let p: HTMLElements = root.select(cssQuery: "p.first")
 		XCTAssertEqual(1, p.count)
-		XCTAssertEqual("Hello", p.get(index: 0)!.getText())
+		XCTAssertEqual("Hello", p.getElement(at: 0)!.getText())
 
 		let empty: HTMLElements = root.select(cssQuery: "p .first") // self, not descend, should not match
 		XCTAssertEqual(0, empty.count)
@@ -271,7 +271,7 @@ class SelectorTest: XCTestCase {
 	func testDeeperDescendant()throws {
 		let h: String = "<div class=head><p><span class=first>Hello</div><div class=head><p class=first><span>Another</span><p>Again</div>"
 		let doc: HTMLDocument = HTMLParser.parse(h)!
-		let root: HTMLElement = doc.getElementsByClass("head").first!
+		let root: HTMLElement = doc.getElementsByClass(named: "head").first!
 
 		let els: HTMLElements = root.select(cssQuery: "div p .first")
 		XCTAssertEqual(1, els.count)
@@ -288,12 +288,12 @@ class SelectorTest: XCTestCase {
 
 		let divs: HTMLElements = doc.select(cssQuery: "div > div")
 		XCTAssertEqual(2, divs.count)
-		XCTAssertEqual("2", divs.get(index: 0)!.id) // 2 is child of 1
-		XCTAssertEqual("3", divs.get(index: 1)!.id) // 3 is child of 2
+		XCTAssertEqual("2", divs.getElement(at: 0)!.id) // 2 is child of 1
+		XCTAssertEqual("3", divs.getElement(at: 1)!.id) // 3 is child of 2
 
 		let div2: HTMLElements = doc.select(cssQuery: "div#1 > div")
 		XCTAssertEqual(1, div2.count)
-		XCTAssertEqual("2", div2.get(index: 0)!.id)
+		XCTAssertEqual("2", div2.getElement(at: 0)!.id)
 	}
 
 	func testParentWithClassChild()throws {
@@ -317,9 +317,9 @@ class SelectorTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse(h)!
 		let divChilds: HTMLElements = doc.select(cssQuery: "div > *")
 		XCTAssertEqual(3, divChilds.count)
-		XCTAssertEqual("p", divChilds.get(index: 0)!.tagName)
-		XCTAssertEqual("p", divChilds.get(index: 1)!.tagName)
-		XCTAssertEqual("span", divChilds.get(index: 2)!.tagName)
+		XCTAssertEqual("p", divChilds.getElement(at: 0)!.tagName)
+		XCTAssertEqual("p", divChilds.getElement(at: 1)!.tagName)
+		XCTAssertEqual("span", divChilds.getElement(at: 2)!.tagName)
 	}
 
 	func testMultiChildDescent()throws {
@@ -345,8 +345,8 @@ class SelectorTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse(h)!
 		let sibs: HTMLElements = doc.select(cssQuery: "li + li")
 		XCTAssertEqual(2, sibs.count)
-		XCTAssertEqual("Two", sibs.get(index: 0)!.getText())
-		XCTAssertEqual("Three", sibs.get(index: 1)!.getText())
+		XCTAssertEqual("Two", sibs.getElement(at: 0)!.getText())
+		XCTAssertEqual("Three", sibs.getElement(at: 1)!.getText())
 	}
 
 	func testAdjacentSiblingsWithId()throws {
@@ -354,7 +354,7 @@ class SelectorTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse(h)!
 		let sibs: HTMLElements = doc.select(cssQuery: "li#1 + li#2")
 		XCTAssertEqual(1, sibs.count)
-		XCTAssertEqual("Two", sibs.get(index: 0)!.getText())
+		XCTAssertEqual("Two", sibs.getElement(at: 0)!.getText())
 	}
 
 	func testNotAdjacent()throws {
@@ -370,8 +370,8 @@ class SelectorTest: XCTestCase {
 		let sibs: HTMLElements = doc.select(cssQuery: "body > div.foo li + li")
 
 		XCTAssertEqual(2, sibs.count)
-		XCTAssertEqual("Two", sibs.get(index: 0)!.getText())
-		XCTAssertEqual("Three", sibs.get(index: 1)!.getText())
+		XCTAssertEqual("Two", sibs.getElement(at: 0)!.getText())
+		XCTAssertEqual("Three", sibs.getElement(at: 1)!.getText())
 	}
 
 	func testMixCombinatorGroup()throws {
@@ -380,9 +380,9 @@ class SelectorTest: XCTestCase {
 		let els: HTMLElements = doc.select(cssQuery: ".foo > ol, ol > li + li")
 
 		XCTAssertEqual(3, els.count)
-		XCTAssertEqual("ol", els.get(index: 0)!.tagName)
-		XCTAssertEqual("Two", els.get(index: 1)!.getText())
-		XCTAssertEqual("Three", els.get(index: 2)!.getText())
+		XCTAssertEqual("ol", els.getElement(at: 0)!.tagName)
+		XCTAssertEqual("Two", els.getElement(at: 1)!.getText())
+		XCTAssertEqual("Three", els.getElement(at: 2)!.getText())
 	}
 
 	func testGeneralSiblings()throws {
@@ -401,7 +401,7 @@ class SelectorTest: XCTestCase {
 
 		let el1: HTMLElement = doc.getElementById("a1-foo_bar")!
 		XCTAssertEqual("One", el1.getText())
-		let el2: HTMLElement = doc.getElementsByClass("b2-qux_bif").first!
+		let el2: HTMLElement = doc.getElementsByClass(named: "b2-qux_bif").first!
 		XCTAssertEqual("Two", el2.getText())
 
 		let el3: HTMLElement = doc.select(cssQuery: "#a1-foo_bar").first!
@@ -431,44 +431,44 @@ class SelectorTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>One</p><p>Two</p><p>Three</>p></div><div><p>Four</p>")!
 		let ps: HTMLElements = doc.select(cssQuery: "div p:lt(2)")
 		XCTAssertEqual(3, ps.count)
-		XCTAssertEqual("One", ps.get(index: 0)!.getText())
-		XCTAssertEqual("Two", ps.get(index: 1)!.getText())
-		XCTAssertEqual("Four", ps.get(index: 2)!.getText())
+		XCTAssertEqual("One", ps.getElement(at: 0)!.getText())
+		XCTAssertEqual("Two", ps.getElement(at: 1)!.getText())
+		XCTAssertEqual("Four", ps.getElement(at: 2)!.getText())
 	}
 
 	func testPseudoGreaterThan()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>One</p><p>Two</p><p>Three</p></div><div><p>Four</p>")!
 		let ps: HTMLElements = doc.select(cssQuery: "div p:gt(0)")
 		XCTAssertEqual(2, ps.count)
-		XCTAssertEqual("Two", ps.get(index: 0)!.getText())
-		XCTAssertEqual("Three", ps.get(index: 1)!.getText())
+		XCTAssertEqual("Two", ps.getElement(at: 0)!.getText())
+		XCTAssertEqual("Three", ps.getElement(at: 1)!.getText())
 	}
 
 	func testPseudoEquals()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>One</p><p>Two</p><p>Three</>p></div><div><p>Four</p>")!
 		let ps: HTMLElements = doc.select(cssQuery: "div p:eq(0)")
 		XCTAssertEqual(2, ps.count)
-		XCTAssertEqual("One", ps.get(index: 0)!.getText())
-		XCTAssertEqual("Four", ps.get(index: 1)!.getText())
+		XCTAssertEqual("One", ps.getElement(at: 0)!.getText())
+		XCTAssertEqual("Four", ps.getElement(at: 1)!.getText())
 
 		let ps2: HTMLElements = doc.select(cssQuery: "div:eq(0) p:eq(0)")
 		XCTAssertEqual(1, ps2.count)
-		XCTAssertEqual("One", ps2.get(index: 0)!.getText())
-		XCTAssertEqual("p", ps2.get(index: 0)!.tagName)
+		XCTAssertEqual("One", ps2.getElement(at: 0)!.getText())
+		XCTAssertEqual("p", ps2.getElement(at: 0)!.tagName)
 	}
 
 	func testPseudoBetween()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div><p>One</p><p>Two</p><p>Three</>p></div><div><p>Four</p>")!
 		let ps: HTMLElements = doc.select(cssQuery: "div p:gt(0):lt(2)")
 		XCTAssertEqual(1, ps.count)
-		XCTAssertEqual("Two", ps.get(index: 0)!.getText())
+		XCTAssertEqual("Two", ps.getElement(at: 0)!.getText())
 	}
 
 	func testPseudoCombined()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<div class='foo'><p>One</p><p>Two</p></div><div><p>Three</p><p>Four</p></div>")!
 		let ps: HTMLElements = doc.select(cssQuery: "div.foo p:gt(0)")
 		XCTAssertEqual(1, ps.count)
-		XCTAssertEqual("Two", ps.get(index: 0)!.getText())
+		XCTAssertEqual("Two", ps.getElement(at: 0)!.getText())
 	}
 
 	func testPseudoHas()throws {
@@ -476,24 +476,24 @@ class SelectorTest: XCTestCase {
 
 		let divs1: HTMLElements = doc.select(cssQuery: "div:has(span)")
 		XCTAssertEqual(2, divs1.count)
-		XCTAssertEqual("0", divs1.get(index: 0)!.id)
-		XCTAssertEqual("1", divs1.get(index: 1)!.id)
+		XCTAssertEqual("0", divs1.getElement(at: 0)!.id)
+		XCTAssertEqual("1", divs1.getElement(at: 1)!.id)
 
 		let divs2: HTMLElements = doc.select(cssQuery: "div:has([class]")
 		XCTAssertEqual(1, divs2.count)
-		XCTAssertEqual("1", divs2.get(index: 0)!.id)
+		XCTAssertEqual("1", divs2.getElement(at: 0)!.id)
 
 		let divs3: HTMLElements = doc.select(cssQuery: "div:has(span, p)")
 		XCTAssertEqual(3, divs3.count)
-		XCTAssertEqual("0", divs3.get(index: 0)!.id)
-		XCTAssertEqual("1", divs3.get(index: 1)!.id)
-		XCTAssertEqual("2", divs3.get(index: 2)!.id)
+		XCTAssertEqual("0", divs3.getElement(at: 0)!.id)
+		XCTAssertEqual("1", divs3.getElement(at: 1)!.id)
+		XCTAssertEqual("2", divs3.getElement(at: 2)!.id)
 
 		let els1: HTMLElements = doc.body!.select(cssQuery: ":has(p)")
 		XCTAssertEqual(3, els1.count) // body, div, dib
 		XCTAssertEqual("body", els1.first?.tagName)
-		XCTAssertEqual("0", els1.get(index: 1)!.id)
-		XCTAssertEqual("2", els1.get(index: 2)!.id)
+		XCTAssertEqual("0", els1.getElement(at: 1)!.id)
+		XCTAssertEqual("2", els1.getElement(at: 2)!.id)
 	}
 
 	func testNestedHas()throws {
@@ -647,9 +647,9 @@ class SelectorTest: XCTestCase {
 
 		let containers: HTMLElements = doc.select(cssQuery: "div, li:matches([0-9,]+)")
 		XCTAssertEqual(2, containers.count)
-		XCTAssertEqual("div", containers.get(index: 0)!.tagName)
-		XCTAssertEqual("li", containers.get(index: 1)!.tagName)
-		XCTAssertEqual("123", containers.get(index: 1)!.getText())
+		XCTAssertEqual("div", containers.getElement(at: 0)!.tagName)
+		XCTAssertEqual("li", containers.getElement(at: 1)!.tagName)
+		XCTAssertEqual("123", containers.getElement(at: 1)!.getText())
 	}
 
 	func testSelectSupplementaryCharacter()throws {
@@ -669,13 +669,13 @@ class SelectorTest: XCTestCase {
 
 		var found: HTMLElements = doc.select(cssQuery: "div[class=value ]")
 		XCTAssertEqual(2, found.count)
-		XCTAssertEqual("class without space", found.get(index: 0)!.getText())
-		XCTAssertEqual("class with space", found.get(index: 1)!.getText())
+		XCTAssertEqual("class without space", found.getElement(at: 0)!.getText())
+		XCTAssertEqual("class with space", found.getElement(at: 1)!.getText())
 
 		found = doc.select(cssQuery: "div[class=\"value \"]")
 		XCTAssertEqual(2, found.count)
-		XCTAssertEqual("class without space", found.get(index: 0)!.getText())
-		XCTAssertEqual("class with space", found.get(index: 1)!.getText())
+		XCTAssertEqual("class without space", found.getElement(at: 0)!.getText())
+		XCTAssertEqual("class with space", found.getElement(at: 1)!.getText())
 
 		found = doc.select(cssQuery: "div[class=\"value\\ \"]")
 		XCTAssertEqual(0, found.count)

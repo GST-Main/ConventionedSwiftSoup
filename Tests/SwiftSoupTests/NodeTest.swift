@@ -130,7 +130,7 @@ class NodeTest: XCTestCase {
         let a1: HTMLElement? = doc.select(cssQuery: "a").first
         XCTAssertEqual("https://jsoup.org/path/file?foo", a1?.absoluteURLPath(ofAttribute: "href"))
         
-        let a2: HTMLElement? = doc.select(cssQuery: "a").get(index: 1)!
+        let a2: HTMLElement? = doc.select(cssQuery: "a").getElement(at: 1)!
         XCTAssertEqual("https://jsoup.org/path/bar.html?foo", a2?.absoluteURLPath(ofAttribute: "href"))
 	}
 
@@ -283,7 +283,7 @@ class NodeTest: XCTestCase {
 
 	func testNodeIsNotASiblingOfItself() {
         let doc: HTMLDocument = HTMLParser.parse("<div><p>One<p>Two<p>Three</div>")!
-        let p2: HTMLElement = doc.select(cssQuery: "p").get(index: 1)!
+        let p2: HTMLElement = doc.select(cssQuery: "p").getElement(at: 1)!
         
         XCTAssertEqual("Two", p2.getText())
         let nodes = p2.siblingNodes

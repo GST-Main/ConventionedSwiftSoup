@@ -540,7 +540,7 @@ open class Evaluator {
             if let family = element.parent?.children {
                 let x = element.elementSiblingIndex
                 for i in x..<family.count {
-                    if (family.get(index: i)?.tag == element.tag) {
+                    if (family.getElement(at: i)?.tag == element.tag) {
                         pos+=1
                     }
                 }

@@ -17,7 +17,7 @@ open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
     private static let EMPTY_NODES = Array<Node>()
-    public weak var parentNode: Node?
+    public private(set) weak var parentNode: Node?
     public internal(set) var childNodes: [Node]
     var attributes: Attributes?
     internal var _baseURI: String?
@@ -358,7 +358,7 @@ open class Node: Equatable, Hashable {
     /// </div>
     /// """
     /// let document = HTMLParser.parse(html)!
-    /// let span = document.getElementsByTag("span").first!
+    /// let span = document.getElementsByTag(named: "span").first!
     /// let result = try! span.unwrap()
     ///
     /// print(document.body!.html!)
@@ -396,7 +396,7 @@ open class Node: Equatable, Hashable {
     private func getDeepChild(element: HTMLElement) -> HTMLElement {
         let children = element.children
         if (children.count > 0) {
-            return getDeepChild(element: children.get(index: 0)!)
+            return getDeepChild(element: children.getElement(at: 0)!)
         } else {
             return element
         }

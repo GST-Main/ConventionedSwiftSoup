@@ -27,7 +27,7 @@ class AttributeParseTest: XCTestCase {
 		let html: String = "<a id=\"123\" class=\"baz = 'bar'\" style = 'border: 2px'qux zim foo = 12 mux=18 />"
 		// should be: <id=123>, <class=baz = 'bar'>, <qux=>, <zim=>, <foo=12>, <mux.=18>
 
-		let el: HTMLElement = HTMLParser.parse(html)!.getElementsByTag("a").get(index: 0)!
+		let el: HTMLElement = HTMLParser.parse(html)!.getElementsByTag(named: "a").getElement(at: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(7, attr.size())
 		XCTAssertEqual("123", attr.get(key: "id"))
@@ -49,14 +49,14 @@ class AttributeParseTest: XCTestCase {
 
 	func testparsesEmptyString()throws {
 		let html: String = "<a />"
-		let el: HTMLElement = HTMLParser.parse(html)!.getElementsByTag("a").get(index: 0)!
+		let el: HTMLElement = HTMLParser.parse(html)!.getElementsByTag(named: "a").getElement(at: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(0, attr.size())
 	}
 
 	func testcanStartWithEq()throws {
 		let html: String = "<a =empty />"
-		let el: HTMLElement = HTMLParser.parse(html)!.getElementsByTag("a").get(index: 0)!
+		let el: HTMLElement = HTMLParser.parse(html)!.getElementsByTag(named: "a").getElement(at: 0)!
 		let attr: Attributes = el.getAttributes()!
 		XCTAssertEqual(1, attr.size())
 		XCTAssertTrue(attr.hasKey(key: "=empty"))

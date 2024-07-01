@@ -171,7 +171,7 @@ open class HTMLElement: Node {
     /// - Parameter index: The index number of the child element to retrieve.
     /// - Returns: The child element, if exists, otherwise returns `nil`.
     open func getChild(at index: Int) -> HTMLElement? {
-        return children.get(index: index)
+        return children.getElement(at: index)
     }
 
     /// This element's child elements.
@@ -547,7 +547,7 @@ open class HTMLElement: Node {
             return nil
         }
         
-        return siblings.get(index: index + 1)
+        return siblings.getElement(at: index + 1)
     }
 
     /// The preivous sibling element of this element.
@@ -562,7 +562,7 @@ open class HTMLElement: Node {
             return nil
         }
 
-        return siblings.get(index: index - 1)
+        return siblings.getElement(at: index - 1)
     }
 
     /// The first sibling element of this element.
@@ -592,7 +592,7 @@ open class HTMLElement: Node {
     ///
     /// - Parameter tagName: The tag name to search for. Case insensitive.
     /// - Returns: A matching list of elements.
-    public func getElementsByTag(_ tagName: String) -> HTMLElements {
+    public func getElementsByTag(named tagName: String) -> HTMLElements {
         guard !tagName.isEmpty else { return HTMLElements() }
         let tagName = tagName.lowercased().trim()
 
@@ -613,7 +613,7 @@ open class HTMLElement: Node {
             return nil
         }
         if (elements.count > 0) {
-            return elements.get(index: 0)
+            return elements.getElement(at: 0)
         } else {
             return nil
         }
@@ -625,7 +625,7 @@ open class HTMLElement: Node {
     ///
     /// - Parameter className: A class name to search for.
     /// - Returns: A matching list of elements.
-    public func getElementsByClass(_ className: String) -> HTMLElements {
+    public func getElementsByClass(named className: String) -> HTMLElements {
         let result = try? Collector.collect(Evaluator.Class(className), self)
         return result ?? HTMLElements()
     }
@@ -967,7 +967,7 @@ open class HTMLElement: Node {
     /// </p>
     /// """
     /// let document = HTMLParser.parse(html)!
-    /// let p = document.getElementsByTag("p").first!
+    /// let p = document.getElementsByTag(named: "p").first!
     ///
     /// print(p.getText(trimAndNormaliseWhitespace: true))
     /// print(p.getText(trimAndNormaliseWhitespace: false))
@@ -1014,7 +1014,7 @@ open class HTMLElement: Node {
     /// </p>
     /// """
     /// let document = HTMLParser.parse(html)!
-    /// let p = document.getElementsByTag("p").first!
+    /// let p = document.getElementsByTag(named: "p").first!
     ///
     /// print(p.text)
     /// print(p.getText(trimAndNormaliseWhitespace: false))
@@ -1050,7 +1050,7 @@ open class HTMLElement: Node {
     /// </p>
     /// """
     /// let document = HTMLParser.parse(html)!
-    /// let p = document.getElementsByTag("p").first!
+    /// let p = document.getElementsByTag(named: "p").first!
     ///
     /// print(p.text)
     /// // Prints "One Two Three Four"

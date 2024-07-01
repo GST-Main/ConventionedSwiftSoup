@@ -13,17 +13,17 @@ import Foundation
 /// `HTMLElements` is a sequence that exclusively contains ``HTMLElement`` instances. This is a reference type whereas most of Swift's collection types are value types.
 ///
 /// Typically, users do not directly instantiate this object; instead, it is often returned as the result of methods from ``HTMLElement``.
-/// For example, ``HTMLElement/getElementsByClass(_:)`` returns an instance of ``HTMLElements`` containing elements with a specified class name.
+/// For example, ``HTMLElement/getElementsByClass(named:)`` returns an instance of ``HTMLElements`` containing elements with a specified class name.
 ///
 /// You can use Array-like members to manipulate a list of elements. This is the list of them:
-/// * Use ``append(_:)``, ``append(contentsOf:)``, ``insert(_:at:)``, ``insert(contensOf:at:)`` to add new elements to `HTMLElements`.
-/// * Like `Array`, access an element in the list using the subscript. You can also use ``get(index:)`` method for safe access.
+/// * Use ``append(_:)``, ``append(contentsOf:)``, ``insert(_:at:)``, ``insert(contentsOf:at:)`` to add new elements to `HTMLElements`.
+/// * Like `Array`, access an element in the list using the subscript. You can also use ``getElement(at:)`` method for safe access.
 /// * To avoid out-of-bound index error, check information such as ``startIndex``, ``endIndex`` and``count``.
 /// * Many other sequence methods and properties are supported: `forEach(_:)`, `map(_:)`, `first`, `reduce(_:_:)`, etc.
 ///
 /// `HTMLElements` has `HTMLElement` specialized methods and properties:
 /// * ``text(trimAndNormaliseWhitespace:)``, ``texts``, ``html`` and ``outerHtml`` combines the list's element.
-/// * You can simply check if any element meet specific conditions with "has-method"s: ``hasClass(named:)``, ``hasAttribute(key:)``, ``hasElementMatchedWithCSSQuery(_:)``, ``hasText``
+/// * You can simply check if any element meet specific conditions with "has-method"s: ``hasClass(named:)``, ``hasAttribute(withKey:)``, ``hasElementMatchedWithCSSQuery(_:)``, ``hasText``
 /// * Filter the list using CSS queries: ``select(cssQuery:)``, ``selectNot(cssQuery:)``
 ///
 /// - todo: This object also contains XML elements as ``HTMLElement`` also represents XML element. This is temporary and will be refactored into a more object-oriented structure in the future.
@@ -119,7 +119,7 @@ open class HTMLElements: NSCopying {
     
     // MARK: "has" Methods
     /// Check if any of elements have an attribute with the specified key.
-    open func hasAttribute(key: String) -> Bool {
+    open func hasAttribute(withKey key: String) -> Bool {
         for element in self {
             if element.hasAttribute(withKey: key) {
                 return true
@@ -232,8 +232,8 @@ open class HTMLElements: NSCopying {
     ///
     /// ```swift
     /// let elements = HTMLElements()
-    /// let divs = document.getElementsByTag("div")
-    /// let spans = document.getElementsByTag("span")
+    /// let divs = document.getElementsByTag(named: "div")
+    /// let spans = document.getElementsByTag(named: "span")
     /// elements.append(contentsOf: divs)
     /// elements.append(contentsOf: spans)
     /// ```
@@ -253,7 +253,7 @@ open class HTMLElements: NSCopying {
     /// index. If you pass the array's `endIndex` property as the `index`
     /// parameter, the new element is appended to the list.
     /// ```swift
-    /// let elements = document.getElementsByTag("div")
+    /// let elements = document.getElementsByTag(named: "div")
     /// let contents = document.getElementById("main-contents")!
     /// let extra = document.getElementById("extra-contents")!
     ///
@@ -289,7 +289,7 @@ open class HTMLElements: NSCopying {
     /// - Complexity: O(*n* + *m*), where *n* is length of this collection and
     ///   *m* is the length of `newElements`. If `i == endIndex`, this method
     ///   is equivalent to `append(contentsOf:)`.
-    open func insert<C: Collection>(contensOf newElements: C, at index: Int) where C.Element == HTMLElement {
+    open func insert<C: Collection>(contentsOf newElements: C, at index: Int) where C.Element == HTMLElement {
         _elements.insert(contentsOf: newElements, at: index)
     }
     
@@ -301,7 +301,7 @@ open class HTMLElements: NSCopying {
     ///
     /// - Parameter index: The position of an element to get.
     /// - Returns: An element at the given index if exists, otherwise returns `nil`
-    open func get(index: Int) -> HTMLElement? {
+    open func getElement(at index: Int) -> HTMLElement? {
         guard index >= 0 else { return nil }
         guard index < count else { return nil }
         return self[index]

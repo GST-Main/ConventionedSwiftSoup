@@ -26,8 +26,8 @@ class ElementsTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse(h)!
 		let els: HTMLElements = doc.select(cssQuery: ".headline").select(cssQuery: "p")
 		XCTAssertEqual(2, els.count)
-        XCTAssertEqual("Hello", els.get(index: 0)!.getText())
-        XCTAssertEqual("There", els.get(index: 1)!.getText())
+        XCTAssertEqual("Hello", els.getElement(at: 0)!.getText())
+        XCTAssertEqual("There", els.getElement(at: 1)!.getText())
 	}
 
 	func testRandomAccessCollection()throws {
@@ -46,15 +46,15 @@ class ElementsTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse(h)!
 		let withTitle: HTMLElements = doc.select(cssQuery: "p[title]")
 		XCTAssertEqual(2, withTitle.count)
-        XCTAssertTrue(withTitle.hasAttribute(key: "title"))
-		XCTAssertFalse(withTitle.hasAttribute(key: "class"))
+        XCTAssertTrue(withTitle.hasAttribute(withKey: "title"))
+		XCTAssertFalse(withTitle.hasAttribute(withKey: "class"))
 	}
 
 	func testHasAttr()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<p title=foo><p title=bar><p class=foo><p class=bar>")!
 		let ps: HTMLElements = doc.select(cssQuery: "p")
-		XCTAssertTrue(ps.hasAttribute(key: "class"))
-		XCTAssertFalse(ps.hasAttribute(key: "style"))
+		XCTAssertTrue(ps.hasAttribute(withKey: "class"))
+		XCTAssertFalse(ps.hasAttribute(withKey: "style"))
 	}
 
 	func testHasAbsAttr()throws {
@@ -62,9 +62,9 @@ class ElementsTest: XCTestCase {
 		let one: HTMLElements = doc.select(cssQuery: "#1")
 		let two: HTMLElements = doc.select(cssQuery: "#2")
 		let both: HTMLElements = doc.select(cssQuery: "a")
-		XCTAssertFalse(one.hasAttribute(key: "abs:href"))
-		XCTAssertTrue(two.hasAttribute(key: "abs:href"))
-		XCTAssertTrue(both.hasAttribute(key: "abs:href")) // hits on #2
+		XCTAssertFalse(one.hasAttribute(withKey: "abs:href"))
+		XCTAssertTrue(two.hasAttribute(withKey: "abs:href"))
+		XCTAssertTrue(both.hasAttribute(withKey: "abs:href")) // hits on #2
 	}
 
 	func testClasses()throws {
@@ -168,7 +168,7 @@ class ElementsTest: XCTestCase {
 
 	func testClassWithHyphen()throws {
 		let doc: HTMLDocument = HTMLParser.parse("<p class='tab-nav'>Check</p>")!
-		let els: HTMLElements = doc.getElementsByClass("tab-nav")
+		let els: HTMLElements = doc.getElementsByClass(named: "tab-nav")
 		XCTAssertEqual(1, els.count)
 		XCTAssertEqual("Check", els.text())
 	}

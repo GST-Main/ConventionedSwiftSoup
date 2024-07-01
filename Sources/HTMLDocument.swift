@@ -87,7 +87,7 @@ open class HTMLDocument: HTMLElement {
     public var title: String? {
         // title is a preserve whitespace tag (for document output), but normalised here
         get {
-            if let titleElement = getElementsByTag("title").first {
+            if let titleElement = getElementsByTag(named: "title").first {
                 return StringUtil.normaliseWhitespace(titleElement.getText()).trim()
             } else {
                 return nil
@@ -95,12 +95,12 @@ open class HTMLDocument: HTMLElement {
         }
         set {
             if let newValue {
-                if let titleElement = getElementsByTag("title").first {
+                if let titleElement = getElementsByTag(named: "title").first {
                     titleElement.setText(newValue)
                 } else {
                     try! head?.appendElement(tagName: "title").setText(newValue)
                 }
-            } else if let titleElement = getElementsByTag("title").first {
+            } else if let titleElement = getElementsByTag(named: "title").first {
                 titleElement.remove()
             }
         }
@@ -173,12 +173,12 @@ open class HTMLDocument: HTMLElement {
 
     // merge multiple <head> or <body> contents into one, delete the remainder, and ensure they are owned by <html>
     private func normaliseStructure(_ tag: String, _ htmlEl: HTMLElement) {
-        let elements: HTMLElements = self.getElementsByTag(tag)
+        let elements: HTMLElements = self.getElementsByTag(named: tag)
         let master: HTMLElement? = elements.first // will always be available as created above if not existent
         if (elements.count > 1) { // dupes, move contents to master
             var toMove: Array<Node> = Array<Node>()
             for i in 1..<elements.count {
-                let dupe: Node = elements.get(index: i)!
+                let dupe: Node = elements.getElement(at: i)!
                 for node: Node in dupe.childNodes {
                     toMove.append(node)
                 }

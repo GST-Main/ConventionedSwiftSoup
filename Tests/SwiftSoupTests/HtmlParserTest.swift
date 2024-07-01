@@ -69,7 +69,7 @@ class HtmlParserTest: XCTestCase {
 	func testParsesUnterminatedComments()throws {
 		let html = "<p>Hello<!-- <tr><td>"
 		let doc: HTMLDocument = HTMLParser.parse(html)!
-		let p: HTMLElement = doc.getElementsByTag("p").get(index: 0)!
+		let p: HTMLElement = doc.getElementsByTag(named: "p").getElement(at: 0)!
 		XCTAssertEqual("Hello", p.getText())
 		let text: TextNode = p.childNodes[0] as! TextNode
 		XCTAssertEqual("Hello", text.getWholeText())
@@ -81,7 +81,7 @@ class HtmlParserTest: XCTestCase {
 		// swiftsoup used to parse this to <p>, but whatwg, webkit will drop.
 		let h1: String = "<p"
 		var doc: HTMLDocument = HTMLParser.parse(h1)!
-		XCTAssertEqual(0, doc.getElementsByTag("p").count)
+		XCTAssertEqual(0, doc.getElementsByTag(named: "p").count)
 		XCTAssertEqual("", doc.getText())
 
 		let h2: String = "<div id=1<p id='2'"
@@ -101,7 +101,7 @@ class HtmlParserTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse("<body><p><textarea>one<p>two")!
 		let t: HTMLElement = doc.select(cssQuery: "textarea").first!
 		XCTAssertEqual("one", t.getText())
-		XCTAssertEqual("two", doc.select(cssQuery: "p").get(index: 1)!.getText())
+		XCTAssertEqual("two", doc.select(cssQuery: "p").getElement(at: 1)!.getText())
 	}
 
 	func testParsesUnterminatedOption()throws {
@@ -129,11 +129,11 @@ class HtmlParserTest: XCTestCase {
 		XCTAssertEqual(3, head.children.count)
 		XCTAssertEqual(1, body.children.count)
 
-		XCTAssertEqual("keywords", head.getElementsByTag("meta").get(index: 0)!.getAttribute(withKey: "name"))
-		XCTAssertEqual(0, body.getElementsByTag("meta").count)
+		XCTAssertEqual("keywords", head.getElementsByTag(named: "meta").getElement(at: 0)!.getAttribute(withKey: "name"))
+		XCTAssertEqual(0, body.getElementsByTag(named: "meta").count)
 		XCTAssertEqual("SwiftSoup",  doc.title)
 		XCTAssertEqual("Hello world", body.getText())
-		XCTAssertEqual("Hello world", body.children.get(index: 0)!.text)
+		XCTAssertEqual("Hello world", body.children.getElement(at: 0)!.text)
 	}
 
 	func testCreatesStructureFromBodySnippet()throws {
@@ -148,7 +148,7 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesEscapedData()throws {
 		let html = "<div title='Surf &amp; Turf'>Reef &amp; Beef</div>"
 		let doc = HTMLParser.parse(html)!
-		let div: HTMLElement = doc.getElementsByTag("div").get(index: 0)!
+		let div: HTMLElement = doc.getElementsByTag(named: "div").getElement(at: 0)!
 
 		XCTAssertEqual("Surf & Turf", div.getAttribute(withKey: "title"))
 		XCTAssertEqual("Reef & Beef", div.getText())
@@ -156,9 +156,9 @@ class HtmlParserTest: XCTestCase {
 
 	func testHandlesDataOnlyTags()throws {
 		let t: String = "<style>font-family: bold</style>"
-		let tels: HTMLElements = HTMLParser.parse(t)!.getElementsByTag("style")
-		XCTAssertEqual("font-family: bold", tels.get(index: 0)!.data)
-		XCTAssertEqual("", tels.get(index: 0)!.getText())
+		let tels: HTMLElements = HTMLParser.parse(t)!.getElementsByTag(named: "style")
+		XCTAssertEqual("font-family: bold", tels.getElement(at: 0)!.data)
+		XCTAssertEqual("", tels.getElement(at: 0)!.getText())
 
 		let s: String = "<p>Hello</p><script>obj.insert('<a rel=\"none\" />');\ni++;</script><p>There</p>"
 		let doc: HTMLDocument = HTMLParser.parse(s)!
@@ -219,7 +219,7 @@ class HtmlParserTest: XCTestCase {
 		XCTAssertEqual(1, doc2.select(cssQuery: "ol").count)
 		XCTAssertEqual(2, doc2.select(cssQuery: "ol li").count)
 		XCTAssertEqual(2, doc2.select(cssQuery: "ol li p").count)
-		XCTAssertEqual(1, doc2.select(cssQuery: "ol li").get(index: 0)!.children.count) // one p in first li
+		XCTAssertEqual(1, doc2.select(cssQuery: "ol li").getElement(at: 0)!.children.count) // one p in first li
 	}
 
 	func testDiscardsNakedTds()throws {
@@ -269,16 +269,16 @@ class HtmlParserTest: XCTestCase {
 		let doc = HTMLParser.parse(h, baseURI: "http://foo/")!
 		XCTAssertEqual("http://foo/2/", doc.baseURI) // gets set once, so doc and descendants have first only
 
-		let anchors: HTMLElements = doc.getElementsByTag("a")
+		let anchors: HTMLElements = doc.getElementsByTag(named: "a")
 		XCTAssertEqual(3, anchors.count)
 
-		XCTAssertEqual("http://foo/2/", anchors.get(index: 0)!.baseURI)
-		XCTAssertEqual("http://foo/2/", anchors.get(index: 1)!.baseURI)
-		XCTAssertEqual("http://foo/2/", anchors.get(index: 2)!.baseURI)
+		XCTAssertEqual("http://foo/2/", anchors.getElement(at: 0)!.baseURI)
+		XCTAssertEqual("http://foo/2/", anchors.getElement(at: 1)!.baseURI)
+		XCTAssertEqual("http://foo/2/", anchors.getElement(at: 2)!.baseURI)
 
-		XCTAssertEqual("http://foo/2/1", anchors.get(index: 0)!.absoluteURLPath(ofAttribute: "href"))
-		XCTAssertEqual("http://foo/2/3", anchors.get(index: 1)!.absoluteURLPath(ofAttribute: "href"))
-		XCTAssertEqual("http://foo/4", anchors.get(index: 2)!.absoluteURLPath(ofAttribute: "href"))
+		XCTAssertEqual("http://foo/2/1", anchors.getElement(at: 0)!.absoluteURLPath(ofAttribute: "href"))
+		XCTAssertEqual("http://foo/2/3", anchors.getElement(at: 1)!.absoluteURLPath(ofAttribute: "href"))
+		XCTAssertEqual("http://foo/4", anchors.getElement(at: 2)!.absoluteURLPath(ofAttribute: "href"))
 	}
 
 	func testHandlesProtocolRelativeUrl()throws {
@@ -390,7 +390,7 @@ class HtmlParserTest: XCTestCase {
 		XCTAssertEqual(4, doc.select(cssQuery: "dt, dd").count)
 		let dts: HTMLElements = doc.select(cssQuery: "dt")
 		XCTAssertEqual(2, dts.count)
-		XCTAssertEqual("Zug",  dts.get(index: 1)!.nextSiblingElement?.getText())
+		XCTAssertEqual("Zug",  dts.getElement(at: 1)!.nextSiblingElement?.getText())
 	}
 
 	func testHandlesBlocksInDefinitions()throws {

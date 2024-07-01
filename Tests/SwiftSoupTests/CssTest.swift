@@ -159,15 +159,15 @@ class CssTest: XCTestCase {
 	func testEmpty()throws {
 		let sel: HTMLElements = html.select(cssQuery: ":empty")
 		XCTAssertEqual(3, sel.count)
-		XCTAssertEqual("head", sel.get(index: 0)?.tagName)
-		XCTAssertEqual("br", sel.get(index: 1)?.tagName)
-		XCTAssertEqual("p", sel.get(index: 2)?.tagName)
+		XCTAssertEqual("head", sel.getElement(at: 0)?.tagName)
+		XCTAssertEqual("br", sel.getElement(at: 1)?.tagName)
+		XCTAssertEqual("p", sel.getElement(at: 2)?.tagName)
 	}
 
 	func testOnlyChild()throws {
 		let sel: HTMLElements = html.select(cssQuery: "span :only-child")
 		XCTAssertEqual(1, sel.count)
-		XCTAssertEqual("br", sel.get(index: 0)?.tagName)
+		XCTAssertEqual("br", sel.getElement(at: 0)?.tagName)
 
 		check(html.select(cssQuery: "#only :only-child"), "only")
 	}
@@ -175,13 +175,13 @@ class CssTest: XCTestCase {
 	func testOnlyOfType()throws {
 		let sel: HTMLElements = html.select(cssQuery: ":only-of-type")
 		XCTAssertEqual(6, sel.count)
-		XCTAssertEqual("head", sel.get(index: 0)?.tagName)
-		XCTAssertEqual("body", sel.get(index: 1)?.tagName)
-		XCTAssertEqual("span", sel.get(index: 2)?.tagName)
-		XCTAssertEqual("br", sel.get(index: 3)?.tagName)
-		XCTAssertEqual("p", sel.get(index: 4)?.tagName)
-		XCTAssertTrue(sel.get(index: 4)?.hasClass(named: "empty") == true)
-		XCTAssertEqual("em", sel.get(index: 5)?.tagName)
+		XCTAssertEqual("head", sel.getElement(at: 0)?.tagName)
+		XCTAssertEqual("body", sel.getElement(at: 1)?.tagName)
+		XCTAssertEqual("span", sel.getElement(at: 2)?.tagName)
+		XCTAssertEqual("br", sel.getElement(at: 3)?.tagName)
+		XCTAssertEqual("p", sel.getElement(at: 4)?.tagName)
+		XCTAssertTrue(sel.getElement(at: 4)?.hasClass(named: "empty") == true)
+		XCTAssertEqual("em", sel.getElement(at: 5)?.tagName)
 	}
 
 	func check(_ resut: HTMLElements, _ expectedContent: String... ) {
@@ -191,21 +191,21 @@ class CssTest: XCTestCase {
 	func check(_ result: HTMLElements, _ expectedContent: [String] ) {
 		XCTAssertEqual(expectedContent.count, result.count)
 		for i in 0..<expectedContent.count {
-            XCTAssertNotNil(result.get(index: i))
-            XCTAssertEqual(expectedContent[i], result.get(index: i)?.ownText)
+            XCTAssertNotNil(result.getElement(at: i))
+            XCTAssertEqual(expectedContent[i], result.getElement(at: i)?.ownText)
 		}
 	}
 
 	func testRoot()throws {
 		let sel: HTMLElements = html.select(cssQuery: ":root")
 		XCTAssertEqual(1, sel.count)
-		XCTAssertNotNil(sel.get(index: 0)!)
-        try XCTAssertEqual(Tag.valueOf("html"), sel.get(index: 0)?.tag)
+		XCTAssertNotNil(sel.getElement(at: 0)!)
+        try XCTAssertEqual(Tag.valueOf("html"), sel.getElement(at: 0)?.tag)
 
 		let sel2: HTMLElements = html.select(cssQuery: "body").select(cssQuery: ":root")
 		XCTAssertEqual(1, sel2.count)
-		XCTAssertNotNil(sel2.get(index: 0)!)
-		try XCTAssertEqual(Tag.valueOf("body"), sel2.get(index: 0)?.tag)
+		XCTAssertNotNil(sel2.getElement(at: 0)!)
+		try XCTAssertEqual(Tag.valueOf("body"), sel2.getElement(at: 0)?.tag)
 	}
 
 	static var allTests = {
