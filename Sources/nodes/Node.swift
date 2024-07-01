@@ -17,7 +17,9 @@ open class Node: Equatable, Hashable {
     private static let abs = "abs:"
     fileprivate static let empty = ""
     private static let EMPTY_NODES = Array<Node>()
+    /// This node's parent node.
     public private(set) weak var parentNode: Node?
+    /// An array of child nodes of this node.
     public internal(set) var childNodes: [Node]
     var attributes: Attributes?
     internal var _baseURI: String?

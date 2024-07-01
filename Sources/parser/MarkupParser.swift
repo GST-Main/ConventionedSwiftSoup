@@ -2,7 +2,7 @@ import Foundation
 
 /// A parser of markup languages like HTML and XML.
 ///
-/// This is a base class for both ``HTMLParser`` and ``XMLParser``. Genrally, it is not used directly. Use ``HTMLParser`` for parsing an HTML document and ``XMLParser`` for parsing an XML document.
+/// This is a base class for both ``HTMLParser`` and ``XMLParser``. Generally, it is not used directly. Use ``HTMLParser`` for parsing an HTML document and ``XMLParser`` for parsing an XML document.
 open class MarkupParser {
     internal static let DEFAULT_MAX_ERRORS: Int = 0 // by default, error tracking is disabled.
 
