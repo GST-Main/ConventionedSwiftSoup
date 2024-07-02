@@ -37,6 +37,18 @@ class AttributeParseTest: XCTestCase {
 		XCTAssertEqual("", attr.get(key: "zim"))
 		XCTAssertEqual("12", attr.get(key: "foo"))
 		XCTAssertEqual("18", attr.get(key: "mux"))
+        
+        let foo =
+        """
+        <div id="js">
+        <script>
+        console.log('Hello, world!');
+        </script></div>
+        """
+        let element = HTMLParser.parse(foo)!.getElementById("js")!
+        let script = element.nonTextContent
+        print(script)
+        // Prints " console.log('Hello, world!'); "
 	}
 
 	func testhandlesNewLinesAndReturns()throws {

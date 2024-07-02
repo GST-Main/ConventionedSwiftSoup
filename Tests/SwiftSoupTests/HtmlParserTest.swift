@@ -157,13 +157,13 @@ class HtmlParserTest: XCTestCase {
 	func testHandlesDataOnlyTags()throws {
 		let t: String = "<style>font-family: bold</style>"
 		let tels: HTMLElements = HTMLParser.parse(t)!.getElementsByTag(named: "style")
-		XCTAssertEqual("font-family: bold", tels.getElement(at: 0)!.data)
+		XCTAssertEqual("font-family: bold", tels.getElement(at: 0)!.nonTextContent)
 		XCTAssertEqual("", tels.getElement(at: 0)!.getText())
 
 		let s: String = "<p>Hello</p><script>obj.insert('<a rel=\"none\" />');\ni++;</script><p>There</p>"
 		let doc: HTMLDocument = HTMLParser.parse(s)!
 		XCTAssertEqual("Hello There", doc.getText())
-		XCTAssertEqual("obj.insert('<a rel=\"none\" />');\ni++;", doc.data)
+		XCTAssertEqual("obj.insert('<a rel=\"none\" />');\ni++;", doc.nonTextContent)
 	}
 
 	func testHandlesTextAfterData()throws {
@@ -196,7 +196,7 @@ class HtmlParserTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse("<script>\nOne\n\tTwo\n\tThree\n</script>")!
 		let expect = "\nOne\n\tTwo\n\tThree\n"
 		let el: HTMLElement = doc.select(cssQuery: "script").first!
-		XCTAssertEqual(expect, el.data)
+		XCTAssertEqual(expect, el.nonTextContent)
 		XCTAssertEqual("One\n\tTwo\n\tThree", el.html)
 		XCTAssertEqual("<script>" + expect + "</script>", el.outerHTML)
 	}

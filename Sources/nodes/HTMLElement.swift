@@ -1135,19 +1135,40 @@ open class HTMLElement: Node {
         return false
     }
 
-    /// A combined data of this element.
-    public var data: String {
+    /// A String value representing combined non-text contents.
+    ///
+    /// This property includes non-textual content within this element,
+    /// such as `<script>`, `<style>`, etc., including the content of its descendants.
+    /// If there are no non-textual contents, this property is `nil`.
+    ///
+    /// ```swift
+    /// let html =
+    /// """
+    /// <div id="js">
+    /// <script> console.log('Hello, world!'); </script>
+    /// </div>
+    /// """
+    /// let div = HTMLParser.parse(html)!.getElementById("js")!
+    /// print(div.nonTextContent!)
+    ///
+    /// // Prints " console.log('Hello, world!'); "
+    /// ```
+    public var nonTextContent: String? {
+        var isEmpty = true
         let stringBuilder: StringBuilder = StringBuilder()
 
         for childNode: Node in childNodes {
             if let data = (childNode as? DataNode) {
+                isEmpty = false
                 stringBuilder.append(data.getWholeData())
             } else if let element = (childNode as? HTMLElement) {
-                let elementData: String = element.data
-                stringBuilder.append(elementData)
+                if let elementData = element.nonTextContent {
+                    isEmpty = false
+                    stringBuilder.append(elementData)
+                }
             }
         }
-        return stringBuilder.toString()
+        return isEmpty ? nil : stringBuilder.toString()
     }
 
     /// A String value of this element's "class" attribute.
