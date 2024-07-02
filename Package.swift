@@ -3,16 +3,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftSoup",
+    name: "PrettySwiftSoup",
     products: [
-        .library(name: "SwiftSoup", targets: ["SwiftSoup"])
+        .library(name: "PrettySwiftSoup", targets: ["PrettySwiftSoup"])
     ],
     targets: [
-        .target(name: "SwiftSoup",
+        .target(name: "PrettySwiftSoup",
                 path: "Sources",
                 exclude: [],
                 resources: [.copy("PrivacyInfo.xcprivacy")]),
-        .testTarget(name: "SwiftSoupTests", dependencies: ["SwiftSoup"])
+        .testTarget(name: "PrettySwiftSoupTests", dependencies: ["PrettySwiftSoup"])
     ]
 )
 
