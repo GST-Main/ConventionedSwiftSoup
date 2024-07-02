@@ -87,12 +87,16 @@ open class HTMLElement: Node {
     /// A value of the "id" attribute.
     ///
     /// The id is NOT unique actually. It just represent the "id" attribute's value. If this element has no "id" element, this property represents empty string.
-    open var id: String {
-        guard let attributes = attributes else { return HTMLElement.emptyString }
+    open var id: String? {
+        guard let attributes = attributes else {
+            return nil
+        }
+        
         do {
             return try attributes.getIgnoreCase(key: HTMLElement.idString)
-        } catch {}
-        return HTMLElement.emptyString
+        } catch {
+            return nil
+        }
     }
 
     /// Set an attribute value on this element.
@@ -491,9 +495,8 @@ open class HTMLElement: Node {
 
     /// A CSS selector that uniquely select this element.
     public var cssSelector: String {
-        let elementId = id
-        if (elementId.count > 0) {
-            return "#" + elementId
+        if let id {
+            return "#" + id
         }
 
         // Translate HTML namespace ns:tag to CSS namespace syntax ns|tag

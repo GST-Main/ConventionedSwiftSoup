@@ -94,7 +94,7 @@ class AttributeParseTest: XCTestCase {
 
 		XCTAssertEqual("123", el.getAttribute(withKey: "normal"))
 		XCTAssertEqual(nil, el.getAttribute(withKey: "boolean"))
-		XCTAssertEqual(nil, el.getAttribute(withKey: "empty"))
+		XCTAssertEqual("", el.getAttribute(withKey: "empty"))
 
 		let attributes: Array<Attribute> = el.getAttributes()!.asList()
 		XCTAssertEqual(3, attributes.count, "There should be 3 attribute present")

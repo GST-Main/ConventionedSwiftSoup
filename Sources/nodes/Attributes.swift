@@ -49,12 +49,12 @@ open class Attributes: NSCopying {
      * @param key the attribute name
      * @return the first matching attribute value if set; or empty string if not set.
      */
-    open func getIgnoreCase(key: String )throws -> String {
+    open func getIgnoreCase(key: String) throws -> String? {
         try Validate.notEmpty(string: key)
         if let attr = attributes.first(where: { $0.getKey().caseInsensitiveCompare(key) == .orderedSame }) {
-            return attr.getValue()
+            return attr.isBooleanAttribute() ? nil : attr.getValue()
         }
-        return ""
+        return nil
     }
 
     /**
