@@ -37,6 +37,18 @@ class AttributeParseTest: XCTestCase {
 		XCTAssertEqual("", attr.get(key: "zim"))
 		XCTAssertEqual("12", attr.get(key: "foo"))
 		XCTAssertEqual("18", attr.get(key: "mux"))
+        
+        let foo =
+        """
+        <div id="js">
+        <script>
+        console.log('Hello, world!');
+        </script></div>
+        """
+        let element = HTMLParser.parse(foo)!.getElementById("js")!
+        let script = element.nonTextContent
+        print(script)
+        // Prints " console.log('Hello, world!'); "
 	}
 
 	func testhandlesNewLinesAndReturns()throws {
@@ -82,7 +94,7 @@ class AttributeParseTest: XCTestCase {
 
 		XCTAssertEqual("123", el.getAttribute(withKey: "normal"))
 		XCTAssertEqual(nil, el.getAttribute(withKey: "boolean"))
-		XCTAssertEqual(nil, el.getAttribute(withKey: "empty"))
+		XCTAssertEqual("", el.getAttribute(withKey: "empty"))
 
 		let attributes: Array<Attribute> = el.getAttributes()!.asList()
 		XCTAssertEqual(3, attributes.count, "There should be 3 attribute present")

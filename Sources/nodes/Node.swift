@@ -86,10 +86,14 @@ open class Node: Equatable, Hashable {
     ///
     /// - Returns: The value of an attribute with the given key. If not exists, returns nil.
     open func getAttribute(withKey key: String) -> String? {
-        guard let value = try? attributes?.getIgnoreCase(key: key) else {
+        var value: String?
+        do {
+            value = try attributes?.getIgnoreCase(key: key)
+        } catch {
             return nil
         }
-        if value.count > 0 {
+        
+        if let value {
             return value
         } else if (key.lowercased().startsWith(Node.abs)) {
             return absoluteURLPath(ofAttribute: key.substring(Node.abs.count))

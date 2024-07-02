@@ -87,12 +87,16 @@ open class HTMLElement: Node {
     /// A value of the "id" attribute.
     ///
     /// The id is NOT unique actually. It just represent the "id" attribute's value. If this element has no "id" element, this property represents empty string.
-    open var id: String {
-        guard let attributes = attributes else { return HTMLElement.emptyString }
+    open var id: String? {
+        guard let attributes = attributes else {
+            return nil
+        }
+        
         do {
             return try attributes.getIgnoreCase(key: HTMLElement.idString)
-        } catch {}
-        return HTMLElement.emptyString
+        } catch {
+            return nil
+        }
     }
 
     /// Set an attribute value on this element.
@@ -132,8 +136,22 @@ open class HTMLElement: Node {
         return self
     }
 
-    /// A dictionary paired with `key:value` pairs of attributes of this element.
-    open var attributesAsDictionary: Dictionary<String, String> {
+    /// A dictionary containing `key:value` pairs of data.
+    ///
+    /// This property represents values of \``data-*`\` attributes.
+    ///
+    /// ```swift
+    /// let html =
+    /// """
+    /// <div id="main" data-user-id="123" data-info="additional info"> ... </div>
+    /// """
+    ///
+    /// let element = HTMLParser.parse(html)!.getElementById("main")!
+    /// print(element.datas)
+    ///
+    /// // Prints "["user-id":"123","info":"additional info"]"
+    /// ```
+    open var datas: Dictionary<String, String> {
         attributes!.dataset()
     }
 
@@ -491,9 +509,8 @@ open class HTMLElement: Node {
 
     /// A CSS selector that uniquely select this element.
     public var cssSelector: String {
-        let elementId = id
-        if (elementId.count > 0) {
-            return "#" + elementId
+        if let id {
+            return "#" + id
         }
 
         // Translate HTML namespace ns:tag to CSS namespace syntax ns|tag
@@ -1135,19 +1152,40 @@ open class HTMLElement: Node {
         return false
     }
 
-    /// A combined data of this element.
-    public var data: String {
+    /// A String value representing combined non-text contents.
+    ///
+    /// This property includes non-textual content within this element,
+    /// such as `<script>`, `<style>`, etc., including the content of its descendants.
+    /// If there are no non-textual contents, this property is `nil`.
+    ///
+    /// ```swift
+    /// let html =
+    /// """
+    /// <div id="js">
+    /// <script> console.log('Hello, world!'); </script>
+    /// </div>
+    /// """
+    /// let div = HTMLParser.parse(html)!.getElementById("js")!
+    /// print(div.nonTextContent!)
+    ///
+    /// // Prints " console.log('Hello, world!'); "
+    /// ```
+    public var nonTextContent: String? {
+        var isEmpty = true
         let stringBuilder: StringBuilder = StringBuilder()
 
         for childNode: Node in childNodes {
             if let data = (childNode as? DataNode) {
+                isEmpty = false
                 stringBuilder.append(data.getWholeData())
             } else if let element = (childNode as? HTMLElement) {
-                let elementData: String = element.data
-                stringBuilder.append(elementData)
+                if let elementData = element.nonTextContent {
+                    isEmpty = false
+                    stringBuilder.append(elementData)
+                }
             }
         }
-        return stringBuilder.toString()
+        return isEmpty ? nil : stringBuilder.toString()
     }
 
     /// A String value of this element's "class" attribute.
