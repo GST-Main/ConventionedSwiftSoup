@@ -356,7 +356,7 @@ class ElementTest: XCTestCase {
 		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
 		let div: HTMLElement = doc.getElementById("1")!
         try div.appendElement(tagName: "p").setText("there")
-		try div.appendElement(tagName: "P").setAttribute(withKey: "CLASS", newValue: "second").setText("now")
+		try div.appendElement(tagName: "P").setAttribute(withKey: "CLASS", value: "second").setText("now")
 		// manually specifying tag and attributes should now preserve case, regardless of parse mode
 		XCTAssertEqual("<html><head></head><body><div id=\"1\"><p>Hello</p><p>there</p><P CLASS=\"second\">now</P></div></body></html>",
 		             TextUtil.stripNewlines(doc.html!))
@@ -371,10 +371,10 @@ class ElementTest: XCTestCase {
 	func testAddBooleanAttribute()throws {
 		let div: HTMLElement = try HTMLElement(tag: Tag.valueOf("div"), baseURI: "")
 
-		try div.setAttribute(key: "true", value: true)
+		try div.setAttribute(withKey: "true", value: true)
 
-		try div.setAttribute(withKey: "false", newValue: "value")
-		try div.setAttribute(key: "false", value: false)
+		try div.setAttribute(withKey: "false", value: "value")
+		try div.setAttribute(withKey: "false", value: false)
 
 		XCTAssertTrue(div.hasAttribute(withKey: "true"))
 		XCTAssertEqual(nil, div.getAttribute(withKey: "true"))

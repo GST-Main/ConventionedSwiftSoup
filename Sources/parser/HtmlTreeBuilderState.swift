@@ -542,7 +542,7 @@ enum HtmlTreeBuilderState: String, HtmlTreeBuilderStateProtocol {
                         try tb.processStartTag("form")
                         if (startTag._attributes.hasKey(key: "action")) {
                             if let form: HTMLElement = tb.getFormElement() {
-                                try form.setAttribute(withKey: "action", newValue: startTag._attributes.get(key: "action"))
+                                try form.setAttribute(withKey: "action", value: startTag._attributes.get(key: "action"))
                             }
                         }
                         try tb.processStartTag("hr")

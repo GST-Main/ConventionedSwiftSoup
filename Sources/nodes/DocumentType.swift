@@ -30,12 +30,12 @@ public class DocumentType: Node {
     public init(_ name: String, _ publicId: String, _ systemId: String, _ baseUri: String) {
         super.init(baseURI: baseUri)
         do {
-            try setAttribute(withKey: DocumentType.NAME, newValue: name)
-            try setAttribute(withKey: DocumentType.PUBLIC_ID, newValue: publicId)
+            try setAttribute(withKey: DocumentType.NAME, value: name)
+            try setAttribute(withKey: DocumentType.PUBLIC_ID, value: publicId)
             if (has(DocumentType.PUBLIC_ID)) {
-                try setAttribute(withKey: DocumentType.PUB_SYS_KEY, newValue: DocumentType.PUBLIC_KEY)
+                try setAttribute(withKey: DocumentType.PUB_SYS_KEY, value: DocumentType.PUBLIC_KEY)
             }
-            try setAttribute(withKey: DocumentType.SYSTEM_ID, newValue: systemId)
+            try setAttribute(withKey: DocumentType.SYSTEM_ID, value: systemId)
         } catch {}
     }
 
@@ -49,12 +49,12 @@ public class DocumentType: Node {
     public init(_ name: String, _ pubSysKey: String?, _ publicId: String, _ systemId: String, _ baseUri: String) {
         super.init(baseURI: baseUri)
         do {
-            try setAttribute(withKey: DocumentType.NAME, newValue: name)
+            try setAttribute(withKey: DocumentType.NAME, value: name)
             if(pubSysKey != nil) {
-                try setAttribute(withKey: DocumentType.PUB_SYS_KEY, newValue: pubSysKey!)
+                try setAttribute(withKey: DocumentType.PUB_SYS_KEY, value: pubSysKey!)
             }
-            try setAttribute(withKey: DocumentType.PUBLIC_ID, newValue: publicId)
-            try setAttribute(withKey: DocumentType.SYSTEM_ID, newValue: systemId)
+            try setAttribute(withKey: DocumentType.PUBLIC_ID, value: publicId)
+            try setAttribute(withKey: DocumentType.SYSTEM_ID, value: systemId)
         } catch {}
     }
 

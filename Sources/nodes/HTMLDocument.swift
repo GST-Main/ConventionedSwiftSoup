@@ -264,12 +264,12 @@ open class HTMLDocument: HTMLElement {
             let metaCharset: HTMLElement? = select(cssQuery: "meta[charset]").first
             
             if (metaCharset != nil) {
-                try! metaCharset?.setAttribute(withKey: "charset", newValue: charset.displayName())
+                try! metaCharset?.setAttribute(withKey: "charset", value: charset.displayName())
             } else {
                 let head: HTMLElement? = self.head
                 
                 if (head != nil) {
-                    try! head?.appendElement(tagName: "meta").setAttribute(withKey: "charset", newValue: charset.displayName())
+                    try! head?.appendElement(tagName: "meta").setAttribute(withKey: "charset", value: charset.displayName())
                 }
             }
             
@@ -281,22 +281,22 @@ open class HTMLDocument: HTMLElement {
             let node: Node = childNodes[0]
             if let decl = (node as? XmlDeclaration) {
                 if (decl.name()=="xml") {
-                    try! decl.setAttribute(withKey: "encoding", newValue: charset.displayName())
+                    try! decl.setAttribute(withKey: "encoding", value: charset.displayName())
                     
                     if hasAttribute(withKey: "version") {
-                        try! decl.setAttribute(withKey: "version", newValue: "1.0")
+                        try! decl.setAttribute(withKey: "version", value: "1.0")
                     }
                 } else {
                     let decl = XmlDeclaration("xml", baseURI ?? "", false)
-                    try! decl.setAttribute(withKey: "version", newValue: "1.0")
-                    try! decl.setAttribute(withKey: "encoding", newValue: charset.displayName())
+                    try! decl.setAttribute(withKey: "version", value: "1.0")
+                    try! decl.setAttribute(withKey: "encoding", value: charset.displayName())
                     
                     prependChild(decl)
                 }
             } else {
                 let decl = XmlDeclaration("xml", baseURI ?? "", false)
-                try! decl.setAttribute(withKey: "version", newValue: "1.0")
-                try! decl.setAttribute(withKey: "encoding", newValue: charset.displayName())
+                try! decl.setAttribute(withKey: "version", value: "1.0")
+                try! decl.setAttribute(withKey: "encoding", value: charset.displayName())
                 
                 prependChild(decl)
             }

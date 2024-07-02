@@ -163,9 +163,9 @@ open class TextNode: Node {
         return super.getAttributes()!
     }
 
-    open override func setAttribute(withKey attributeKey: String, newValue attributeValue: String)throws->Node {
+    open override func setAttribute(withKey attributeKey: String, value attributeValue: String)throws->Node {
         ensureAttributes()
-        return try super.setAttribute(withKey: attributeKey, newValue: attributeValue)
+        return try super.setAttribute(withKey: attributeKey, value: attributeValue)
     }
 
     open override func hasAttribute(withKey attributeKey: String) -> Bool {

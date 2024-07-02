@@ -112,8 +112,8 @@ open class HTMLElement: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    open override func setAttribute(withKey: String, newValue: String) throws -> HTMLElement {
-        try super.setAttribute(withKey: withKey, newValue: newValue)
+    open override func setAttribute(withKey: String, value: String) throws -> HTMLElement {
+        try super.setAttribute(withKey: withKey, value: value)
         return self
     }
 
@@ -131,7 +131,7 @@ open class HTMLElement: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    open func setAttribute(key: String, value: Bool) throws -> HTMLElement {
+    open func setAttribute(withKey key: String, value: Bool) throws -> HTMLElement {
         try attributes?.put(key, value)
         return self
     }
@@ -482,6 +482,7 @@ open class HTMLElement: Node {
     /// - Parameter node: A element to add after this node. This must be an ``HTMLElement`` instance.
     /// - Returns: `self` for chaining.
     /// - Attention: The parameter `node` must be an instance of `HTMLElement`. Even though it's named `node` and the type is `Node`, it will be force-casted in run time.
+    @discardableResult
     open override func insertNodeAsNextSibling(_ node: Node) throws -> HTMLElement {
         return try super.insertNodeAsNextSibling(node) as! HTMLElement
     }
@@ -492,7 +493,7 @@ open class HTMLElement: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func removeAll() -> HTMLElement {
+    public func removeChildren() -> HTMLElement {
         childNodes.removeAll()
         return self
     }
@@ -1128,7 +1129,7 @@ open class HTMLElement: Node {
     /// - Attention: All of children of this element will be removed.
     @discardableResult
     public func setText(_ text: String) -> HTMLElement {
-        removeAll()
+        removeChildren()
         let textNode: TextNode = TextNode(text, baseURI)
         appendChild(textNode)
         return self
@@ -1334,7 +1335,7 @@ open class HTMLElement: Node {
         if tagName == "textarea" {
             setText(value)
         } else {
-            try! setAttribute(withKey: "value", newValue: value)
+            try! setAttribute(withKey: "value", value: value)
         }
         return self
     }
@@ -1419,7 +1420,7 @@ open class HTMLElement: Node {
     /// * `SwiftSoupError.failedToParseHTML` if a parser failed to parse HTML.
     @discardableResult
 	public func setHTML(_ html: String) throws -> HTMLElement {
-		removeAll()
+		removeChildren()
 		try appendHTML(html)
 		return self
 	}
