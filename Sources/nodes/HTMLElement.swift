@@ -493,7 +493,7 @@ open class HTMLElement: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    public func removeAll() -> HTMLElement {
+    public func removeChildren() -> HTMLElement {
         childNodes.removeAll()
         return self
     }
@@ -1129,7 +1129,7 @@ open class HTMLElement: Node {
     /// - Attention: All of children of this element will be removed.
     @discardableResult
     public func setText(_ text: String) -> HTMLElement {
-        removeAll()
+        removeChildren()
         let textNode: TextNode = TextNode(text, baseURI)
         appendChild(textNode)
         return self
@@ -1420,7 +1420,7 @@ open class HTMLElement: Node {
     /// * `SwiftSoupError.failedToParseHTML` if a parser failed to parse HTML.
     @discardableResult
 	public func setHTML(_ html: String) throws -> HTMLElement {
-		removeAll()
+		removeChildren()
 		try appendHTML(html)
 		return self
 	}
