@@ -69,9 +69,9 @@ print(textInElement)
 ```
 1. `HTMLDocument` is a subclass of `HTMLElement` which includes entire elements tree in an HTML document. Use the `HTMLParser.parse(_:)` method to get an `HTMLDocument`
 2. `HTMLDocument` is the root node of the elements tree. To find elements with a specific tag name in an HTML tree, use `HTMLElement`'s method `getElementsByTag(named:)`. You can also use these methods to get specific elements:
-    * getElementByID(_:)
-    * getElementsByAttribute(named:)
-    * getElementsByClass(named:)
+    * `getElementByID(_:)`
+    * `getElementsByAttribute(named:)`
+    * `getElementsByClass(named:)`
     * and more methods like these...
 3. You retrieve a list of elements of type `HTMLElements`. `HTMLElements` is a reference type that contains `HTMLElement` objects. You can handle this type like a built-in `Array` in Swift. In this example, I used `first` optional property to get the first element.
 4. `HTMLElement` contains data of an HTML element, such as text, attribute, clas snames, etc. I tried to print the element's text, and it is printed successfully.
