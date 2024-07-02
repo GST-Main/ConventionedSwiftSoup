@@ -120,8 +120,8 @@ open class Node: Equatable, Hashable {
     /// ## Throws
     /// * `SwiftSoupError.emptyAttributeKey` if the given attributet key is an empty string.
     @discardableResult
-    open func setAttribute(withKey key: String, newValue: String) throws -> Node {
-        try attributes?.put(key, newValue)
+    open func setAttribute(withKey key: String, value: String) throws -> Node {
+        try attributes?.put(key, value)
         return self
     }
 

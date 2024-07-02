@@ -112,8 +112,8 @@ open class HTMLElement: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    open override func setAttribute(withKey: String, newValue: String) throws -> HTMLElement {
-        try super.setAttribute(withKey: withKey, newValue: newValue)
+    open override func setAttribute(withKey: String, value: String) throws -> HTMLElement {
+        try super.setAttribute(withKey: withKey, value: value)
         return self
     }
 
@@ -131,7 +131,7 @@ open class HTMLElement: Node {
     ///
     /// - Returns: `self` for chaining.
     @discardableResult
-    open func setAttribute(key: String, value: Bool) throws -> HTMLElement {
+    open func setAttribute(withKey key: String, value: Bool) throws -> HTMLElement {
         try attributes?.put(key, value)
         return self
     }
@@ -1334,7 +1334,7 @@ open class HTMLElement: Node {
         if tagName == "textarea" {
             setText(value)
         } else {
-            try! setAttribute(withKey: "value", newValue: value)
+            try! setAttribute(withKey: "value", value: value)
         }
         return self
     }
