@@ -169,7 +169,7 @@ Some methods have been modified to avoid redundantly throwing errors. Instead, t
 | prependText(_:) throws          | prependText(_:)                 |    | ✅ |
 | append(_:)                      | appendHTML(_:)                  |    |    |
 | prepend(_:)                     | prependHTML(_:)                 |    |    |
-| empty()                         | removeAll()                     |    |    |
+| empty()                         | removeChildren()                |    |    |
 | cssSelector() throws            | cssSelector                     | ✅ | ✅ |
 | siblingElements()               | siblingelements                 | ✅ |    |
 | nextElementSibling() throws     | nextSiblingElement              | ✅ | ✅ |
