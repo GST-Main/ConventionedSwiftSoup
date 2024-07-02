@@ -136,8 +136,22 @@ open class HTMLElement: Node {
         return self
     }
 
-    /// A dictionary paired with `key:value` pairs of attributes of this element.
-    open var attributesAsDictionary: Dictionary<String, String> {
+    /// A dictionary containing `key:value` pairs of data.
+    ///
+    /// This property represents values of \``data-*`\` attributes.
+    ///
+    /// ```swift
+    /// let html =
+    /// """
+    /// <div id="main" data-user-id="123" data-info="additional info"> ... </div>
+    /// """
+    ///
+    /// let element = HTMLParser.parse(html)!.getElementById("main")!
+    /// print(element.datas)
+    ///
+    /// // Prints "["user-id":"123","info":"additional info"]"
+    /// ```
+    open var datas: Dictionary<String, String> {
         attributes!.dataset()
     }
 
