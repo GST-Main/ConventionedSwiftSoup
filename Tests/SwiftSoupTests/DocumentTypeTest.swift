@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 
 class DocumentTypeTest: XCTestCase {
 
@@ -37,16 +37,16 @@ class DocumentTypeTest: XCTestCase {
 
 	func testOuterHtmlGeneration() {
 		let html5 = DocumentType("html", "", "", "")
-		XCTAssertEqual("<!doctype html>", try! html5.outerHtml())
+		XCTAssertEqual("<!doctype html>", html5.outerHTML)
 
 		let publicDocType = DocumentType("html", "-//IETF//DTD HTML//", "", "")
-		XCTAssertEqual("<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML//\">", try! publicDocType.outerHtml())
+		XCTAssertEqual("<!DOCTYPE html PUBLIC \"-//IETF//DTD HTML//\">", publicDocType.outerHTML)
 
 		let systemDocType = DocumentType("html", "", "http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd", "")
-		XCTAssertEqual("<!DOCTYPE html \"http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd\">", try! systemDocType.outerHtml())
+		XCTAssertEqual("<!DOCTYPE html \"http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd\">", systemDocType.outerHTML)
 
 		let combo = DocumentType("notHtml", "--public", "--system", "")
-		XCTAssertEqual("<!DOCTYPE notHtml PUBLIC \"--public\" \"--system\">", try! combo.outerHtml())
+		XCTAssertEqual("<!DOCTYPE notHtml PUBLIC \"--public\" \"--system\">", combo.outerHTML)
 	}
 
 	static var allTests = {

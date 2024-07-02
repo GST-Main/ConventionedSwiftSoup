@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import SwiftSoup
+@testable import PrettySwiftSoup
 
 class DocumentTest: XCTestCase {
 
@@ -28,13 +28,13 @@ class DocumentTest: XCTestCase {
 //				"</body>" +
 //			"</html>";
 //			
-//			let doc: Document = try SwiftSoup.parse(html)
+//			let doc: HTMLDocument = HTMLParser.parse(html)!
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
 //			try doc.append("<p class='special'><b>this is in bold</b></p>")
-//			let els: Elements = try doc.getElementsByClass("special")
-//			let special: Element? = els.first()//get first element
+//			let els: HTMLElements = try doc.getElementsByClass("special")
+//			let special: HTMLElement? = els.first//get first element
 //			print(try special?.text())//"this is in bold"
 //			print(special?.tagName())//"p"
 //			print(special?.child(0).tag().getName())//"b"
@@ -61,93 +61,80 @@ class DocumentTest: XCTestCase {
     }
 
 	func testSetTextPreservesDocumentStructure() {
-		do {
-			let doc: Document = try SwiftSoup.parse("<p>Hello</p>")
-			try doc.text("Replaced")
-			XCTAssertEqual("Replaced", try doc.text())
-			XCTAssertEqual("Replaced", try doc.body()!.text())
-			XCTAssertEqual(1, try doc.select("head").size())
-		} catch {
-			XCTAssertEqual(1, 2)
-		}
+        let doc: HTMLDocument = HTMLParser.parse("<p>Hello</p>")!
+        doc.setText("Replaced")
+        XCTAssertEqual("Replaced", doc.getText())
+        XCTAssertEqual("Replaced", doc.body!.getText())
+        XCTAssertEqual(1, doc.select(cssQuery: "head").count)
 	}
 
 	func testTitles() {
-		do {
-			let noTitle: Document = try SwiftSoup.parse("<p>Hello</p>")
-			let withTitle: Document = try SwiftSoup.parse("<title>First</title><title>Ignore</title><p>Hello</p>")
-
-			XCTAssertEqual("", try noTitle.title())
-			try noTitle.title("Hello")
-			XCTAssertEqual("Hello", try noTitle.title())
-			XCTAssertEqual("Hello", try noTitle.select("title").first()?.text())
-
-			XCTAssertEqual("First", try withTitle.title())
-			try withTitle.title("Hello")
-			XCTAssertEqual("Hello", try withTitle.title())
-			XCTAssertEqual("Hello", try withTitle.select("title").first()?.text())
-
-			let normaliseTitle: Document = try SwiftSoup.parse("<title>   Hello\nthere   \n   now   \n")
-			XCTAssertEqual("Hello there now", try normaliseTitle.title())
-		} catch {
-
-		}
-
+        let noTitle: HTMLDocument = HTMLParser.parse("<p>Hello</p>")!
+        let withTitle: HTMLDocument = HTMLParser.parse("<title>First</title><title>Ignore</title><p>Hello</p>")!
+        
+        XCTAssertEqual(nil, noTitle.title)
+        noTitle.title = "Hello"
+        XCTAssertEqual("Hello", noTitle.title)
+        XCTAssertEqual("Hello", noTitle.select(cssQuery: "title").first?.getText())
+        
+        XCTAssertEqual("First", withTitle.title)
+        withTitle.title = "Hello"
+        XCTAssertEqual("Hello", withTitle.title)
+        XCTAssertEqual("Hello", withTitle.select(cssQuery: "title").first?.getText())
+        
+        let normaliseTitle: HTMLDocument = HTMLParser.parse("<title>   Hello\nthere   \n   now   \n")!
+        XCTAssertEqual("Hello there now", normaliseTitle.title)
 	}
 
 	func testOutputEncoding() {
-		do {
-			let doc: Document = try SwiftSoup.parse("<p title=π>π & < > </p>")
-			// default is utf-8
-			XCTAssertEqual("<p title=\"π\">π &amp; &lt; &gt; </p>", try doc.body()?.html())
-			XCTAssertEqual("UTF-8", doc.outputSettings().charset().displayName())
-
-			doc.outputSettings().charset(String.Encoding.ascii)
-			XCTAssertEqual(Entities.EscapeMode.base, doc.outputSettings().escapeMode())
-			XCTAssertEqual("<p title=\"&#x3c0;\">&#x3c0; &amp; &lt; &gt; </p>", try doc.body()?.html())
-
-			doc.outputSettings().escapeMode(Entities.EscapeMode.extended)
-			XCTAssertEqual("<p title=\"&pi;\">&pi; &amp; &lt; &gt; </p>", try doc.body()?.html())
-		} catch {
-			XCTAssertEqual(1, 2)
-		}
+        let doc: HTMLDocument = HTMLParser.parse("<p title=π>π & < > </p>")!
+        // default is utf-8
+        XCTAssertEqual("<p title=\"π\">π &amp; &lt; &gt; </p>", doc.body?.html)
+        XCTAssertEqual("UTF-8", doc.outputSettings.charset().displayName())
+        
+        doc.outputSettings.charset(.ascii)
+        XCTAssertEqual(Entities.EscapeMode.base, doc.outputSettings.escapeMode())
+        XCTAssertEqual("<p title=\"&#x3c0;\">&#x3c0; &amp; &lt; &gt; </p>", doc.body?.html)
+        
+        doc.outputSettings.escapeMode(Entities.EscapeMode.extended)
+        XCTAssertEqual("<p title=\"&pi;\">&pi; &amp; &lt; &gt; </p>", doc.body?.html)
 	}
 
 	func testXhtmlReferences() {
-		let doc: Document = try! SwiftSoup.parse("&lt; &gt; &amp; &quot; &apos; &times;")
-		doc.outputSettings().escapeMode(Entities.EscapeMode.xhtml)
-		XCTAssertEqual("&lt; &gt; &amp; \" ' ×", try! doc.body()?.html())
+		let doc: HTMLDocument = HTMLParser.parse("&lt; &gt; &amp; &quot; &apos; &times;")!
+		doc.outputSettings.escapeMode(Entities.EscapeMode.xhtml)
+		XCTAssertEqual("&lt; &gt; &amp; \" ' ×", doc.body?.html)
 	}
 
 	func testNormalisesStructure() {
-		let doc: Document = try! SwiftSoup.parse("<html><head><script>one</script><noscript><p>two</p></noscript></head><body><p>three</p></body><p>four</p></html>")
-		XCTAssertEqual("<html><head><script>one</script><noscript>&lt;p&gt;two</noscript></head><body><p>three</p><p>four</p></body></html>", TextUtil.stripNewlines(try! doc.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<html><head><script>one</script><noscript><p>two</p></noscript></head><body><p>three</p></body><p>four</p></html>")!
+		XCTAssertEqual("<html><head><script>one</script><noscript>&lt;p&gt;two</noscript></head><body><p>three</p><p>four</p></body></html>", TextUtil.stripNewlines(doc.html!))
 	}
 
 	func testClone() {
-		let doc: Document = try! SwiftSoup.parse("<title>Hello</title> <p>One<p>Two")
-		let clone: Document = doc.copy() as! Document
+		let doc: HTMLDocument = HTMLParser.parse("<title>Hello</title> <p>One<p>Two")!
+		let clone: HTMLDocument = doc.copy() as! HTMLDocument
 
-		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(clone.html()))
-		try! clone.title("Hello there")
-		try! clone.select("p").first()!.text("One more").attr("id", "1")
-		XCTAssertEqual("<html><head><title>Hello there</title> </head><body><p id=\"1\">One more</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(clone.html()))
-		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", try! TextUtil.stripNewlines(doc.html()))
+        XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", TextUtil.stripNewlines(clone.html!))
+        clone.title = "Hello there"
+		try! clone.select(cssQuery: "p").first!.setText("One more").setAttribute(withKey: "id", value: "1")
+		XCTAssertEqual("<html><head><title>Hello there</title> </head><body><p id=\"1\">One more</p><p>Two</p></body></html>", TextUtil.stripNewlines(clone.html!))
+		XCTAssertEqual("<html><head><title>Hello</title> </head><body><p>One</p><p>Two</p></body></html>", TextUtil.stripNewlines(doc.html!))
 	}
 
 	func testClonesDeclarations() {
-		let doc: Document = try! SwiftSoup.parse("<!DOCTYPE html><html><head><title>Doctype test")
-		let clone: Document = doc.copy() as! Document
+		let doc: HTMLDocument = HTMLParser.parse("<!DOCTYPE html><html><head><title>Doctype test")!
+		let clone: HTMLDocument = doc.copy() as! HTMLDocument
 
-		XCTAssertEqual(try! doc.html(), try! clone.html())
+		XCTAssertEqual(doc.html, clone.html)
 		XCTAssertEqual("<!doctype html><html><head><title>Doctype test</title></head><body></body></html>",
-		               TextUtil.stripNewlines(try! clone.html()))
+		               TextUtil.stripNewlines(clone.html!))
 	}
 
 	//todo:
 	//	func testLocation()throws {
 	//		File in = new ParseTest().getFile("/htmltests/yahoo-jp.html")
-	//		Document doc = Jsoup.parse(in, "UTF-8", "http://www.yahoo.co.jp/index.html");
+	//		HTMLDocument doc = Jsoup.parse(in, "UTF-8", "http://www.yahoo.co.jp/index.html");
 	//		String location = doc.location();
 	//		String baseUri = doc.baseUri();
 	//		assertEquals("http://www.yahoo.co.jp/index.html",location);
@@ -162,9 +149,9 @@ class DocumentTest: XCTestCase {
 
 	func testHtmlAndXmlSyntax() {
 		let h: String = "<!DOCTYPE html><body><img async checked='checked' src='&<>\"'>&lt;&gt;&amp;&quot;<foo />bar"
-		let doc: Document = try! SwiftSoup.parse(h)
+		let doc: HTMLDocument = HTMLParser.parse(h)!
 
-		doc.outputSettings().syntax(syntax: OutputSettings.Syntax.html)
+		doc.outputSettings.syntax(syntax: OutputSettings.Syntax.html)
 		XCTAssertEqual("<!doctype html>\n" +
 			"<html>\n" +
 			" <head></head>\n" +
@@ -172,9 +159,9 @@ class DocumentTest: XCTestCase {
 			"  <img async checked src=\"&amp;<>&quot;\">&lt;&gt;&amp;\"\n" +
 			"  <foo />bar\n" +
 			" </body>\n" +
-			"</html>", try! doc.html())
+			"</html>", doc.html)
 
-		doc.outputSettings().syntax(syntax: OutputSettings.Syntax.xml)
+		doc.outputSettings.syntax(syntax: OutputSettings.Syntax.xml)
 		XCTAssertEqual("<!DOCTYPE html>\n" +
 			"<html>\n" +
 			" <head></head>\n" +
@@ -182,21 +169,21 @@ class DocumentTest: XCTestCase {
 			"  <img async=\"\" checked=\"checked\" src=\"&amp;<>&quot;\" />&lt;&gt;&amp;\"\n" +
 			"  <foo />bar\n" +
 			" </body>\n" +
-			"</html>", try! doc.html())
+			"</html>", doc.html)
 	}
 
 	func testHtmlParseDefaultsToHtmlOutputSyntax() {
-		let doc: Document = try! SwiftSoup.parse("x")
-		XCTAssertEqual(OutputSettings.Syntax.html, doc.outputSettings().syntax())
+		let doc: HTMLDocument = HTMLParser.parse("x")!
+		XCTAssertEqual(OutputSettings.Syntax.html, doc.outputSettings.syntax())
 	}
 
 	func testHtmlAppendable() {
 		let htmlContent: String = "<html><head><title>Hello</title></head><body><p>One</p><p>Two</p></body></html>"
-		let document: Document = try! SwiftSoup.parse(htmlContent)
+		let document: HTMLDocument = HTMLParser.parse(htmlContent)!
 		let outputSettings: OutputSettings = OutputSettings()
 
 		outputSettings.prettyPrint(pretty: false)
-		document.outputSettings(outputSettings)
+		document.outputSettings = outputSettings
 		XCTAssertEqual(htmlContent, try! document.html(StringBuilder()).toString())
 	}
 
@@ -208,14 +195,14 @@ class DocumentTest: XCTestCase {
 	//			builder.insert(0, "<i>");
 	//			builder.append("</i>");
 	//		}
-	//		let doc: Document = try! Jsoup.parse(builder.toString());
+	//		let doc: HTMLDocument = try! Jsoup.parse(builder.toString());
 	//		doc.copy();
 	//	}
 
 	func testDocumentsWithSameContentAreEqual() throws {
-		let docA: Document = try SwiftSoup.parse("<div/>One")
-		let docB: Document = try SwiftSoup.parse("<div/>One")
-		_ = try SwiftSoup.parse("<div/>Two")
+		let docA: HTMLDocument = HTMLParser.parse("<div/>One")!
+		let docB: HTMLDocument = HTMLParser.parse("<div/>One")!
+		_ = HTMLParser.parse("<div/>Two")!
 
 		XCTAssertFalse(docA.equals(docB))
 		XCTAssertTrue(docA.equals(docA))
@@ -225,37 +212,31 @@ class DocumentTest: XCTestCase {
 	}
 
 	func testDocumentsWithSameContentAreVerifialbe() throws {
-		let docA: Document = try SwiftSoup.parse("<div/>One")
-		let docB: Document = try SwiftSoup.parse("<div/>One")
-		let docC: Document = try SwiftSoup.parse("<div/>Two")
+		let docA: HTMLDocument = HTMLParser.parse("<div/>One")!
+		let docB: HTMLDocument = HTMLParser.parse("<div/>One")!
+		let docC: HTMLDocument = HTMLParser.parse("<div/>Two")!
 
-		XCTAssertTrue(try docA.hasSameValue(docB))
-		XCTAssertFalse(try docA.hasSameValue(docC))
+		XCTAssertTrue(docA.hasSameValue(docB))
+		XCTAssertFalse(docA.hasSameValue(docC))
 	}
 
 	func testMetaCharsetUpdateUtf8() {
-		let doc: Document = createHtmlDocument("changeThis")
-		doc.updateMetaCharsetElement(true)
-		do {
-			try doc.charset(DocumentTest.charsetUtf8)
-		} catch {
-			print("")
-		}
+		let doc: HTMLDocument = createHtmlDocument("changeThis")
+        doc.charset = DocumentTest.charsetUtf8
 
 		let htmlCharsetUTF8: String = "<html>\n" + " <head>\n" + "  <meta charset=\"" + "UTF-8" + "\">\n" + " </head>\n" + " <body></body>\n" + "</html>"
-		XCTAssertEqual(htmlCharsetUTF8, try! doc.outerHtml())
+		XCTAssertEqual(htmlCharsetUTF8, doc.outerHTML ?? "")
 
-		let selectedElement: Element = try! doc.select("meta[charset]").first()!
-		XCTAssertEqual(DocumentTest.charsetUtf8, doc.charset())
-		XCTAssertEqual("UTF-8", try! selectedElement.attr("charset"))
-		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
+		let selectedElement: HTMLElement = doc.select(cssQuery: "meta[charset]").first!
+		XCTAssertEqual(DocumentTest.charsetUtf8, doc.charset)
+		XCTAssertEqual("UTF-8", selectedElement.getAttribute(withKey: "charset"))
+		XCTAssertEqual(doc.charset, doc.outputSettings.charset())
 
 	}
 
 	func testMetaCharsetUpdateIsoLatin2()throws {
-		let doc: Document = createHtmlDocument("changeThis")
-		doc.updateMetaCharsetElement(true)
-		try doc.charset(String.Encoding.isoLatin2)
+		let doc: HTMLDocument = createHtmlDocument("changeThis")
+		doc.charset = .isoLatin2
 
 		let htmlCharsetISO = "<html>\n" +
 			" <head>\n" +
@@ -263,20 +244,19 @@ class DocumentTest: XCTestCase {
 			" </head>\n" +
 			" <body></body>\n" +
 		"</html>"
-		XCTAssertEqual(htmlCharsetISO, try doc.outerHtml())
+		XCTAssertEqual(htmlCharsetISO, doc.outerHTML)
 
-		let selectedElement: Element = try doc.select("meta[charset]").first()!
-		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), doc.charset().displayName())
-		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), try selectedElement.attr("charset"))
-		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
+		let selectedElement: HTMLElement = doc.select(cssQuery: "meta[charset]").first!
+		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), doc.charset.displayName())
+		XCTAssertEqual(String.Encoding.isoLatin2.displayName(), selectedElement.getAttribute(withKey: "charset"))
+		XCTAssertEqual(doc.charset, doc.outputSettings.charset())
 	}
 
-	func testMetaCharsetUpdateNoCharset()throws {
-		let docNoCharset: Document = Document.createShell("")
-		docNoCharset.updateMetaCharsetElement(true)
-		try docNoCharset.charset(String.Encoding.utf8)
+	func testMetaCharsetUpdateNoCharset() throws {
+		let docNoCharset: HTMLDocument = HTMLDocument.createShell(baseURI: "")
+		docNoCharset.charset = .utf8
 
-		try XCTAssertEqual(String.Encoding.utf8.displayName(), docNoCharset.select("meta[charset]").first()?.attr("charset"))
+        XCTAssertEqual(String.Encoding.utf8.displayName(), docNoCharset.select(cssQuery: "meta[charset]").first?.getAttribute(withKey: "charset"))
 
 		let htmlCharsetUTF8 = "<html>\n" +
 			" <head>\n" +
@@ -284,22 +264,22 @@ class DocumentTest: XCTestCase {
 			" </head>\n" +
 			" <body></body>\n" +
 		"</html>"
-		try XCTAssertEqual(htmlCharsetUTF8, docNoCharset.outerHtml())
+        XCTAssertEqual(htmlCharsetUTF8, docNoCharset.outerHTML)
 	}
 
 	func testMetaCharsetUpdateDisabled()throws {
-		let docDisabled: Document = Document.createShell("")
+		let docDisabled: HTMLDocument = HTMLDocument.createShell(baseURI: "")
 
 		let htmlNoCharset = "<html>\n" +
 			" <head></head>\n" +
 			" <body></body>\n" +
 		"</html>"
-		try XCTAssertEqual(htmlNoCharset, docDisabled.outerHtml())
-		try XCTAssertNil(docDisabled.select("meta[charset]").first())
+        XCTAssertEqual(htmlNoCharset, docDisabled.outerHTML)
+        XCTAssertNil(docDisabled.select(cssQuery: "meta[charset]").first)
 	}
 
 	func testMetaCharsetUpdateDisabledNoChanges()throws {
-		let doc: Document = createHtmlDocument("dontTouch")
+		let doc: HTMLDocument = createHtmlDocument("dontTouch")
 
 		let htmlCharset = "<html>\n" +
 			" <head>\n" +
@@ -308,30 +288,29 @@ class DocumentTest: XCTestCase {
 			" </head>\n" +
 			" <body></body>\n" +
 		"</html>"
-		try XCTAssertEqual(htmlCharset, doc.outerHtml())
+        XCTAssertEqual(htmlCharset, doc.outerHTML)
 
-		var selectedElement: Element = try doc.select("meta[charset]").first()!
+		var selectedElement: HTMLElement = doc.select(cssQuery: "meta[charset]").first!
 		XCTAssertNotNil(selectedElement)
-		try XCTAssertEqual("dontTouch", selectedElement.attr("charset"))
+        XCTAssertEqual("dontTouch", selectedElement.getAttribute(withKey: "charset"))
 
-		selectedElement = try doc.select("meta[name=charset]").first()!
+		selectedElement = doc.select(cssQuery: "meta[name=charset]").first!
 		XCTAssertNotNil(selectedElement)
-		try XCTAssertEqual("dontTouch", selectedElement.attr("content"))
+        XCTAssertEqual("dontTouch", selectedElement.getAttribute(withKey: "content"))
 	}
 
 	func testMetaCharsetUpdateEnabledAfterCharsetChange()throws {
-		let doc: Document = createHtmlDocument("dontTouch")
-		try doc.charset(String.Encoding.utf8)
+		let doc: HTMLDocument = createHtmlDocument("dontTouch")
+        doc.charset = .utf8
 
-		let selectedElement: Element = try doc.select("meta[charset]").first()!
-		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedElement.attr("charset"))
-		try XCTAssertTrue(doc.select("meta[name=charset]").isEmpty())
+		let selectedElement: HTMLElement = doc.select(cssQuery: "meta[charset]").first!
+        XCTAssertEqual(String.Encoding.utf8.displayName(), selectedElement.getAttribute(withKey: "charset"))
+        XCTAssertTrue(doc.select(cssQuery: "meta[name=charset]").isEmpty)
 	}
 
 	func testMetaCharsetUpdateCleanup()throws {
-		let doc: Document = createHtmlDocument("dontTouch")
-		doc.updateMetaCharsetElement(true)
-		try doc.charset(String.Encoding.utf8)
+		let doc: HTMLDocument = createHtmlDocument("dontTouch")
+        doc.charset = .utf8
 
 		let htmlCharsetUTF8 = "<html>\n" +
 			" <head>\n" +
@@ -340,103 +319,95 @@ class DocumentTest: XCTestCase {
 			" <body></body>\n" +
 		"</html>"
 
-		try XCTAssertEqual(htmlCharsetUTF8, doc.outerHtml())
+		XCTAssertEqual(htmlCharsetUTF8, doc.outerHTML)
 	}
 
 	func testMetaCharsetUpdateXmlUtf8()throws {
-		let doc: Document = try createXmlDocument("1.0", "changeThis", true)
-		doc.updateMetaCharsetElement(true)
-		try doc.charset(String.Encoding.utf8)
+		let doc: HTMLDocument = try createXmlDocument("1.0", "changeThis", true)
+        doc.charset = .utf8
 
 		let xmlCharsetUTF8 = "<?xml version=\"1.0\" encoding=\"" + String.Encoding.utf8.displayName() + "\"?>\n" +
 			"<root>\n" +
 			" node\n" +
 		"</root>"
-		try XCTAssertEqual(xmlCharsetUTF8, doc.outerHtml())
+        XCTAssertEqual(xmlCharsetUTF8, doc.outerHTML)
 
-		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
-		XCTAssertEqual(String.Encoding.utf8.displayName(), doc.charset().displayName())
-		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.attr("encoding"))
-		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
+		let selectedNode: XmlDeclaration = doc.childNodes[0] as! XmlDeclaration
+		XCTAssertEqual(String.Encoding.utf8.displayName(), doc.charset.displayName())
+        XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.getAttribute(withKey: "encoding"))
+		XCTAssertEqual(doc.charset, doc.outputSettings.charset())
 	}
 
 	func testMetaCharsetUpdateXmlIso2022JP()throws {
-		let doc: Document = try createXmlDocument("1.0", "changeThis", true)
-		doc.updateMetaCharsetElement(true)
-		try doc.charset(String.Encoding.iso2022JP)
+		let doc: HTMLDocument = try createXmlDocument("1.0", "changeThis", true)
+        doc.charset = .iso2022JP
 
 		let xmlCharsetISO = "<?xml version=\"1.0\" encoding=\"" + String.Encoding.iso2022JP.displayName() + "\"?>\n" +
 			"<root>\n" +
 			" node\n" +
 		"</root>"
-		try XCTAssertEqual(xmlCharsetISO, doc.outerHtml())
+        XCTAssertEqual(xmlCharsetISO, doc.outerHTML)
 
-		let selectedNode: XmlDeclaration =  doc.childNode(0) as! XmlDeclaration
-		XCTAssertEqual(String.Encoding.iso2022JP.displayName(), doc.charset().displayName())
-		try XCTAssertEqual(String.Encoding.iso2022JP.displayName(), selectedNode.attr("encoding"))
-		XCTAssertEqual(doc.charset(), doc.outputSettings().charset())
+		let selectedNode: XmlDeclaration =  doc.childNodes[0] as! XmlDeclaration
+		XCTAssertEqual(String.Encoding.iso2022JP.displayName(), doc.charset.displayName())
+        XCTAssertEqual(String.Encoding.iso2022JP.displayName(), selectedNode.getAttribute(withKey: "encoding"))
+		XCTAssertEqual(doc.charset, doc.outputSettings.charset())
 	}
 
 	func testMetaCharsetUpdateXmlNoCharset()throws {
-		let doc: Document = try createXmlDocument("1.0", "none", false)
-		doc.updateMetaCharsetElement(true)
-		try doc.charset(String.Encoding.utf8)
+		let doc: HTMLDocument = try createXmlDocument("1.0", "none", false)
+		doc.charset = .utf8
 
 		let xmlCharsetUTF8 = "<?xml version=\"1.0\" encoding=\"" + String.Encoding.utf8.displayName() + "\"?>\n" +
 			"<root>\n" +
 			" node\n" +
 		"</root>"
-		try XCTAssertEqual(xmlCharsetUTF8, doc.outerHtml())
+        XCTAssertEqual(xmlCharsetUTF8, doc.outerHTML)
 
-		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
-		try XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.attr("encoding"))
+		let selectedNode: XmlDeclaration = doc.childNodes[0] as! XmlDeclaration
+        XCTAssertEqual(String.Encoding.utf8.displayName(), selectedNode.getAttribute(withKey: "encoding"))
 	}
 
 	func testMetaCharsetUpdateXmlDisabled()throws {
-		let doc: Document = try createXmlDocument("none", "none", false)
+		let doc: HTMLDocument = try createXmlDocument("none", "none", false)
 
 		let xmlNoCharset = "<root>\n" +
 			" node\n" +
 		"</root>"
-		try XCTAssertEqual(xmlNoCharset, doc.outerHtml())
+        XCTAssertEqual(xmlNoCharset, doc.outerHTML)
 	}
 
 	func testMetaCharsetUpdateXmlDisabledNoChanges()throws {
-		let doc: Document = try createXmlDocument("dontTouch", "dontTouch", true)
+		let doc: HTMLDocument = try createXmlDocument("dontTouch", "dontTouch", true)
 
 		let xmlCharset = "<?xml version=\"dontTouch\" encoding=\"dontTouch\"?>\n" +
 			"<root>\n" +
 			" node\n" +
 		"</root>"
-		try XCTAssertEqual(xmlCharset, doc.outerHtml())
+        XCTAssertEqual(xmlCharset, doc.outerHTML)
 
-		let selectedNode: XmlDeclaration = doc.childNode(0) as! XmlDeclaration
-		try XCTAssertEqual("dontTouch", selectedNode.attr("encoding"))
-		try XCTAssertEqual("dontTouch", selectedNode.attr("version"))
+		let selectedNode: XmlDeclaration = doc.childNodes[0] as! XmlDeclaration
+        XCTAssertEqual("dontTouch", selectedNode.getAttribute(withKey: "encoding"))
+        XCTAssertEqual("dontTouch", selectedNode.getAttribute(withKey: "version"))
 	}
 
-	func testMetaCharsetUpdatedDisabledPerDefault() {
-		let doc: Document = createHtmlDocument("none")
-		XCTAssertFalse(doc.updateMetaCharsetElement())
-	}
-
-	private func createHtmlDocument(_ charset: String) -> Document {
-		let doc: Document = Document.createShell("")
-		try! doc.head()?.appendElement("meta").attr("charset", charset)
-		try! doc.head()?.appendElement("meta").attr("name", "charset").attr("content", charset)
+	private func createHtmlDocument(_ charset: String) -> HTMLDocument {
+		let doc: HTMLDocument = HTMLDocument.createShell(baseURI: "")
+		try! doc.head?.appendElement(tagName: "meta").setAttribute(withKey: "charset", value: charset)
+		try! doc.head?.appendElement(tagName: "meta").setAttribute(withKey: "name", value: "charset").setAttribute(withKey: "content", value: charset)
 		return doc
 	}
 
-	func createXmlDocument(_ version: String, _ charset: String, _ addDecl: Bool)throws->Document {
-		let doc: Document = Document("")
-		try doc.appendElement("root").text("node")
-		doc.outputSettings().syntax(syntax: OutputSettings.Syntax.xml)
+	func createXmlDocument(_ version: String, _ charset: String, _ addDecl: Bool)throws->HTMLDocument {
+		let doc: HTMLDocument = HTMLDocument(baseURI: "")
+		try doc.appendElement(tagName: "root").setText("node")
+		doc.outputSettings.syntax(syntax: OutputSettings.Syntax.xml)
 
 		if( addDecl == true ) {
 			let decl: XmlDeclaration = XmlDeclaration("xml", "", false)
-			try decl.attr("version", version)
-			try decl.attr("encoding", charset)
-			try doc.prependChild(decl)
+			try decl.setAttribute(withKey: "version", value: version)
+			try decl.setAttribute(withKey: "encoding", value: charset)
+            doc.prependChild(decl)
 		}
 
 		return doc
@@ -444,10 +415,10 @@ class DocumentTest: XCTestCase {
 
     func testThai() {
         let str = "บังคับ"
-        guard let doc = try? SwiftSoup.parse(str) else {
+        guard let doc = HTMLParser.parse(str) else {
             XCTFail()
             return}
-        guard let txt = try? doc.html() else {
+        guard let txt = doc.html else {
             XCTFail()
             return}
         XCTAssertEqual("<html>\n <head></head>\n <body>\n  บังคับ\n </body>\n</html>", txt)
@@ -466,10 +437,10 @@ class DocumentTest: XCTestCase {
 //				+ "</html>";
 //		InputStream is = new ByteArrayInputStream(input.getBytes(Charset.forName("ASCII")));
 //		
-//		Document doc = Jsoup.parse(is, null, "http://example.com");
-//		doc.outputSettings().escapeMode(Entities.EscapeMode.xhtml);
+//		HTMLDocument doc = Jsoup.parse(is, null, "http://example.com");
+//		doc.outputSettings.escapeMode(Entities.EscapeMode.xhtml);
 //		
-//		String output = new String(doc.html().getBytes(doc.outputSettings().charset()), doc.outputSettings().charset());
+//		String output = new String(doc.html.getBytes(doc.outputSettings.charset), doc.outputSettings.charset);
 //		
 //		assertFalse("Should not have contained a '?'.", output.contains("?"));
 //		assertTrue("Should have contained a '&#xa0;' or a '&nbsp;'.",
@@ -479,8 +450,8 @@ class DocumentTest: XCTestCase {
     func testNewLine() {
         let h = "<html><body><div>\r\n<div dir=\"ltr\">\r\n<div id=\"divtagdefaultwrapper\"><font face=\"Calibri,Helvetica,sans-serif\" size=\"3\" color=\"black\"><span style=\"font-size:12pt;\" id=\"divtagdefaultwrapper\">\r\n<div style=\"margin-top:0;margin-bottom:0;\">&nbsp;TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\"><br>\r\n\r\n</div>\r\n<div style=\"margin-top:0;margin-bottom:0;\">TEST</div>\r\n</span></font></div>\r\n</div>\r\n</div>\r\n</body></html>"
 
-        let doc: Document = try! SwiftSoup.parse(h)
-        let text = try! doc.text()
+        let doc: HTMLDocument = HTMLParser.parse(h)!
+        let text = doc.getText()
         XCTAssertEqual(text, "TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST")
     }
 
@@ -511,7 +482,6 @@ class DocumentTest: XCTestCase {
 			("testMetaCharsetUpdateXmlNoCharset", testMetaCharsetUpdateXmlNoCharset),
 			("testMetaCharsetUpdateXmlDisabled", testMetaCharsetUpdateXmlDisabled),
 			("testMetaCharsetUpdateXmlDisabledNoChanges", testMetaCharsetUpdateXmlDisabledNoChanges),
-			("testMetaCharsetUpdatedDisabledPerDefault", testMetaCharsetUpdatedDisabledPerDefault),
 			("testThai", testThai),
             ("testNewLine", testNewLine)
 		]

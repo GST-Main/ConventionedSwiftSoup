@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 
 class AttributesTest: XCTestCase {
 
@@ -28,7 +28,7 @@ class AttributesTest: XCTestCase {
 			try a.put("data-name", "Jsoup")
 		} catch {}
 
-		XCTAssertEqual(3, a.size())
+        XCTAssertEqual(3, a.size())
 		XCTAssertTrue(a.hasKey(key: "Tot"))
 		XCTAssertTrue(a.hasKey(key: "Hello"))
 		XCTAssertTrue(a.hasKey(key: "data-name"))
@@ -58,7 +58,7 @@ class AttributesTest: XCTestCase {
 //		
 //		iterator.next()
 //		iterator.dropFirst()
-//		XCTAssertEqual(2, a.size())
+//		XCTAssertEqual(2, a.count)
 //	}
 
 	func testIterator() {

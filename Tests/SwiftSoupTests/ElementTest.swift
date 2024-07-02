@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import SwiftSoup
+@testable import PrettySwiftSoup
 class ElementTest: XCTestCase {
 
 	private let reference = "<div id=div1><p>Hello</p><p>Another <b>element</b></p><div id=div2><img src=foo.png></div></div>"
@@ -22,532 +22,532 @@ class ElementTest: XCTestCase {
     }
 
 	func testGetElementsByTagName() {
-		let doc: Document = try! SwiftSoup.parse(reference)
-		let divs = try! doc.getElementsByTag("div")
-		XCTAssertEqual(2, divs.size())
-		XCTAssertEqual("div1", divs.get(0).id())
-		XCTAssertEqual("div2", divs.get(1).id())
+		let doc: HTMLDocument = HTMLParser.parse(reference)!
+		let divs = doc.getElementsByTag(named: "div")
+		XCTAssertEqual(2, divs.count)
+		XCTAssertEqual("div1", divs.getElement(at: 0)!.id)
+		XCTAssertEqual("div2", divs.getElement(at: 1)!.id)
 
-		let ps = try! doc.getElementsByTag("p")
-		XCTAssertEqual(2, ps.size())
-		XCTAssertEqual("Hello", (ps.get(0).childNode(0) as! TextNode).getWholeText())
-		XCTAssertEqual("Another ", (ps.get(1).childNode(0) as! TextNode).getWholeText())
-		let ps2 = try! doc.getElementsByTag("P")
+		let ps = doc.getElementsByTag(named: "p")
+		XCTAssertEqual(2, ps.count)
+		XCTAssertEqual("Hello", (ps.getElement(at: 0)!.childNodes[0] as! TextNode).getWholeText())
+		XCTAssertEqual("Another ", (ps.getElement(at: 1)!.childNodes[0] as! TextNode).getWholeText())
+		let ps2 = doc.getElementsByTag(named: "P")
 		XCTAssertEqual(ps, ps2)
 
-		let imgs = try! doc.getElementsByTag("img")
-		XCTAssertEqual("foo.png", try! imgs.get(0).attr("src"))
+		let imgs = doc.getElementsByTag(named: "img")
+		XCTAssertEqual("foo.png", imgs.getElement(at: 0)!.getAttribute(withKey: "src"))
 
-		let empty = try! doc.getElementsByTag("wtf")
-		XCTAssertEqual(0, empty.size())
+		let empty = doc.getElementsByTag(named: "wtf")
+		XCTAssertEqual(0, empty.count)
 	}
 
 	func testGetNamespacedElementsByTag() {
-		let doc: Document = try! SwiftSoup.parse("<div><abc:def id=1>Hello</abc:def></div>")
-		let els: Elements = try! doc.getElementsByTag("abc:def")
-		XCTAssertEqual(1, els.size())
-		XCTAssertEqual("1", els.first()?.id())
-		XCTAssertEqual("abc:def", els.first()?.tagName())
+		let doc: HTMLDocument = HTMLParser.parse("<div><abc:def id=1>Hello</abc:def></div>")!
+		let els: HTMLElements = doc.getElementsByTag(named: "abc:def")
+		XCTAssertEqual(1, els.count)
+		XCTAssertEqual("1", els.first?.id)
+		XCTAssertEqual("abc:def", els.first?.tagName)
 	}
 
 	func testGetElementById() {
-		let doc: Document = try! SwiftSoup.parse(reference)
-		let div: Element = try! doc.getElementById("div1")!
-		XCTAssertEqual("div1", div.id())
-		XCTAssertNil(try! doc.getElementById("none"))
+		let doc: HTMLDocument = HTMLParser.parse(reference)!
+		let div: HTMLElement = doc.getElementById("div1")!
+		XCTAssertEqual("div1", div.id)
+		XCTAssertNil(doc.getElementById("none"))
 
-		let doc2: Document = try! SwiftSoup.parse("<div id=1><div id=2><p>Hello <span id=2>world!</span></p></div></div>")
-		let div2: Element = try! doc2.getElementById("2")!
-		XCTAssertEqual("div", div2.tagName()) // not the span
-		let span: Element = try! div2.child(0).getElementById("2")! // called from <p> context should be span
-		XCTAssertEqual("span", span.tagName())
+		let doc2: HTMLDocument = HTMLParser.parse("<div id=1><div id=2><p>Hello <span id=2>world!</span></p></div></div>")!
+		let div2: HTMLElement = doc2.getElementById("2")!
+		XCTAssertEqual("div", div2.tagName) // not the span
+		let span: HTMLElement = div2.getChild(at: 0)!.getElementById("2")! // called from <p> context should be span
+		XCTAssertEqual("span", span.tagName)
 	}
 
 	func testGetText() {
-		let doc: Document = try! SwiftSoup.parse(reference)
-		XCTAssertEqual("Hello Another element", try! doc.text())
-		XCTAssertEqual("Another element", try! doc.getElementsByTag("p").get(1).text())
+		let doc: HTMLDocument = HTMLParser.parse(reference)!
+		XCTAssertEqual("Hello Another element", doc.getText())
+		XCTAssertEqual("Another element", doc.getElementsByTag(named: "p").getElement(at: 1)!.getText())
 	}
 
 	func testGetChildText() {
-		let doc: Document = try! SwiftSoup.parse("<p>Hello <b>there</b> now")
-		let p: Element = try! doc.select("p").first()!
-		XCTAssertEqual("Hello there now", try! p.text())
-		XCTAssertEqual("Hello now", p.ownText())
+		let doc: HTMLDocument = HTMLParser.parse("<p>Hello <b>there</b> now")!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
+		XCTAssertEqual("Hello there now", p.getText())
+		XCTAssertEqual("Hello now", p.ownText)
 	}
 
 	func testNormalisesText() {
 		let h: String = "<p>Hello<p>There.</p> \n <p>Here <b>is</b> \n s<b>om</b>e text."
-		let doc: Document = try! SwiftSoup.parse(h)
-		let text: String = try! doc.text()
+		let doc: HTMLDocument = HTMLParser.parse(h)!
+		let text: String = doc.getText()
 		XCTAssertEqual("Hello There. Here is some text.", text)
 	}
 
 	func testKeepsPreText() {
 		let h = "<p>Hello \n \n there.</p> <div><pre>  What's \n\n  that?</pre>"
-		let doc: Document = try! SwiftSoup.parse(h)
-		XCTAssertEqual("Hello there.   What's \n\n  that?", try! doc.text())
+		let doc: HTMLDocument = HTMLParser.parse(h)!
+		XCTAssertEqual("Hello there.   What's \n\n  that?", doc.getText())
 	}
 
 	func testKeepsPreTextInCode() {
 		let h = "<pre><code>code\n\ncode</code></pre>"
-		let doc: Document = try! SwiftSoup.parse(h)
-		XCTAssertEqual("code\n\ncode", try! doc.text())
-		XCTAssertEqual("<pre><code>code\n\ncode</code></pre>", try! doc.body()?.html())
+		let doc: HTMLDocument = HTMLParser.parse(h)!
+		XCTAssertEqual("code\n\ncode", doc.getText())
+		XCTAssertEqual("<pre><code>code\n\ncode</code></pre>", doc.body?.html)
 	}
 
 	func testBrHasSpace() {
-		var doc: Document = try! SwiftSoup.parse("<p>Hello<br>there</p>")
-		XCTAssertEqual("Hello there", try! doc.text())
-		XCTAssertEqual("Hello there", try! doc.select("p").first()?.ownText())
+		var doc: HTMLDocument = HTMLParser.parse("<p>Hello<br>there</p>")!
+		XCTAssertEqual("Hello there", doc.getText())
+		XCTAssertEqual("Hello there", doc.select(cssQuery: "p").first?.ownText)
 
-		doc = try! SwiftSoup.parse("<p>Hello <br> there</p>")
-		XCTAssertEqual("Hello there", try! doc.text())
+		doc = HTMLParser.parse("<p>Hello <br> there</p>")!
+		XCTAssertEqual("Hello there", doc.getText())
 	}
 
 	func testGetSiblings() {
-		let doc: Document = try! SwiftSoup.parse("<div><p>Hello<p id=1>there<p>this<p>is<p>an<p id=last>element</div>")
-		let p: Element = try! doc.getElementById("1")!
-		XCTAssertEqual("there", try! p.text())
-		XCTAssertEqual("Hello", try! p.previousElementSibling()?.text())
-		XCTAssertEqual("this", try! p.nextElementSibling()?.text())
-		XCTAssertEqual("Hello", try! p.firstElementSibling()?.text())
-		XCTAssertEqual("element", try! p.lastElementSibling()?.text())
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello<p id=1>there<p>this<p>is<p>an<p id=last>element</div>")!
+		let p: HTMLElement = doc.getElementById("1")!
+		XCTAssertEqual("there", p.getText())
+		XCTAssertEqual("Hello", p.previousSiblingElement?.getText())
+		XCTAssertEqual("this", p.nextSiblingElement?.getText())
+		XCTAssertEqual("Hello", p.firstSiblingElement?.getText())
+        XCTAssertEqual("element", p.lastSiblingElement?.getText())
 	}
 
 	func testGetSiblingsWithDuplicateContent() {
-		let doc: Document = try! SwiftSoup.parse("<div><p>Hello<p id=1>there<p>this<p>this<p>is<p>an<p id=last>element</div>")
-		let p: Element = try! doc.getElementById("1")!
-		XCTAssertEqual("there", try! p.text())
-		XCTAssertEqual("Hello", try! p.previousElementSibling()?.text())
-		XCTAssertEqual("this", try! p.nextElementSibling()?.text())
-		XCTAssertEqual("this", try! p.nextElementSibling()?.nextElementSibling()?.text())
-		XCTAssertEqual("is", try! p.nextElementSibling()?.nextElementSibling()?.nextElementSibling()?.text())
-		XCTAssertEqual("Hello", try! p.firstElementSibling()?.text())
-		XCTAssertEqual("element", try! p.lastElementSibling()?.text())
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello<p id=1>there<p>this<p>this<p>is<p>an<p id=last>element</div>")!
+		let p: HTMLElement = doc.getElementById("1")!
+		XCTAssertEqual("there", p.getText())
+		XCTAssertEqual("Hello", p.previousSiblingElement?.getText())
+		XCTAssertEqual("this", p.nextSiblingElement?.getText())
+		XCTAssertEqual("this", p.nextSiblingElement?.nextSiblingElement?.getText())
+		XCTAssertEqual("is", p.nextSiblingElement?.nextSiblingElement?.nextSiblingElement?.getText())
+		XCTAssertEqual("Hello", p.firstSiblingElement?.getText())
+		XCTAssertEqual("element", p.lastSiblingElement?.getText())
 	}
 
-	func testGetParents() {
-		let doc: Document = try! SwiftSoup.parse("<div><p>Hello <span>there</span></div>")
-		let span: Element = try! doc.select("span").first()!
-		let parents: Elements = span.parents()
+	func testGetAncestors() {
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello <span>there</span></div>")!
+		let span: HTMLElement = doc.select(cssQuery: "span").first!
+		let parents: HTMLElements = span.ancestors
 
-		XCTAssertEqual(4, parents.size())
-		XCTAssertEqual("p", parents.get(0).tagName())
-		XCTAssertEqual("div", parents.get(1).tagName())
-		XCTAssertEqual("body", parents.get(2).tagName())
-		XCTAssertEqual("html", parents.get(3).tagName())
+		XCTAssertEqual(4, parents.count)
+		XCTAssertEqual("p", parents.getElement(at: 0)!.tagName)
+		XCTAssertEqual("div", parents.getElement(at: 1)!.tagName)
+		XCTAssertEqual("body", parents.getElement(at: 2)!.tagName)
+		XCTAssertEqual("html", parents.getElement(at: 3)!.tagName)
 	}
 
 	func testElementSiblingIndex() {
-		let doc: Document = try! SwiftSoup.parse("<div><p>One</p>...<p>Two</p>...<p>Three</p>")
-		let ps: Elements = try! doc.select("p")
-		XCTAssertTrue(try! 0 == ps.get(0).elementSiblingIndex())
-		XCTAssertTrue(try! 1 == ps.get(1).elementSiblingIndex())
-		XCTAssertTrue(try! 2 == ps.get(2).elementSiblingIndex())
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>One</p>...<p>Two</p>...<p>Three</p>")!
+		let ps: HTMLElements = doc.select(cssQuery: "p")
+		XCTAssertTrue(0 == ps.getElement(at: 0)!.elementSiblingIndex)
+		XCTAssertTrue(1 == ps.getElement(at: 1)!.elementSiblingIndex)
+		XCTAssertTrue(2 == ps.getElement(at: 2)!.elementSiblingIndex)
 	}
 
 	func testElementSiblingIndexSameContent() {
-		let doc: Document = try! SwiftSoup.parse("<div><p>One</p>...<p>One</p>...<p>One</p>")
-		let ps: Elements = try! doc.select("p")
-		XCTAssertTrue(try! 0 == ps.get(0).elementSiblingIndex())
-		XCTAssertTrue(try! 1 == ps.get(1).elementSiblingIndex())
-		XCTAssertTrue(try! 2 == ps.get(2).elementSiblingIndex())
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>One</p>...<p>One</p>...<p>One</p>")!
+		let ps: HTMLElements = doc.select(cssQuery: "p")
+		XCTAssertTrue(0 == ps.getElement(at: 0)!.elementSiblingIndex)
+		XCTAssertTrue(1 == ps.getElement(at: 1)!.elementSiblingIndex)
+		XCTAssertTrue(2 == ps.getElement(at: 2)!.elementSiblingIndex)
 	}
 
 	func testGetElementsWithClass() {
-		let doc: Document = try! SwiftSoup.parse("<div class='mellow yellow'><span class=mellow>Hello <b class='yellow'>Yellow!</b></span><p>Empty</p></div>")
+		let doc: HTMLDocument = HTMLParser.parse("<div class='mellow yellow'><span class=mellow>Hello <b class='yellow'>Yellow!</b></span><p>Empty</p></div>")!
 
-		let els = try! doc.getElementsByClass("mellow")
-		XCTAssertEqual(2, els.size())
-		XCTAssertEqual("div", els.get(0).tagName())
-		XCTAssertEqual("span", els.get(1).tagName())
+		let els = doc.getElementsByClass(named: "mellow")
+		XCTAssertEqual(2, els.count)
+		XCTAssertEqual("div", els.getElement(at: 0)!.tagName)
+		XCTAssertEqual("span", els.getElement(at: 1)!.tagName)
 
-		let els2 = try! doc.getElementsByClass("yellow")
-		XCTAssertEqual(2, els2.size())
-		XCTAssertEqual("div", els2.get(0).tagName())
-		XCTAssertEqual("b", els2.get(1).tagName())
+		let els2 = doc.getElementsByClass(named: "yellow")
+		XCTAssertEqual(2, els2.count)
+		XCTAssertEqual("div", els2.getElement(at: 0)!.tagName)
+		XCTAssertEqual("b", els2.getElement(at: 1)!.tagName)
 
-		let none = try! doc.getElementsByClass("solo")
-		XCTAssertEqual(0, none.size())
+		let none = doc.getElementsByClass(named: "solo")
+		XCTAssertEqual(0, none.count)
 	}
 
 	func testGetElementsWithAttribute() {
-		let doc: Document = try! SwiftSoup.parse("<div style='bold'><p title=qux><p><b style></b></p></div>")
-		let els = try! doc.getElementsByAttribute("style")
-		XCTAssertEqual(2, els.size())
-		XCTAssertEqual("div", els.get(0).tagName())
-		XCTAssertEqual("b", els.get(1).tagName())
+		let doc: HTMLDocument = HTMLParser.parse("<div style='bold'><p title=qux><p><b style></b></p></div>")!
+		let els = doc.getElementsByAttribute(key: "style")
+		XCTAssertEqual(2, els.count)
+		XCTAssertEqual("div", els.getElement(at: 0)!.tagName)
+		XCTAssertEqual("b", els.getElement(at: 1)!.tagName)
 
-		let none = try! doc.getElementsByAttribute("class")
-		XCTAssertEqual(0, none.size())
+		let none = doc.getElementsByAttribute(key: "class")
+		XCTAssertEqual(0, none.count)
 	}
 
 	func testGetElementsWithAttributeDash() {
-		let doc: Document = try! SwiftSoup.parse("<meta http-equiv=content-type value=utf8 id=1> <meta name=foo content=bar id=2> <div http-equiv=content-type value=utf8 id=3>")
-		let meta: Elements = try! doc.select("meta[http-equiv=content-type], meta[charset]")
-		XCTAssertEqual(1, meta.size())
-		XCTAssertEqual("1", meta.first()!.id())
+		let doc: HTMLDocument = HTMLParser.parse("<meta http-equiv=content-type value=utf8 id=1> <meta name=foo content=bar id=2> <div http-equiv=content-type value=utf8 id=3>")!
+		let meta: HTMLElements = doc.select(cssQuery: "meta[http-equiv=content-type], meta[charset]")
+		XCTAssertEqual(1, meta.count)
+		XCTAssertEqual("1", meta.first!.id)
 	}
 
 	func testGetElementsWithAttributeValue() {
-		let doc = try! SwiftSoup.parse("<div style='bold'><p><p><b style></b></p></div>")
-		let els: Elements = try! doc.getElementsByAttributeValue("style", "bold")
-		XCTAssertEqual(1, els.size())
-		XCTAssertEqual("div", els.get(0).tagName())
+		let doc = HTMLParser.parse("<div style='bold'><p><p><b style></b></p></div>")!
+		let els: HTMLElements = doc.getElementsByAttribute(key: "style", value: "bold")
+		XCTAssertEqual(1, els.count)
+		XCTAssertEqual("div", els.getElement(at: 0)!.tagName)
 
-		let none: Elements = try! doc.getElementsByAttributeValue("style", "none")
-		XCTAssertEqual(0, none.size())
+        let none: HTMLElements = doc.getElementsByAttribute(key: "style", value: "none")
+		XCTAssertEqual(0, none.count)
 	}
 
 	func testClassDomMethods() {
-		let doc: Document = try! SwiftSoup.parse("<div><span class=' mellow yellow '>Hello <b>Yellow</b></span></div>")
-		let els: Elements = try! doc.getElementsByAttribute("class")
-		let span: Element = els.get(0)
-		XCTAssertEqual("mellow yellow", try! span.className())
-		XCTAssertTrue(span.hasClass("mellow"))
-		XCTAssertTrue(span.hasClass("yellow"))
-		var classes: OrderedSet<String> = try! span.classNames()
+		let doc: HTMLDocument = HTMLParser.parse("<div><span class=' mellow yellow '>Hello <b>Yellow</b></span></div>")!
+		let els: HTMLElements = doc.getElementsByAttribute(key: "class")
+		let span: HTMLElement = els.getElement(at: 0)!
+		XCTAssertEqual("mellow yellow", span.className)
+		XCTAssertTrue(span.hasClass(named: "mellow"))
+		XCTAssertTrue(span.hasClass(named: "yellow"))
+		var classes: OrderedSet<String> = span.classNames
 		XCTAssertEqual(2, classes.count)
 		XCTAssertTrue(classes.contains("mellow"))
 		XCTAssertTrue(classes.contains("yellow"))
 
-		XCTAssertEqual("", try! doc.className())
-		classes = try! doc.classNames()
+		XCTAssertEqual(nil, doc.className)
+		classes = doc.classNames
 		XCTAssertEqual(0, classes.count)
-		XCTAssertFalse(doc.hasClass("mellow"))
+		XCTAssertFalse(doc.hasClass(named: "mellow"))
 	}
 
     func testHasClassDomMethods()throws {
         let tag: Tag = try Tag.valueOf("a")
         let attribs: Attributes = Attributes()
-        let el: Element = Element(tag, "", attribs)
+        let el: HTMLElement = HTMLElement(tag: tag, baseURI: "", attributes: attribs)
 
         try attribs.put("class", "toto")
-        var hasClass = el.hasClass("toto")
+        var hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", " toto")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", "toto ")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", "\ttoto ")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", "  toto ")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", "ab")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertFalse(hasClass)
 
         try attribs.put("class", "     ")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertFalse(hasClass)
 
         try attribs.put("class", "tototo")
-        hasClass = el.hasClass("toto")
+        hasClass = el.hasClass(named: "toto")
         XCTAssertFalse(hasClass)
 
         try attribs.put("class", "raulpismuth  ")
-        hasClass = el.hasClass("raulpismuth")
+        hasClass = el.hasClass(named: "raulpismuth")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", " abcd  raulpismuth efgh ")
-        hasClass = el.hasClass("raulpismuth")
+        hasClass = el.hasClass(named: "raulpismuth")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", " abcd efgh raulpismuth")
-        hasClass = el.hasClass("raulpismuth")
+        hasClass = el.hasClass(named: "raulpismuth")
         XCTAssertTrue(hasClass)
 
         try attribs.put("class", " abcd efgh raulpismuth ")
-        hasClass = el.hasClass("raulpismuth")
+        hasClass = el.hasClass(named: "raulpismuth")
         XCTAssertTrue(hasClass)
     }
 
     func testClassUpdates()throws {
-        let doc: Document = try SwiftSoup.parse("<div class='mellow yellow'></div>")
-        let div: Element = try doc.select("div").first()!
+        let doc: HTMLDocument = HTMLParser.parse("<div class='mellow yellow'></div>")!
+        let div: HTMLElement = doc.select(cssQuery: "div").first!
 
-        try div.addClass("green")
-        XCTAssertEqual("mellow yellow green", try div.className())
-        try div.removeClass("red") // noop
-        try div.removeClass("yellow")
-        XCTAssertEqual("mellow green", try div.className())
-        try div.toggleClass("green").toggleClass("red")
-        XCTAssertEqual("mellow red", try div.className())
+        div.addClass(named: "green")
+        XCTAssertEqual("mellow yellow green", div.className)
+        div.removeClass(named: "red") // noop
+        div.removeClass(named: "yellow")
+        XCTAssertEqual("mellow green", div.className)
+        div.toggleClass(named: "green").toggleClass(named: "red")
+        XCTAssertEqual("mellow red", div.className)
     }
 
     func testOuterHtml()throws {
-        let doc = try SwiftSoup.parse("<div title='Tags &amp;c.'><img src=foo.png><p><!-- comment -->Hello<p>there")
+        let doc = HTMLParser.parse("<div title='Tags &amp;c.'><img src=foo.png><p><!-- comment -->Hello<p>there")!
         XCTAssertEqual("<html><head></head><body><div title=\"Tags &amp;c.\"><img src=\"foo.png\"><p><!-- comment -->Hello</p><p>there</p></div></body></html>",
-                       try TextUtil.stripNewlines(doc.outerHtml()))
+                       TextUtil.stripNewlines(doc.outerHTML!))
     }
 
 	func testInnerHtml()throws {
-		let doc: Document = try SwiftSoup.parse("<div>\n <p>Hello</p> </div>")
-		XCTAssertEqual("<p>Hello</p>", try doc.getElementsByTag("div").get(0).html())
+		let doc: HTMLDocument = HTMLParser.parse("<div>\n <p>Hello</p> </div>")!
+		XCTAssertEqual("<p>Hello</p>", doc.getElementsByTag(named: "div").getElement(at: 0)!.html)
 	}
 
 	func testFormatHtml()throws {
-		let doc: Document = try SwiftSoup.parse("<title>Format test</title><div><p>Hello <span>jsoup <span>users</span></span></p><p>Good.</p></div>")
-		XCTAssertEqual("<html>\n <head>\n  <title>Format test</title>\n </head>\n <body>\n  <div>\n   <p>Hello <span>jsoup <span>users</span></span></p>\n   <p>Good.</p>\n  </div>\n </body>\n</html>", try doc.html())
+		let doc: HTMLDocument = HTMLParser.parse("<title>Format test</title><div><p>Hello <span>jsoup <span>users</span></span></p><p>Good.</p></div>")!
+		XCTAssertEqual("<html>\n <head>\n  <title>Format test</title>\n </head>\n <body>\n  <div>\n   <p>Hello <span>jsoup <span>users</span></span></p>\n   <p>Good.</p>\n  </div>\n </body>\n</html>", doc.html)
 	}
 
 	func testFormatOutline()throws {
-		let doc: Document = try SwiftSoup.parse("<title>Format test</title><div><p>Hello <span>jsoup <span>users</span></span></p><p>Good.</p></div>")
-		doc.outputSettings().outline(outlineMode: true)
-		XCTAssertEqual("<html>\n <head>\n  <title>Format test</title>\n </head>\n <body>\n  <div>\n   <p>\n    Hello \n    <span>\n     jsoup \n     <span>users</span>\n    </span>\n   </p>\n   <p>Good.</p>\n  </div>\n </body>\n</html>", try doc.html())
+		let doc: HTMLDocument = HTMLParser.parse("<title>Format test</title><div><p>Hello <span>jsoup <span>users</span></span></p><p>Good.</p></div>")!
+		doc.outputSettings.outline(outlineMode: true)
+		XCTAssertEqual("<html>\n <head>\n  <title>Format test</title>\n </head>\n <body>\n  <div>\n   <p>\n    Hello \n    <span>\n     jsoup \n     <span>users</span>\n    </span>\n   </p>\n   <p>Good.</p>\n  </div>\n </body>\n</html>", doc.html)
 	}
 
 	func testSetIndent()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>Hello\nthere</p></div>")
-		doc.outputSettings().indentAmount(indentAmount: 0)
-		XCTAssertEqual("<html>\n<head></head>\n<body>\n<div>\n<p>Hello there</p>\n</div>\n</body>\n</html>", try doc.html())
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello\nthere</p></div>")!
+		doc.outputSettings.indentAmount(indentAmount: 0)
+		XCTAssertEqual("<html>\n<head></head>\n<body>\n<div>\n<p>Hello there</p>\n</div>\n</body>\n</html>", doc.html)
 	}
 
 	func testNotPretty()throws {
-		let doc: Document = try SwiftSoup.parse("<div>   \n<p>Hello\n there\n</p></div>")
-		doc.outputSettings().prettyPrint(pretty: false)
-		XCTAssertEqual("<html><head></head><body><div>   \n<p>Hello\n there\n</p></div></body></html>", try doc.html())
+		let doc: HTMLDocument = HTMLParser.parse("<div>   \n<p>Hello\n there\n</p></div>")!
+		doc.outputSettings.prettyPrint(pretty: false)
+		XCTAssertEqual("<html><head></head><body><div>   \n<p>Hello\n there\n</p></div></body></html>", doc.html)
 
-		let div: Element? = try doc.select("div").first()
-		XCTAssertEqual("   \n<p>Hello\n there\n</p>", try div?.html())
+		let div: HTMLElement? = doc.select(cssQuery: "div").first
+		XCTAssertEqual("   \n<p>Hello\n there\n</p>", div?.html)
 	}
 
 	func testEmptyElementFormatHtml()throws {
 		// don't put newlines into empty blocks
-		let doc: Document = try SwiftSoup.parse("<section><div></div></section>")
-		XCTAssertEqual("<section>\n <div></div>\n</section>", try doc.select("section").first()?.outerHtml())
+		let doc: HTMLDocument = HTMLParser.parse("<section><div></div></section>")!
+		XCTAssertEqual("<section>\n <div></div>\n</section>", doc.select(cssQuery: "section").first?.outerHTML)
 	}
 
 	func testNoIndentOnScriptAndStyle()throws {
 		// don't newline+indent closing </script> and </style> tags
-		let doc: Document = try SwiftSoup.parse("<script>one\ntwo</script>\n<style>three\nfour</style>")
-		XCTAssertEqual("<script>one\ntwo</script> \n<style>three\nfour</style>", try  doc.head()?.html())
+		let doc: HTMLDocument = HTMLParser.parse("<script>one\ntwo</script>\n<style>three\nfour</style>")!
+		XCTAssertEqual("<script>one\ntwo</script> \n<style>three\nfour</style>", doc.head?.html)
 	}
 
 	func testContainerOutput()throws {
-		let doc: Document = try SwiftSoup.parse("<title>Hello there</title> <div><p>Hello</p><p>there</p></div> <div>Another</div>")
-		XCTAssertEqual("<title>Hello there</title>", try  doc.select("title").first()?.outerHtml())
-		XCTAssertEqual("<div>\n <p>Hello</p>\n <p>there</p>\n</div>", try  doc.select("div").first()?.outerHtml())
-		XCTAssertEqual("<div>\n <p>Hello</p>\n <p>there</p>\n</div> \n<div>\n Another\n</div>", try doc.select("body").first()?.html())
+		let doc: HTMLDocument = HTMLParser.parse("<title>Hello there</title> <div><p>Hello</p><p>there</p></div> <div>Another</div>")!
+		XCTAssertEqual("<title>Hello there</title>",  doc.select(cssQuery: "title").first?.outerHTML)
+		XCTAssertEqual("<div>\n <p>Hello</p>\n <p>there</p>\n</div>",  doc.select(cssQuery: "div").first?.outerHTML)
+		XCTAssertEqual("<div>\n <p>Hello</p>\n <p>there</p>\n</div> \n<div>\n Another\n</div>", doc.select(cssQuery: "body").first?.html)
 	}
 
 	func testSetText()throws {
 		let h: String = "<div id=1>Hello <p>there <b>now</b></p></div>"
-		let doc: Document = try SwiftSoup.parse(h)
-		XCTAssertEqual("Hello there now", try doc.text()) // need to sort out node whitespace
-		XCTAssertEqual("there now", try doc.select("p").get(0).text())
+		let doc: HTMLDocument = HTMLParser.parse(h)!
+		XCTAssertEqual("Hello there now", doc.getText()) // need to sort out node whitespace
+		XCTAssertEqual("there now", doc.select(cssQuery: "p").getElement(at: 0)!.getText())
 
-		let div: Element? = try doc.getElementById("1")?.text("Gone")
-		XCTAssertEqual("Gone", try div?.text())
-		XCTAssertEqual(0, try doc.select("p").size())
+		let div: HTMLElement? = doc.getElementById("1")?.setText("Gone")
+		XCTAssertEqual("Gone", div?.getText())
+		XCTAssertEqual(0, doc.select(cssQuery: "p").count)
 	}
 
 	func testAddNewElement()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
-		let div: Element = try doc.getElementById("1")!
-		try div.appendElement("p").text("there")
-		try div.appendElement("P").attr("CLASS", "second").text("now")
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
+		let div: HTMLElement = doc.getElementById("1")!
+        try div.appendElement(tagName: "p").setText("there")
+		try div.appendElement(tagName: "P").setAttribute(withKey: "CLASS", value: "second").setText("now")
 		// manually specifying tag and attributes should now preserve case, regardless of parse mode
 		XCTAssertEqual("<html><head></head><body><div id=\"1\"><p>Hello</p><p>there</p><P CLASS=\"second\">now</P></div></body></html>",
-		             TextUtil.stripNewlines(try doc.html()))
+		             TextUtil.stripNewlines(doc.html!))
 
 		// check sibling index (with short circuit on reindexChildren):
-		let ps: Elements = try doc.select("p")
-		for i in 0..<ps.size() {
-			XCTAssertEqual(i, ps.get(i).siblingIndex)
+		let ps: HTMLElements = doc.select(cssQuery: "p")
+		for i in 0..<ps.count {
+            XCTAssertEqual(i, ps.getElement(at: i)!.siblingIndex)
 		}
 	}
 
 	func testAddBooleanAttribute()throws {
-		let div: Element = try Element(Tag.valueOf("div"), "")
+		let div: HTMLElement = try HTMLElement(tag: Tag.valueOf("div"), baseURI: "")
 
-		try div.attr("true", true)
+		try div.setAttribute(withKey: "true", value: true)
 
-		try div.attr("false", "value")
-		try div.attr("false", false)
+		try div.setAttribute(withKey: "false", value: "value")
+		try div.setAttribute(withKey: "false", value: false)
 
-		XCTAssertTrue(div.hasAttr("true"))
-		XCTAssertEqual("", try div.attr("true"))
+		XCTAssertTrue(div.hasAttribute(withKey: "true"))
+		XCTAssertEqual(nil, div.getAttribute(withKey: "true"))
 
 		let attributes: Array<Attribute> = div.getAttributes()!.asList()
 		XCTAssertEqual(1, attributes.count)
 		XCTAssertTrue((attributes[0] as? BooleanAttribute) != nil)
 
-		XCTAssertFalse(div.hasAttr("false"))
+		XCTAssertFalse(div.hasAttribute(withKey: "false"))
 
-		XCTAssertEqual("<div true></div>", try div.outerHtml())
+		XCTAssertEqual("<div true></div>", div.outerHTML)
 	}
 
 	func testAppendRowToTable()throws {
-		let doc: Document = try SwiftSoup.parse("<table><tr><td>1</td></tr></table>")
-		let table: Element? = try doc.select("tbody").first()
-		try table?.append("<tr><td>2</td></tr>")
+		let doc: HTMLDocument = HTMLParser.parse("<table><tr><td>1</td></tr></table>")!
+		let table: HTMLElement? = doc.select(cssQuery: "tbody").first
+        try table?.appendHTML("<tr><td>2</td></tr>")
 
-		XCTAssertEqual("<table><tbody><tr><td>1</td></tr><tr><td>2</td></tr></tbody></table>", try TextUtil.stripNewlines(doc.body()!.html()))
+		XCTAssertEqual("<table><tbody><tr><td>1</td></tr><tr><td>2</td></tr></tbody></table>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
 	func testPrependRowToTable()throws {
-		let doc: Document = try SwiftSoup.parse("<table><tr><td>1</td></tr></table>")
-		let table: Element? = try doc.select("tbody").first()
-		try table?.prepend("<tr><td>2</td></tr>")
+		let doc: HTMLDocument = HTMLParser.parse("<table><tr><td>1</td></tr></table>")!
+		let table: HTMLElement? = doc.select(cssQuery: "tbody").first
+		try table?.prependHTML("<tr><td>2</td></tr>")
 
-		XCTAssertEqual("<table><tbody><tr><td>2</td></tr><tr><td>1</td></tr></tbody></table>", try TextUtil.stripNewlines(doc.body()!.html()))
+		XCTAssertEqual("<table><tbody><tr><td>2</td></tr><tr><td>1</td></tr></tbody></table>", TextUtil.stripNewlines(doc.body!.html!))
 
 		// check sibling index (reindexChildren):
-		let ps: Elements = try doc.select("tr")
-		for i in 0..<ps.size() {
-			XCTAssertEqual(i, ps.get(i).siblingIndex)
+		let ps: HTMLElements = doc.select(cssQuery: "tr")
+		for i in 0..<ps.count {
+            XCTAssertEqual(i, ps.getElement(at: i)!.siblingIndex)
 		}
 	}
 
 	func testPrependElement()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
-		let div: Element? = try doc.getElementById("1")
-		try div?.prependElement("p").text("Before")
-		XCTAssertEqual("Before", try div?.child(0).text())
-		XCTAssertEqual("Hello", try div?.child(1).text())
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
+		let div: HTMLElement? = doc.getElementById("1")
+        try div?.prependElement(tagName: "p").setText("Before")
+		XCTAssertEqual("Before", div?.getChild(at: 0)?.text)
+		XCTAssertEqual("Hello", div?.getChild(at: 1)?.text)
 	}
 
 	func testAddNewText()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
-		let div: Element = try doc.getElementById("1")!
-		try div.appendText(" there & now >")
-		XCTAssertEqual("<p>Hello</p> there &amp; now &gt;", try TextUtil.stripNewlines(div.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
+		let div: HTMLElement = doc.getElementById("1")!
+        div.appendText(" there & now >")
+		XCTAssertEqual("<p>Hello</p> there &amp; now &gt;", TextUtil.stripNewlines(div.html!))
 	}
 
 	func testPrependText()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
-		let div: Element = try doc.getElementById("1")!
-		try div.prependText("there & now > ")
-		XCTAssertEqual("there & now > Hello", try div.text())
-		XCTAssertEqual("there &amp; now &gt; <p>Hello</p>", try TextUtil.stripNewlines(div.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
+		let div: HTMLElement = doc.getElementById("1")!
+        div.prependText("there & now > ")
+		XCTAssertEqual("there & now > Hello", div.getText())
+		XCTAssertEqual("there &amp; now &gt; <p>Hello</p>", TextUtil.stripNewlines(div.html!))
 	}
 
 	// nil not allower
 //	func testThrowsOnAddNullText()throws {
-//		let doc: Document = try Jsoup.parse("<div id=1><p>Hello</p></div>");
-//		let div: Element = try doc.getElementById("1")!;
+//		let doc: HTMLDocument = try Jsoup.parse("<div id=1><p>Hello</p></div>");
+//		let div: HTMLElement = try doc.getElementById("1")!;
 //		div.appendText(nil);
 //	}
 
 	// nil not allower
 //	@Test(expected = IllegalArgumentException.class)  public void testThrowsOnPrependNullText() {
-//	Document doc = Jsoup.parse("<div id=1><p>Hello</p></div>");
-//	Element div = doc.getElementById("1");
+//	HTMLDocument doc = Jsoup.parse("<div id=1><p>Hello</p></div>");
+//	HTMLElement div = doc.getElementById("1");
 //	div.prependText(null);
 //	}
 
 	func testAddNewHtml()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
-		let div: Element = try doc.getElementById("1")!
-		try div.append("<p>there</p><p>now</p>")
-		XCTAssertEqual("<p>Hello</p><p>there</p><p>now</p>", try TextUtil.stripNewlines(div.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
+		let div: HTMLElement = doc.getElementById("1")!
+		try div.appendHTML("<p>there</p><p>now</p>")
+		XCTAssertEqual("<p>Hello</p><p>there</p><p>now</p>", TextUtil.stripNewlines(div.html!))
 
 		// check sibling index (no reindexChildren):
-		let ps: Elements = try doc.select("p")
-		for i in 0..<ps.size() {
-			XCTAssertEqual(i, ps.get(i).siblingIndex)
+		let ps: HTMLElements = doc.select(cssQuery: "p")
+		for i in 0..<ps.count {
+            XCTAssertEqual(i, ps.getElement(at: i)?.siblingIndex)
 		}
 	}
 
 	func testPrependNewHtml()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
-		let div: Element = try doc.getElementById("1")!
-		try div.prepend("<p>there</p><p>now</p>")
-		XCTAssertEqual("<p>there</p><p>now</p><p>Hello</p>", try TextUtil.stripNewlines(div.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
+		let div: HTMLElement = doc.getElementById("1")!
+		try div.prependHTML("<p>there</p><p>now</p>")
+		XCTAssertEqual("<p>there</p><p>now</p><p>Hello</p>", TextUtil.stripNewlines(div.html!))
 
 		// check sibling index (reindexChildren):
-		let ps: Elements = try doc.select("p")
-		for i in 0..<ps.size() {
-			XCTAssertEqual(i, ps.get(i).siblingIndex)
+		let ps: HTMLElements = doc.select(cssQuery: "p")
+		for i in 0..<ps.count {
+            XCTAssertEqual(i, ps.getElement(at: i)?.siblingIndex)
 		}
 	}
 
 	func testSetHtml()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1><p>Hello</p></div>")
-		let div: Element = try doc.getElementById("1")!
-		try div.html("<p>there</p><p>now</p>")
-		XCTAssertEqual("<p>there</p><p>now</p>", try TextUtil.stripNewlines(div.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1><p>Hello</p></div>")!
+		let div: HTMLElement = doc.getElementById("1")!
+		try div.setHTML("<p>there</p><p>now</p>")
+		XCTAssertEqual("<p>there</p><p>now</p>", TextUtil.stripNewlines(div.html!))
 	}
 
 	func testSetHtmlTitle()throws {
-		let doc: Document = try SwiftSoup.parse("<html><head id=2><title id=1></title></head></html>")
+		let doc: HTMLDocument = HTMLParser.parse("<html><head id=2><title id=1></title></head></html>")!
 
-		let title: Element = try doc.getElementById("1")!
-		try title.html("good")
-		XCTAssertEqual("good", try title.html())
-		try title.html("<i>bad</i>")
-		XCTAssertEqual("&lt;i&gt;bad&lt;/i&gt;", try title.html())
+		let title: HTMLElement = doc.getElementById("1")!
+		try title.setHTML("good")
+		XCTAssertEqual("good", title.html)
+		try title.setHTML("<i>bad</i>")
+		XCTAssertEqual("&lt;i&gt;bad&lt;/i&gt;", title.html)
 
-		let head: Element = try doc.getElementById("2")!
-		try head.html("<title><i>bad</i></title>")
-		XCTAssertEqual("<title>&lt;i&gt;bad&lt;/i&gt;</title>", try head.html())
+		let head: HTMLElement = doc.getElementById("2")!
+		try head.setHTML("<title><i>bad</i></title>")
+		XCTAssertEqual("<title>&lt;i&gt;bad&lt;/i&gt;</title>", head.html)
 	}
 
 	func testWrap()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p><p>There</p></div>")
-		let p: Element = try doc.select("p").first()!
-		try p.wrap("<div class='head'></div>")
-		XCTAssertEqual("<div><div class=\"head\"><p>Hello</p></div><p>There</p></div>", try TextUtil.stripNewlines(doc.body()!.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p><p>There</p></div>")!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
+		try p.wrap(html: "<div class='head'></div>")
+		XCTAssertEqual("<div><div class=\"head\"><p>Hello</p></div><p>There</p></div>", TextUtil.stripNewlines(doc.body!.html!))
 
-		let ret: Element = try p.wrap("<div><div class=foo></div><p>What?</p></div>")
+		let ret: HTMLElement = try p.wrap(html: "<div><div class=foo></div><p>What?</p></div>")
 		XCTAssertEqual("<div><div class=\"head\"><div><div class=\"foo\"><p>Hello</p></div><p>What?</p></div></div><p>There</p></div>",
-		             try TextUtil.stripNewlines(doc.body()!.html()))
+                    TextUtil.stripNewlines(doc.body!.html!))
 
 		XCTAssertEqual(ret, p)
 	}
 
 	func testBefore()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p><p>There</p></div>")
-		let p1: Element = try doc.select("p").first()!
-		try p1.before("<div>one</div><div>two</div>")
-		XCTAssertEqual("<div><div>one</div><div>two</div><p>Hello</p><p>There</p></div>", try TextUtil.stripNewlines(doc.body()!.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p><p>There</p></div>")!
+		let p1: HTMLElement = doc.select(cssQuery: "p").first!
+		try p1.insertHTMLAsPreviousSibling("<div>one</div><div>two</div>")
+		XCTAssertEqual("<div><div>one</div><div>two</div><p>Hello</p><p>There</p></div>", TextUtil.stripNewlines(doc.body!.html!))
 
-		try doc.select("p").last()?.before("<p>Three</p><!-- four -->")
-		XCTAssertEqual("<div><div>one</div><div>two</div><p>Hello</p><p>Three</p><!-- four --><p>There</p></div>", try TextUtil.stripNewlines(doc.body()!.html()))
+		try doc.select(cssQuery: "p").last?.insertHTMLAsPreviousSibling("<p>Three</p><!-- four -->")
+		XCTAssertEqual("<div><div>one</div><div>two</div><p>Hello</p><p>Three</p><!-- four --><p>There</p></div>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
 	func testAfter()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p><p>There</p></div>")
-		let p1: Element = try doc.select("p").first()!
-		try p1.after("<div>one</div><div>two</div>")
-		XCTAssertEqual("<div><p>Hello</p><div>one</div><div>two</div><p>There</p></div>", try TextUtil.stripNewlines(doc.body()!.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p><p>There</p></div>")!
+		let p1: HTMLElement = doc.select(cssQuery: "p").first!
+		try p1.insertHTMLAsNextSibling("<div>one</div><div>two</div>")
+		XCTAssertEqual("<div><p>Hello</p><div>one</div><div>two</div><p>There</p></div>", TextUtil.stripNewlines(doc.body!.html!))
 
-		try doc.select("p").last()?.after("<p>Three</p><!-- four -->")
-		XCTAssertEqual("<div><p>Hello</p><div>one</div><div>two</div><p>There</p><p>Three</p><!-- four --></div>", TextUtil.stripNewlines(try doc.body()!.html()))
+		try doc.select(cssQuery: "p").last?.insertHTMLAsNextSibling("<p>Three</p><!-- four -->")
+		XCTAssertEqual("<div><p>Hello</p><div>one</div><div>two</div><p>There</p><p>Three</p><!-- four --></div>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
 	func testWrapWithRemainder()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p></div>")
-		let p: Element = try doc.select("p").first()!
-		try p.wrap("<div class='head'></div><p>There!</p>")
-		XCTAssertEqual("<div><div class=\"head\"><p>Hello</p><p>There!</p></div></div>", TextUtil.stripNewlines(try doc.body()!.html()))
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p></div>")!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
+		try p.wrap(html: "<div class='head'></div><p>There!</p>")
+		XCTAssertEqual("<div><div class=\"head\"><p>Hello</p><p>There!</p></div></div>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
 	func testHasText()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>Hello</p><p></p></div>")
-		let div: Element = try doc.select("div").first()!
-		let ps: Elements = try doc.select("p")
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>Hello</p><p></p></div>")!
+		let div: HTMLElement = doc.select(cssQuery: "div").first!
+		let ps: HTMLElements = doc.select(cssQuery: "p")
 
-		XCTAssertTrue(div.hasText())
-		XCTAssertTrue(ps.first()!.hasText())
-		XCTAssertFalse(ps.last()!.hasText())
+		XCTAssertTrue(div.hasText)
+		XCTAssertTrue(ps.first!.hasText)
+		XCTAssertFalse(ps.last!.hasText)
 	}
 
 	//todo:datase is a simple dictionary but in java it's different
 	func testDataset()throws {
-//		let doc: Document = try Jsoup.parse("<div id=1 data-name=jsoup class=new data-package=jar>Hello</div><p id=2>Hello</p>");
-//		let div: Element = try doc.select("div").first()!;
+//		let doc: HTMLDocument = try Jsoup.parse("<div id=1 data-name=jsoup class=new data-package=jar>Hello</div><p id=2>Hello</p>");
+//		let div: HTMLElement = try doc.select("div").first!;
 //		var dataset = div.dataset();
 //		let attributes: Attributes = div.getAttributes()!;
 //		
@@ -561,7 +561,7 @@ class ElementTest: XCTestCase {
 //		dataset.removeValue(forKey: "package")
 //		
 //		XCTAssertEqual(2, dataset.count);
-//		XCTAssertEqual(4, attributes.size());
+//		XCTAssertEqual(4, attributes.count);
 //		XCTAssertEqual("jsoup updated", try attributes.get(key: "data-name"));
 //		XCTAssertEqual("jsoup updated", dataset["name"]);
 //		XCTAssertEqual("java", try attributes.get(key: "data-language"));
@@ -574,50 +574,50 @@ class ElementTest: XCTestCase {
 //		try attributes.put("data-", "empty");
 //		XCTAssertEqual(nil, dataset[""]); // data- is not a data attribute
 //		
-//		let p: Element = try doc.select("p").first()!;
+//		let p: HTMLElement = try doc.select("p").first!;
 //		XCTAssertEqual(0, p.dataset().count);
 
 	}
 
 	func testpParentlessToString()throws {
-		let doc: Document = try SwiftSoup.parse("<img src='foo'>")
-		let img: Element = try doc.select("img").first()!
-		XCTAssertEqual("<img src=\"foo\">", try img.outerHtml())
+		let doc: HTMLDocument = HTMLParser.parse("<img src='foo'>")!
+		let img: HTMLElement = doc.select(cssQuery: "img").first!
+		XCTAssertEqual("<img src=\"foo\">", img.outerHTML)
 
-		try img.remove() // lost its parent
-		XCTAssertEqual("<img src=\"foo\">", try img.outerHtml())
+        img.remove() // lost its parent
+		XCTAssertEqual("<img src=\"foo\">", img.outerHTML)
 	}
 
 	func testClone()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>One<p><span>Two</div>")
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>One<p><span>Two</div>")!
 
-		let p: Element = try doc.select("p").get(1)
-		let clone: Element = p.copy() as! Element
+		let p: HTMLElement = doc.select(cssQuery: "p").getElement(at: 1)!
+		let clone: HTMLElement = p.copy() as! HTMLElement
 
-		XCTAssertNil(clone.parent()) // should be orphaned
+		XCTAssertNil(clone.parent) // should be orphaned
 		XCTAssertEqual(0, clone.siblingIndex)
 		XCTAssertEqual(1, p.siblingIndex)
-		XCTAssertNotNil(p.parent())
+		XCTAssertNotNil(p.parent)
 
-		try clone.append("<span>Three")
-		XCTAssertEqual("<p><span>Two</span><span>Three</span></p>", try TextUtil.stripNewlines(clone.outerHtml()))
-		XCTAssertEqual("<div><p>One</p><p><span>Two</span></p></div>", try TextUtil.stripNewlines(doc.body()!.html())) // not modified
+        try clone.appendHTML("<span>Three")
+		XCTAssertEqual("<p><span>Two</span><span>Three</span></p>", TextUtil.stripNewlines(clone.outerHTML!))
+		XCTAssertEqual("<div><p>One</p><p><span>Two</span></p></div>", TextUtil.stripNewlines(doc.body!.html!)) // not modified
 
-		try doc.body()?.appendChild(clone) // adopt
-		XCTAssertNotNil(clone.parent())
-		XCTAssertEqual("<div><p>One</p><p><span>Two</span></p></div><p><span>Two</span><span>Three</span></p>", try TextUtil.stripNewlines(doc.body()!.html()))
+        doc.body?.appendChild(clone) // adopt
+		XCTAssertNotNil(clone.parent)
+		XCTAssertEqual("<div><p>One</p><p><span>Two</span></p></div><p><span>Two</span><span>Three</span></p>", TextUtil.stripNewlines(doc.body!.html!))
 	}
 
 	func testClonesClassnames()throws {
-		let doc: Document = try SwiftSoup.parse("<div class='one two'></div>")
-		let div: Element = try doc.select("div").first()!
-		let classes = try div.classNames()
+		let doc: HTMLDocument = HTMLParser.parse("<div class='one two'></div>")!
+		let div: HTMLElement = doc.select(cssQuery: "div").first!
+		let classes = div.classNames
 		XCTAssertEqual(2, classes.count)
 		XCTAssertTrue(classes.contains("one"))
 		XCTAssertTrue(classes.contains("two"))
 
-		let copy: Element = div.copy() as! Element
-		let copyClasses: OrderedSet<String> = try copy.classNames()
+		let copy: HTMLElement = div.copy() as! HTMLElement
+		let copyClasses: OrderedSet<String> = copy.classNames
 		XCTAssertEqual(2, copyClasses.count)
 		XCTAssertTrue(copyClasses.contains("one"))
 		XCTAssertTrue(copyClasses.contains("two"))
@@ -629,210 +629,188 @@ class ElementTest: XCTestCase {
 		XCTAssertFalse(copyClasses.contains("one"))
 		XCTAssertTrue(copyClasses.contains("three"))
 
-		XCTAssertEqual("", try div.html())
-		XCTAssertEqual("", try copy.html())
+		XCTAssertEqual("", div.html)
+		XCTAssertEqual("", copy.html)
 	}
 
 	func testTagNameSet()throws {
-		let doc: Document = try SwiftSoup.parse("<div><i>Hello</i>")
-		try doc.select("i").first()!.tagName("em")
-		XCTAssertEqual(0, try doc.select("i").size())
-		XCTAssertEqual(1, try doc.select("em").size())
-		XCTAssertEqual("<em>Hello</em>", try doc.select("div").first()!.html())
-	}
-
-	func testHtmlContainsOuter()throws {
-		let doc: Document = try SwiftSoup.parse("<title>Check</title> <div>Hello there</div>")
-		doc.outputSettings().indentAmount(indentAmount: 0)
-		XCTAssertTrue(try doc.html().contains(doc.select("title").outerHtml()))
-		XCTAssertTrue(try doc.html().contains(doc.select("div").outerHtml()))
+		let doc: HTMLDocument = HTMLParser.parse("<div><i>Hello</i>")!
+		try doc.select(cssQuery: "i").first!.setTagName("em")
+		XCTAssertEqual(0, doc.select(cssQuery: "i").count)
+		XCTAssertEqual(1, doc.select(cssQuery: "em").count)
+		XCTAssertEqual("<em>Hello</em>", doc.select(cssQuery: "div").first!.html)
 	}
 
 	func testGetTextNodes()throws {
-		let doc: Document = try SwiftSoup.parse("<p>One <span>Two</span> Three <br> Four</p>")
-		let textNodes: Array<TextNode> = try doc.select("p").first()!.textNodes()
+		let doc: HTMLDocument = HTMLParser.parse("<p>One <span>Two</span> Three <br> Four</p>")!
+		let textNodes: Array<TextNode> = doc.select(cssQuery: "p").first!.textNodes
 
 		XCTAssertEqual(3, textNodes.count)
 		XCTAssertEqual("One ", textNodes[0].text())
 		XCTAssertEqual(" Three ", textNodes[1].text())
 		XCTAssertEqual(" Four", textNodes[2].text())
 
-		XCTAssertEqual(0, try doc.select("br").first()!.textNodes().count)
+		XCTAssertEqual(0, doc.select(cssQuery: "br").first!.textNodes.count)
 	}
 
 	func testManipulateTextNodes()throws {
-		let doc: Document = try SwiftSoup.parse("<p>One <span>Two</span> Three <br> Four</p>")
-		let p: Element = try doc.select("p").first()!
-		let textNodes: Array<TextNode> = p.textNodes()
+		let doc: HTMLDocument = HTMLParser.parse("<p>One <span>Two</span> Three <br> Four</p>")!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
+		let textNodes: Array<TextNode> = p.textNodes
 
 		textNodes[1].text(" three-more ")
 		try textNodes[2].splitText(3).text("-ur")
 
-		XCTAssertEqual("One Two three-more Fo-ur", try p.text())
-		XCTAssertEqual("One three-more Fo-ur", p.ownText())
-		XCTAssertEqual(4, p.textNodes().count) // grew because of split
+		XCTAssertEqual("One Two three-more Fo-ur", p.getText())
+		XCTAssertEqual("One three-more Fo-ur", p.ownText)
+		XCTAssertEqual(4, p.textNodes.count) // grew because of split
 	}
 
 	func testGetDataNodes()throws {
-		let doc: Document = try SwiftSoup.parse("<script>One Two</script> <style>Three Four</style> <p>Fix Six</p>")
-		let script: Element = try doc.select("script").first()!
-		let style: Element = try doc.select("style").first()!
-		let p: Element = try doc.select("p").first()!
+		let doc: HTMLDocument = HTMLParser.parse("<script>One Two</script> <style>Three Four</style> <p>Fix Six</p>")!
+		let script: HTMLElement = doc.select(cssQuery: "script").first!
+		let style: HTMLElement = doc.select(cssQuery: "style").first!
+		let p: HTMLElement = doc.select(cssQuery: "p").first!
 
-		let scriptData: Array<DataNode> = script.dataNodes()
+		let scriptData: Array<DataNode> = script.dataNodes
 		XCTAssertEqual(1, scriptData.count)
 		XCTAssertEqual("One Two", scriptData[0].getWholeData())
 
-		let styleData: Array<DataNode> = style.dataNodes()
+		let styleData: Array<DataNode> = style.dataNodes
 		XCTAssertEqual(1, styleData.count)
 		XCTAssertEqual("Three Four", styleData[0].getWholeData())
 
-		let pData: Array<DataNode> = p.dataNodes()
+		let pData: Array<DataNode> = p.dataNodes
 		XCTAssertEqual(0, pData.count)
 	}
 
 	func testElementIsNotASiblingOfItself()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>One<p>Two<p>Three</div>")
-		let p2: Element = try doc.select("p").get(1)
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>One<p>Two<p>Three</div>")!
+		let p2: HTMLElement = doc.select(cssQuery: "p").getElement(at: 1)!
 
-		XCTAssertEqual("Two", try p2.text())
-		let els: Elements = p2.siblingElements()
-		XCTAssertEqual(2, els.size())
-		XCTAssertEqual("<p>One</p>", try els.get(0).outerHtml())
-		XCTAssertEqual("<p>Three</p>", try els.get(1).outerHtml())
+		XCTAssertEqual("Two", p2.getText())
+		let els: HTMLElements = p2.siblingElements
+		XCTAssertEqual(2, els.count)
+		XCTAssertEqual("<p>One</p>", els.getElement(at: 0)!.outerHTML)
+		XCTAssertEqual("<p>Three</p>", els.getElement(at: 1)!.outerHTML)
 	}
 
 	func testChildThrowsIndexOutOfBoundsOnMissing()throws {
-		let doc: Document = try SwiftSoup.parse("<div><p>One</p><p>Two</p></div>")
-		let div: Element = try doc.select("div").first()!
+		let doc: HTMLDocument = HTMLParser.parse("<div><p>One</p><p>Two</p></div>")!
+		let div: HTMLElement = doc.select(cssQuery: "div").first!
 
-		XCTAssertEqual(2, div.children().size())
-		XCTAssertEqual("One", try div.child(0).text())
+		XCTAssertEqual(2, div.children.count)
+		XCTAssertEqual("One", div.getChild(at: 0)?.text)
 	}
 
 	func testMoveByAppend()throws {
 		// can empty an element and append its children to another element
-		let doc: Document = try SwiftSoup.parse("<div id=1>Text <p>One</p> Text <p>Two</p></div><div id=2></div>")
-		let div1: Element = try doc.select("div").get(0)
-		let div2: Element = try doc.select("div").get(1)
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1>Text <p>One</p> Text <p>Two</p></div><div id=2></div>")!
+		let div1: HTMLElement = doc.select(cssQuery: "div").getElement(at: 0)!
+		let div2: HTMLElement = doc.select(cssQuery: "div").getElement(at: 1)!
 
-		XCTAssertEqual(4, div1.childNodeSize())
-		var children: Array<Node> = div1.getChildNodes()
+		XCTAssertEqual(4, div1.childNodes.count)
+		var children: Array<Node> = div1.childNodes
 		XCTAssertEqual(4, children.count)
 
-		try div2.insertChildren(0, children)
+        div2.insertChildren(children, at: 0)
 
-		children = div1.getChildNodes()
+		children = div1.childNodes
 		XCTAssertEqual(0, children.count) // children is backed by div1.childNodes, moved, so should be 0 now
-		XCTAssertEqual(0, div1.childNodeSize())
-		XCTAssertEqual(4, div2.childNodeSize())
-		XCTAssertEqual("<div id=\"1\"></div>\n<div id=\"2\">\n Text \n <p>One</p> Text \n <p>Two</p>\n</div>", try doc.body()!.html())
-	}
-
-	func testInsertChildrenArgumentValidation()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1>Text <p>One</p> Text <p>Two</p></div><div id=2></div>")
-		let div1: Element = try doc.select("div").get(0)
-		let div2: Element = try doc.select("div").get(1)
-		let children: Array<Node> = div1.getChildNodes()
-
-		do {
-			try div2.insertChildren(6, children)
-			XCTAssertEqual(0, 1)
-		} catch {}
-
-		do {
-			try div2.insertChildren(-5, children)
-			XCTAssertEqual(0, 1)
-		} catch {
-		}
+		XCTAssertEqual(0, div1.childNodes.count)
+		XCTAssertEqual(4, div2.childNodes.count)
+		XCTAssertEqual("<div id=\"1\"></div>\n<div id=\"2\">\n Text \n <p>One</p> Text \n <p>Two</p>\n</div>", doc.body!.html)
 	}
 
 	func testInsertChildrenAtPosition()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1>Text1 <p>One</p> Text2 <p>Two</p></div><div id=2>Text3 <p>Three</p></div>")
-		let div1: Element = try doc.select("div").get(0)
-		let p1s: Elements = try div1.select("p")
-		let div2: Element = try doc.select("div").get(1)
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1>Text1 <p>One</p> Text2 <p>Two</p></div><div id=2>Text3 <p>Three</p></div>")!
+		let div1: HTMLElement = doc.select(cssQuery: "div").getElement(at: 0)!
+		let p1s: HTMLElements = div1.select(cssQuery: "p")
+		let div2: HTMLElement = doc.select(cssQuery: "div").getElement(at: 1)!
 
-		XCTAssertEqual(2, div2.childNodeSize())
-		try div2.insertChildren(-1, p1s.array())
-		XCTAssertEqual(2, div1.childNodeSize()) // moved two out
-		XCTAssertEqual(4, div2.childNodeSize())
-		XCTAssertEqual(3, p1s.get(1).siblingIndex) // should be last
+		XCTAssertEqual(2, div2.childNodes.count)
+		div2.insertChildren(p1s.toArray(), at: 0)
+		XCTAssertEqual(2, div1.childNodes.count) // moved two out
+		XCTAssertEqual(4, div2.childNodes.count)
+		XCTAssertEqual(1, p1s.getElement(at: 1)!.siblingIndex) // should be last
 
 		var els: Array<Node> = Array<Node>()
-		let el1: Element = try Element(Tag.valueOf("span"), "").text("Span1")
-		let el2: Element = try Element(Tag.valueOf("span"), "").text("Span2")
+        let el1: HTMLElement = try HTMLElement(tag: Tag.valueOf("span"), baseURI: "").setText("Span1")
+        let el2: HTMLElement = try HTMLElement(tag: Tag.valueOf("span"), baseURI: "").setText("Span2")
 		let tn1: TextNode = TextNode("Text4", "")
 		els.append(el1)
 		els.append(el2)
 		els.append(tn1)
 
-		XCTAssertNil(el1.parent())
-		try div2.insertChildren(-2, els)
-		XCTAssertEqual(div2, el1.parent())
-		XCTAssertEqual(7, div2.childNodeSize())
-		XCTAssertEqual(3, el1.siblingIndex)
-		XCTAssertEqual(4, el2.siblingIndex)
-		XCTAssertEqual(5, tn1.siblingIndex)
+		XCTAssertNil(el1.parent)
+        div2.insertChildren(els, at: 4)
+		XCTAssertEqual(div2, el1.parent)
+		XCTAssertEqual(7, div2.childNodes.count)
+		XCTAssertEqual(4, el1.siblingIndex)
+		XCTAssertEqual(5, el2.siblingIndex)
+		XCTAssertEqual(6, tn1.siblingIndex)
 	}
 
 	func testInsertChildrenAsCopy()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=1>Text <p>One</p> Text <p>Two</p></div><div id=2></div>")
-		let div1: Element = try doc.select("div").get(0)
-		let div2: Element = try doc.select("div").get(1)
-		let ps: Elements = try doc.select("p").copy() as! Elements
-		try ps.first()!.text("One cloned")
-		try div2.insertChildren(-1, ps.array())
+		let doc: HTMLDocument = HTMLParser.parse("<div id=1>Text <p>One</p> Text <p>Two</p></div><div id=2></div>")!
+		let div1: HTMLElement = doc.select(cssQuery: "div").getElement(at: 0)!
+		let div2: HTMLElement = doc.select(cssQuery: "div").getElement(at: 1)!
+		let ps: HTMLElements = doc.select(cssQuery: "p").copy() as! HTMLElements
+		ps.first!.setText("One cloned")
+		div2.insertChildren(ps.toArray(), at: 0)
 
-		XCTAssertEqual(4, div1.childNodeSize()) // not moved -- cloned
-		XCTAssertEqual(2, div2.childNodeSize())
+		XCTAssertEqual(4, div1.childNodes.count) // not moved -- cloned
+		XCTAssertEqual(2, div2.childNodes.count)
 		XCTAssertEqual("<div id=\"1\">Text <p>One</p> Text <p>Two</p></div><div id=\"2\"><p>One cloned</p><p>Two</p></div>",
-		             try TextUtil.stripNewlines(doc.body()!.html()))
+                       TextUtil.stripNewlines(doc.body!.html!))
 	}
 
 	func testCssPath()throws {
-		let doc: Document = try SwiftSoup.parse("<div id=\"id1\">A</div><div>B</div><div class=\"c1 c2\">C</div>")
-		let divA: Element = try doc.select("div").get(0)
-		let divB: Element = try doc.select("div").get(1)
-		let divC: Element = try doc.select("div").get(2)
-		XCTAssertEqual(try divA.cssSelector(), "#id1")
-		XCTAssertEqual(try divB.cssSelector(), "html > body > div:nth-child(2)")
-		XCTAssertEqual(try divC.cssSelector(), "html > body > div.c1.c2")
+		let doc: HTMLDocument = HTMLParser.parse("<div id=\"id1\">A</div><div>B</div><div class=\"c1 c2\">C</div>")!
+		let divA: HTMLElement = doc.select(cssQuery: "div").getElement(at: 0)!
+		let divB: HTMLElement = doc.select(cssQuery: "div").getElement(at: 1)!
+		let divC: HTMLElement = doc.select(cssQuery: "div").getElement(at: 2)!
+		XCTAssertEqual(divA.cssSelector, "#id1")
+		XCTAssertEqual(divB.cssSelector, "html > body > div:nth-child(2)")
+		XCTAssertEqual(divC.cssSelector, "html > body > div.c1.c2")
 
-		XCTAssertTrue(try divA == doc.select(divA.cssSelector()).first())
-		XCTAssertTrue(try divB == doc.select(divB.cssSelector()).first())
-		XCTAssertTrue(try divC == doc.select(divC.cssSelector()).first())
+		XCTAssertTrue(divA == doc.select(cssQuery: divA.cssSelector).first)
+		XCTAssertTrue(divB == doc.select(cssQuery: divB.cssSelector).first)
+		XCTAssertTrue(divC == doc.select(cssQuery: divC.cssSelector).first)
 	}
 
 	func testClassNames()throws {
-		let doc: Document = try SwiftSoup.parse("<div class=\"c1 c2\">C</div>")
-		let div: Element = try doc.select("div").get(0)
+		let doc: HTMLDocument = HTMLParser.parse("<div class=\"c1 c2\">C</div>")!
+		let div: HTMLElement = doc.select(cssQuery: "div").getElement(at: 0)!
 
-		XCTAssertEqual("c1 c2", try div.className())
+		XCTAssertEqual("c1 c2", div.className)
 
-		let set1 = try div.classNames()
+		let set1 = div.classNames
 		let arr1 = set1
 		XCTAssertTrue(arr1.count==2)
 		XCTAssertEqual("c1", arr1[0])
 		XCTAssertEqual("c2", arr1[1])
 
-		// Changes to the set should not be reflected in the Elements getters
+		// Changes to the set should not be reflected in the HTMLElements getters
 		set1.append("c3")
-		XCTAssertTrue(try 2==div.classNames().count)
-		XCTAssertEqual("c1 c2", try div.className())
+		XCTAssertTrue(2==div.classNames.count)
+		XCTAssertEqual("c1 c2", div.className)
 
 		// Update the class names to a fresh set
 		let newSet = OrderedSet<String>()
 		newSet.append(contentsOf: set1)
 		//newSet["c3"] //todo: nabil not a set , add == append but not change exists c3
 
-		try div.classNames(newSet)
+        div.setClass(names: newSet)
 
-		XCTAssertEqual("c1 c2 c3", try div.className())
+		XCTAssertEqual("c1 c2 c3", div.className)
 
-		let set2 = try div.classNames()
+		let set2 = div.classNames
 		let arr2 = set2
-		XCTAssertTrue(arr2.count==3)
+        guard arr2.count == 3 else {
+            XCTFail("Wrong number of elements")
+            return
+        }
 		XCTAssertEqual("c1", arr2[0])
 		XCTAssertEqual("c2", arr2[1])
 		XCTAssertEqual("c3", arr2[2])
@@ -844,12 +822,12 @@ class ElementTest: XCTestCase {
 		let doc1 = "<div id=1><p class=one>One</p><p class=one>One</p><p class=one>Two</p><p class=two>One</p></div>" +
 		"<div id=2><p class=one>One</p><p class=one>One</p><p class=one>Two</p><p class=two>One</p></div>"
 
-		let doc: Document = try SwiftSoup.parse(doc1)
-		let els: Elements = try doc.select("p")
+		let doc: HTMLDocument = HTMLParser.parse(doc1)!
+		let els: HTMLElements = doc.select(cssQuery: "p")
 
 		/*
-		for (Element el : els) {
-		System.out.println(el.hashCode() + " - " + el.outerHtml());
+		for (HTMLElement el : els) {
+		System.out.println(el.hashCode() + " - " + el.outerHTML);
 		}
 		
 		0 1534787905 - <p class="one">One</p>
@@ -861,25 +839,25 @@ class ElementTest: XCTestCase {
 		6 1539683239 - <p class="one">Two</p>
 		7 1535455211 - <p class="two">One</p>
 		*/
-		XCTAssertEqual(8, els.size())
-		let e0: Element = els.get(0)
-		let e1: Element = els.get(1)
-		let e2: Element = els.get(2)
-		let e3: Element = els.get(3)
-		let e4: Element = els.get(4)
-		let e5: Element = els.get(5)
-		let e6: Element = els.get(6)
-		let e7: Element = els.get(7)
+		XCTAssertEqual(8, els.count)
+		let e0: HTMLElement = els.getElement(at: 0)!
+		let e1: HTMLElement = els.getElement(at: 1)!
+		let e2: HTMLElement = els.getElement(at: 2)!
+		let e3: HTMLElement = els.getElement(at: 3)!
+		let e4: HTMLElement = els.getElement(at: 4)!
+		let e5: HTMLElement = els.getElement(at: 5)!
+		let e6: HTMLElement = els.getElement(at: 6)!
+		let e7: HTMLElement = els.getElement(at: 7)!
 
 		XCTAssertEqual(e0, e0)
-		XCTAssertTrue(try e0.hasSameValue(e1))
-		XCTAssertTrue(try e0.hasSameValue(e4))
-		XCTAssertTrue(try e0.hasSameValue(e5))
+		XCTAssertTrue(e0.hasSameValue(e1))
+		XCTAssertTrue(e0.hasSameValue(e4))
+		XCTAssertTrue(e0.hasSameValue(e5))
 		XCTAssertFalse(e0.equals(e2))
-		XCTAssertFalse(try e0.hasSameValue(e2))
-		XCTAssertFalse(try e0.hasSameValue(e3))
-		XCTAssertFalse(try e0.hasSameValue(e6))
-		XCTAssertFalse(try e0.hasSameValue(e7))
+		XCTAssertFalse(e0.hasSameValue(e2))
+		XCTAssertFalse(e0.hasSameValue(e3))
+		XCTAssertFalse(e0.hasSameValue(e6))
+		XCTAssertFalse(e0.hasSameValue(e7))
 
 		XCTAssertEqual(e0.hashValue, e0.hashValue)
 		XCTAssertFalse(e0.hashValue == (e2.hashValue))
@@ -890,86 +868,86 @@ class ElementTest: XCTestCase {
 
 	func testRelativeUrls()throws {
 		let html = "<body><a href='./one.html'>One</a> <a href='two.html'>two</a> <a href='../three.html'>Three</a> <a href='//example2.com/four/'>Four</a> <a href='https://example2.com/five/'>Five</a>"
-		let doc: Document = try SwiftSoup.parse(html, "http://example.com/bar/")
-		let els: Elements = try doc.select("a")
+        let doc: HTMLDocument = HTMLParser.parse(html, baseURI: "http://example.com/bar/")!
+		let els: HTMLElements = doc.select(cssQuery: "a")
 
-		XCTAssertEqual("http://example.com/bar/one.html", try els.get(0).absUrl("href"))
-		XCTAssertEqual("http://example.com/bar/two.html", try els.get(1).absUrl("href"))
-		XCTAssertEqual("http://example.com/three.html", try els.get(2).absUrl("href"))
-		XCTAssertEqual("http://example2.com/four/", try els.get(3).absUrl("href"))
-		XCTAssertEqual("https://example2.com/five/", try els.get(4).absUrl("href"))
+		XCTAssertEqual("http://example.com/bar/one.html", els.getElement(at: 0)!.absoluteURLPath(ofAttribute: "href"))
+        XCTAssertEqual("http://example.com/bar/two.html", els.getElement(at: 1)!.absoluteURLPath(ofAttribute: "href"))
+        XCTAssertEqual("http://example.com/three.html", els.getElement(at: 2)!.absoluteURLPath(ofAttribute: "href"))
+        XCTAssertEqual("http://example2.com/four/", els.getElement(at: 3)!.absoluteURLPath(ofAttribute: "href"))
+        XCTAssertEqual("https://example2.com/five/", els.getElement(at: 4)!.absoluteURLPath(ofAttribute: "href"))
 	}
 
 	func testAppendMustCorrectlyMoveChildrenInsideOneParentElement()throws {
-		let doc: Document = Document("")
-		let body: Element = try doc.appendElement("body")
-		try body.appendElement("div1")
-		try body.appendElement("div2")
-		let div3: Element = try body.appendElement("div3")
-		try div3.text("Check")
-		let div4: Element = try body.appendElement("div4")
+		let doc: HTMLDocument = HTMLDocument(baseURI: "")
+		let body: HTMLElement = try doc.appendElement(tagName: "body")
+		try body.appendElement(tagName: "div1")
+		try body.appendElement(tagName: "div2")
+		let div3: HTMLElement = try body.appendElement(tagName: "div3")
+		div3.setText("Check")
+		let div4: HTMLElement = try body.appendElement(tagName: "div4")
 
-		var toMove: Array<Element> = Array<Element>()
+		var toMove: Array<HTMLElement> = Array<HTMLElement>()
 		toMove.append(div3)
 		toMove.append(div4)
 
-		try body.insertChildren(0, toMove)
+		body.insertChildren(toMove, at: 0)
 
-		let result: String = try doc.outerHtml().replaceAll(of: "\\s+", with: "")
+		let result: String = doc.outerHTML!.replaceAll(of: "\\s+", with: "")
 		XCTAssertEqual("<body><div3>Check</div3><div4></div4><div1></div1><div2></div2></body>", result)
 	}
 
 	func testHashcodeIsStableWithContentChanges()throws {
-		let root: Element = try Element(Tag.valueOf("root"), "")
-		let set = OrderedSet<Element>()
+		let root: HTMLElement = try HTMLElement(tag: Tag.valueOf("root"), baseURI: "")
+		let set = OrderedSet<HTMLElement>()
 		// Add root node:
 		set.append(root)
-		try root.appendChild(Element(Tag.valueOf("a"), ""))
+		try root.appendChild(HTMLElement(tag: Tag.valueOf("a"), baseURI: ""))
 		XCTAssertTrue(set.contains(root))
 	}
 
 	func testNamespacedElements()throws {
 		// Namespaces with ns:tag in HTML must be translated to ns|tag in CSS.
 		let html: String = "<html><body><fb:comments /></body></html>"
-		let doc: Document = try SwiftSoup.parse(html, "http://example.com/bar/")
-		let els: Elements = try doc.select("fb|comments")
-		XCTAssertEqual(1, els.size())
-		XCTAssertEqual("html > body > fb|comments", try els.get(0).cssSelector())
+		let doc: HTMLDocument = HTMLParser.parse(html, baseURI: "http://example.com/bar/")!
+		let els: HTMLElements = doc.select(cssQuery: "fb|comments")
+		XCTAssertEqual(1, els.count)
+		XCTAssertEqual("html > body > fb|comments", els.getElement(at: 0)!.cssSelector)
 	}
 
     func testChainedRemoveAttributes()throws {
         let html = "<a one two three four>Text</a>"
-        let doc = try SwiftSoup.parse(html)
-        let a: Element = try doc.select("a").first()!
-       try a.removeAttr("zero")
-            .removeAttr("one")
-            .removeAttr("two")
-            .removeAttr("three")
-            .removeAttr("four")
-            .removeAttr("five")
-        XCTAssertEqual("<a>Text</a>", try a.outerHtml())
+        let doc = HTMLParser.parse(html)!
+        let a: HTMLElement = doc.select(cssQuery: "a").first!
+       try a.removeAttribute(withKey: "zero")
+            .removeAttribute(withKey: "one")
+            .removeAttribute(withKey: "two")
+            .removeAttribute(withKey: "three")
+            .removeAttribute(withKey: "four")
+            .removeAttribute(withKey: "five")
+        XCTAssertEqual("<a>Text</a>", a.outerHTML)
     }
 
     func testIs()throws {
         let html = "<div><p>One <a class=big>Two</a> Three</p><p>Another</p>"
-        let doc: Document = try SwiftSoup.parse(html)
-        let p: Element = try doc.select("p").first()!
+        let doc: HTMLDocument = HTMLParser.parse(html)!
+        let p: HTMLElement = doc.select(cssQuery: "p").first!
 
-        try XCTAssertTrue(p.iS("p"))
-        try XCTAssertFalse(p.iS("div"))
-        try XCTAssertTrue(p.iS("p:has(a)"))
-        try XCTAssertTrue(p.iS("p:first-child"))
-        try XCTAssertFalse(p.iS("p:last-child"))
-        try XCTAssertTrue(p.iS("*"))
-        try XCTAssertTrue(p.iS("div p"))
+        XCTAssertTrue(p.isMatchedWith(cssQuery: "p"))
+        XCTAssertFalse(p.isMatchedWith(cssQuery: "div"))
+        XCTAssertTrue(p.isMatchedWith(cssQuery: "p:has(a)"))
+        XCTAssertTrue(p.isMatchedWith(cssQuery: "p:first-child"))
+        XCTAssertFalse(p.isMatchedWith(cssQuery: "p:last-child"))
+        XCTAssertTrue(p.isMatchedWith(cssQuery: "*"))
+        XCTAssertTrue(p.isMatchedWith(cssQuery: "div p"))
 
-        let q: Element = try doc.select("p").last()!
-        try XCTAssertTrue(q.iS("p"))
-        try XCTAssertTrue(q.iS("p ~ p"))
-        try XCTAssertTrue(q.iS("p + p"))
-        try XCTAssertTrue(q.iS("p:last-child"))
-        try XCTAssertFalse(q.iS("p a"))
-        try XCTAssertFalse(q.iS("a"))
+        let q: HTMLElement = doc.select(cssQuery: "p").last!
+        XCTAssertTrue(q.isMatchedWith(cssQuery: "p"))
+        XCTAssertTrue(q.isMatchedWith(cssQuery: "p ~ p"))
+        XCTAssertTrue(q.isMatchedWith(cssQuery: "p + p"))
+        XCTAssertTrue(q.isMatchedWith(cssQuery: "p:last-child"))
+        XCTAssertFalse(q.isMatchedWith(cssQuery: "p a"))
+        XCTAssertFalse(q.isMatchedWith(cssQuery: "a"))
     }
 
 	static var allTests = {
@@ -985,8 +963,8 @@ class ElementTest: XCTestCase {
 			("testKeepsPreTextInCode", testKeepsPreTextInCode),
 			("testBrHasSpace", testBrHasSpace),
 			("testGetSiblings", testGetSiblings),
-			("testGetSiblingsWithDuplicateContent", testGetSiblingsWithDuplicateContent),
-			("testGetParents", testGetParents),
+            ("testGetSiblingsWithDuplicateContent", testGetSiblingsWithDuplicateContent),
+			("testGetAncestors", testGetAncestors),
 			("testElementSiblingIndex", testElementSiblingIndex),
 			("testElementSiblingIndexSameContent", testElementSiblingIndexSameContent),
 			("testGetElementsWithClass", testGetElementsWithClass),
@@ -1027,14 +1005,12 @@ class ElementTest: XCTestCase {
 			("testClone", testClone),
 			("testClonesClassnames", testClonesClassnames),
 			("testTagNameSet", testTagNameSet),
-			("testHtmlContainsOuter", testHtmlContainsOuter),
 			("testGetTextNodes", testGetTextNodes),
 			("testManipulateTextNodes", testManipulateTextNodes),
 			("testGetDataNodes", testGetDataNodes),
 			("testElementIsNotASiblingOfItself", testElementIsNotASiblingOfItself),
 			("testChildThrowsIndexOutOfBoundsOnMissing", testChildThrowsIndexOutOfBoundsOnMissing),
 			("testMoveByAppend", testMoveByAppend),
-			("testInsertChildrenArgumentValidation", testInsertChildrenArgumentValidation),
 			("testInsertChildrenAtPosition", testInsertChildrenAtPosition),
 			("testInsertChildrenAsCopy", testInsertChildrenAsCopy),
 			("testCssPath", testCssPath),

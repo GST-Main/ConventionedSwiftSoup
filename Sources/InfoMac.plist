@@ -18,8 +18,6 @@
 	<string>1.5.8</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2016 Nabil Chatbi (scinfu). All rights reserved</string>
 	<key>NSPrincipalClass</key>
 	<string></string>
 </dict>

@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import SwiftSoup
+import PrettySwiftSoup
 
 class StringUtilTest: XCTestCase {
 
@@ -23,7 +23,7 @@ class StringUtilTest: XCTestCase {
 //		do {
 //			let html = try String(contentsOf: myURL, encoding: .utf8)
 //			print("HTML : \(html)")
-//			let doc: Document = try SwiftSoup.parse(html)
+//			let doc: HTMLDocument = try SwiftSoup.parse(html)
 //			print(try doc.text())
 //		}
 //		catch {
@@ -99,7 +99,7 @@ class StringUtilTest: XCTestCase {
         let test71540charsExpectedSingleWhitespace = "\\u{d869}\\u{deb2}\\u{304b}\\u{309a} 1"
 
         XCTAssertEqual(test71540charsExpectedSingleWhitespace, StringUtil.normaliseWhitespace(test71540chars))
-        let extractedText = try SwiftSoup.parse(test71540chars).text()
+        let extractedText = HTMLParser.parse(test71540chars)!.getText()
         XCTAssertEqual(test71540charsExpectedSingleWhitespace, extractedText)
     }
 
