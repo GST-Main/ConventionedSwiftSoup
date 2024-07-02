@@ -482,6 +482,7 @@ open class HTMLElement: Node {
     /// - Parameter node: A element to add after this node. This must be an ``HTMLElement`` instance.
     /// - Returns: `self` for chaining.
     /// - Attention: The parameter `node` must be an instance of `HTMLElement`. Even though it's named `node` and the type is `Node`, it will be force-casted in run time.
+    @discardableResult
     open override func insertNodeAsNextSibling(_ node: Node) throws -> HTMLElement {
         return try super.insertNodeAsNextSibling(node) as! HTMLElement
     }
